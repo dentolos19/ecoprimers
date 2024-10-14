@@ -1,6 +1,6 @@
 # App Development Project
 
-Hello world
+Hello, world!
 
 ## 🏢 Mission
 
@@ -23,7 +23,7 @@ Choose one company or industry that your team would like to digitalise their bus
 ### Installation
 
 1. Clone this repository: `git clone https://github.com/dentolos19/appdevproj.git`
-2. Open in VSCode: `code .`
+2. Open the project: `code .`
 3. Run the website: <kbd>F5</kbd>
 
 ## 📜 License

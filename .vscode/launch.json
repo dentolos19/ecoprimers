@@ -2,10 +2,31 @@
   "version": "0.2.0",
   "configurations": [
     {
-      "name": "Start",
-      "type": "PowerShell",
+      "name": "Production",
+      "type": "debugpy",
       "request": "launch",
-      "script": "${workspaceFolder}/scripts/start.ps1"
+      "module": "flask",
+      "args": ["run", "--no-debugger", "--no-reload"],
+      "env": {
+        "FLASK_APP": "src/app.py"
+      },
+      "jinja": true,
+      "autoStartBrowser": true,
+      "preLaunchTask": "setup"
+    },
+    {
+      "name": "Development",
+      "type": "debugpy",
+      "request": "launch",
+      "module": "flask",
+      "args": ["run"],
+      "env": {
+        "FLASK_APP": "src/app.py",
+        "FLASK_DEBUG": "1"
+      },
+      "jinja": true,
+      "autoStartBrowser": true,
+      "preLaunchTask": "setup"
     }
   ]
 }
