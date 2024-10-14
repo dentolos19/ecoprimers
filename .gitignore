@@ -1,0 +1,16 @@
+# IDE configurations
+.vs/
+.idea/
+
+# Environment files
+.venv/
+
+# Output files
+build/
+dist/
+__pycache__/
+
+# Miscellaneous files
+.DS_Store
+Desktop.ini
+Thumbs.db
