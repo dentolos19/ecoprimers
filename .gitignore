@@ -4,6 +4,7 @@
 
 # Environment files
 .venv/
+venv/
 
 # Output files
 build/
