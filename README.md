@@ -24,4 +24,5 @@ Choose one company or industry that your team would like to digitalise their bus
 
 1. Clone this repository: `git clone https://github.com/dentolos19/appdevproj.git`
 2. Open the project: `code .`
-3. Run the website: <kbd>F5</kbd>
+3. When prompted, install the recommended workspace extensions.
+4. Run the project: <kbd>F5</kbd>

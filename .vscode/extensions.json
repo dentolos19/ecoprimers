@@ -1,3 +1,9 @@
 {
-  "recommendations": ["ms-python.python", "wholroyd.jinja", "samuelcolvin.jinjahtml"]
+  "recommendations": [
+    "charliermarsh.ruff",
+    "esbenp.prettier-vscode",
+    "ms-python.python",
+    "samuelcolvin.jinjahtml",
+    "wholroyd.jinja"
+  ]
 }
