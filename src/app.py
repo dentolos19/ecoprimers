@@ -1,14 +1,5 @@
-from flask import Flask, render_template
-
-app = Flask(__name__)
-
-
-@app.route("/")
-@app.route("/home")
-def home_page():
-    return render_template("home.html")
-
+from App import app
 
 if __name__ == "__main__":
-    # Debug mode will be turned on via the launch configuration
+    # Debug mode will be set via the environment variable (FLASK_DEBUG)
     app.run()
