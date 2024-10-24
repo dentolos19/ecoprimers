@@ -8,4 +8,4 @@ from app import app
 @app.route("/")
 @app.route("/home")
 def home():
-    return render_template("home.html.j2")
+    return render_template("home.html")
