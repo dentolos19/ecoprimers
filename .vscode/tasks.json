@@ -3,7 +3,10 @@
   "tasks": [
     {
       "label": "setup",
-      "command": "${workspaceFolder}/scripts/setup.bat"
+      "command": "${workspaceFolder}/setup.bat",
+      "presentation": {
+        "reveal": "silent"
+      }
     }
   ]
 }
