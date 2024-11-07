@@ -1,5 +1,10 @@
-from app import app
+from flask import Flask, render_template
+from flask_sqlalchemy import SQLAlchemy
+app = Flask(__name__)
+@app.route("/")
+@app.route("/home")
+def home():
+    return render_template("home.html")
 
 if __name__ == "__main__":
-    # Debug mode will be set via environment variables (FLASK_DEBUG).
     app.run()
