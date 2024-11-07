@@ -9,3 +9,6 @@ from App import app
 @app.route("/home")
 def home_page():
     return render_template("home.html")
+@app.route("/try1")
+def try_out():
+    return render_template("try1.html")
