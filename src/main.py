@@ -1,3 +1,5 @@
+#the app folder was removed and the code was restructured to help with sqlite implementation
+
 from flask import Flask, render_template
 from flask_sqlalchemy import SQLAlchemy
 app = Flask(__name__)
