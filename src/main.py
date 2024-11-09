@@ -5,10 +5,6 @@ app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///src/users.db"
 app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
 app.config["SECRET_KEY"] = "secret-key"
 db = SQLAlchemy(app)
-@app.route("/")
-@app.route("/home")
-def home():
-    return render_template("home.html")
 
 class User(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -19,6 +15,12 @@ class User(db.Model):
     def __repr__(self):
         return f"User('{self.username}', '{self.email}', '{self.image_file}')"
 
+with app.app_context():
+    db.create_all()
+@app.route("/")
+@app.route("/home")
+def home():
+    return render_template("home.html")
 
 if __name__ == "__main__":
     app.run()
