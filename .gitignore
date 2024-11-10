@@ -6,6 +6,9 @@
 .venv/
 venv/
 
+# User-specific files
+*.db
+
 # Output files
 build/
 dist/
