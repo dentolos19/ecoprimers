@@ -1,6 +1,8 @@
 @import url("https://cdnjs.cloudflare.com/ajax/libs/normalize/8.0.1/normalize.min.css");
 
 body {
+  background-color: #212121 !important;
+  color: white !important;
   width: 100dvw;
   height: 100dvh;
 }
