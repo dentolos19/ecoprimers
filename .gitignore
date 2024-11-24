@@ -8,6 +8,7 @@ venv/
 
 # User-specific files
 *.db
+.env*.local
 
 # Output files
 build/

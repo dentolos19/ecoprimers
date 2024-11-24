@@ -1,14 +1,16 @@
-from flask_sqlalchemy import SQLAlchemy
-
-db = SQLAlchemy()
+from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column
 
 
-class User(db.Model):
+class Base(DeclarativeBase):
+    pass
+
+
+class User(Base):
     # Define the table name
     __tablename__ = "users"
 
     # Define the data of the table
-    id = db.Column(db.Integer, primary_key=True)
-    username = db.Column(db.String(20), unique=True, nullable=False)
-    email = db.Column(db.String(120), unique=True, nullable=False)
-    password = db.Column(db.String(60), nullable=False)
+    id: Mapped[int] = mapped_column(primary_key=True)
+    username: Mapped[str] = mapped_column(unique=True, nullable=False)
+    email: Mapped[str] = mapped_column(unique=True, nullable=False)
+    password: Mapped[str] = mapped_column(nullable=False)
