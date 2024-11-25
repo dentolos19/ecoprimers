@@ -1,10 +1,12 @@
 from flask import Flask
 
+import ai
 import database
 
 app = Flask(__name__)
 
-# Initialize app's database
+# Initialize internal systems
+ai.init()
 database.init(local=False)
 
 # Import routes into the main module

@@ -14,11 +14,13 @@ def init(local: bool = True):
 
     if local:
         # Setup the local database folder
-        DATABASE_PATH = os.path.join(os.getcwd(), "data.db")
-        # Ensure that the directory for the database file exists
-        if not os.path.exists(os.path.dirname(DATABASE_PATH)):
-            os.makedirs(os.path.dirname(DATABASE_PATH))
-        url = "sqlite:///" + DATABASE_PATH
+        database_dir = os.getcwd()
+        database_file = os.path.join(database_dir, "data.db")
+
+        # Ensure that the directory for the database exists
+        if not os.path.exists(database_dir):
+            os.makedirs(database_dir)
+        url = "sqlite:///" + database_file
     else:
         url = f"sqlite+{TURSO_DATABASE_URL}/?authToken={TURSO_AUTH_TOKEN}&secure=true"  # noqa: F821
 
