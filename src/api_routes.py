@@ -1,0 +1,28 @@
+from flask import jsonify, request
+
+from ai import model
+from main import app
+
+
+@app.route("/api/chat", methods=["POST"])
+def api_chat():
+    # Get the data from the request
+    data: dict = request.get_json()
+    prompt: str = data["prompt"]
+    history: list[dict] = data["history"]
+
+    # Build history context
+    ai_request = ""
+    for message in history:
+        role = message["role"]
+        message = message["message"]
+        ai_request += f"{role}: {message}\n"
+
+    # Add the current prompt to the history
+    ai_request += f"user (current prompt): {prompt}\n"
+
+    # Generate a response
+    ai_response = model.generate_content(ai_request)
+    ai_response_text = ai_response.candidates[0].content.parts[0].text.strip()
+
+    return jsonify({"response": ai_response_text})
