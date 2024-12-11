@@ -15,7 +15,7 @@ def api_chat():
     ai_request = ""
     for message in history:
         role = message["role"]
-        message = message["message"]
+        message = message["content"]
         ai_request += f"{role}: {message}\n"
 
     # Add the current prompt to the history
