@@ -29,8 +29,8 @@ def init(local: bool = True):
         engine = create_engine(
             url, connect_args={"check_same_thread": False}, echo=True
         )
-        session = Session(engine)  # noqa: F841
-    except:  # noqa: E722
+        session = Session(engine)
+    except:
         # Uses local database if the remote database is not available
         init(local=True)
     else:
