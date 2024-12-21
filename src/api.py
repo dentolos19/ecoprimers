@@ -11,8 +11,12 @@ def api_chat():
     prompt: str = data["prompt"]
     history: list[dict] = data["history"]
 
+    # Get master prompt
+    with open("src/static/masterprompt.txt", "r") as file:
+        master_prompt = file.read()
+
     # Build history context
-    ai_request = ""
+    ai_request = master_prompt + "\n"
     for message in history:
         role = message["role"]
         message = message["content"]

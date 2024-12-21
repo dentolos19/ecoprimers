@@ -3,7 +3,7 @@ main {
   flex-direction: column;
 }
 
-.messages {
+#messages {
   padding: 8px;
   display: flex;
   flex-grow: 1;
@@ -13,12 +13,16 @@ main {
   scroll-behavior: smooth;
 }
 
-.input {
-  margin: 8px;
+#form {
+  margin: 8px auto;
   display: flex;
   gap: 8px;
 }
 
-.input input {
+#form input {
   flex-grow: 1;
+}
+
+.card-text :last-child {
+  margin-bottom: 0;
 }

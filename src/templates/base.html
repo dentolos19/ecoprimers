@@ -19,11 +19,13 @@
       crossorigin="anonymous"
       referrerpolicy="no-referrer"
     />
+    <script type="module" src="../static/js/base.js"></script>
     {% block scripts %} {% endblock %}
   </head>
   <body>
     <div class="app">
       {% include "navigation.html" %}
+      {% include "toast.html" %}
       {% block body %} {% endblock %}
     </div>
     <script
