@@ -10,8 +10,8 @@ ai.init()
 database.init(local=False)
 
 # Import routes into the main module
-from api import *  # noqa: E402, F403
-from routes import *  # noqa: E402, F403
+from api import *
+from routes import *
 
 if __name__ == "__main__":
     app.run()
