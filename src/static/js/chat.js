@@ -1,11 +1,11 @@
 import { marked } from "https://cdn.jsdelivr.net/npm/marked/lib/marked.esm.js";
+import { toast } from "./base.js";
 
 const messagesElement = document.getElementById("messages");
 const formElement = document.getElementById("form");
 
 const messages = [
   {
-    name: "Customer Service",
     role: "bot",
     content: "Hello! How can I help you today?",
   },
@@ -39,7 +39,8 @@ function renderMessages() {
   messagesElement.innerHTML = "";
 
   // Render messages
-  messages.forEach(({ name, content }) => {
+  messages.forEach(({ role, content }) => {
+    const name = role === "bot" ? "Customer Service" : "You";
     const messageElement = createMessageElement(name, marked.parse(content));
     messagesElement.appendChild(messageElement);
   });
@@ -57,11 +58,16 @@ function sendMessage(event) {
   const entries = Object.fromEntries(data.entries());
   const { content } = entries;
 
+  if (!content) {
+    toast("Error", "Please enter a message!");
+    return;
+  }
+
   // Clear fields
   event.target.reset();
 
   // Add user message to chat
-  messages.push({ name: "User", role: "user", content });
+  messages.push({ role: "user", content });
   renderMessages();
 
   // Send data to server
@@ -89,7 +95,10 @@ function sendMessage(event) {
       const { response } = data;
 
       // Add bot response to chat
-      messages.push({ name: "Customer Service", role: "bot", content: response });
+      messages.push({ role: "bot", content: response });
+    })
+    .catch((error) => {
+      toast("Error", error);
     })
     .finally(() => {
       renderMessages();
