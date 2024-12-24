@@ -1,5 +1,17 @@
-from app import app
+from flask import Flask
+
+import ai
+import database
+
+app = Flask(__name__)
+
+# Initialize internal systems
+ai.init()
+database.init(local=False)
+
+# Import routes into the main module
+from api import *
+from routes import *
 
 if __name__ == "__main__":
-    # Debug mode will be set via environment variables (FLASK_DEBUG).
     app.run()

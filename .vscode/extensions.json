@@ -1,8 +1,0 @@
-{
-  "recommendations": [
-    "charliermarsh.ruff",
-    "ms-python.python",
-    "samuelcolvin.jinjahtml",
-    "wholroyd.jinja"
-  ]
-}
