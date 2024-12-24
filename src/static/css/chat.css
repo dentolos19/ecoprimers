@@ -1,0 +1,28 @@
+main {
+  display: flex;
+  flex-direction: column;
+}
+
+#messages {
+  padding: 8px;
+  display: flex;
+  flex-grow: 1;
+  flex-direction: column;
+  gap: 8px;
+  overflow: auto;
+  scroll-behavior: smooth;
+}
+
+#form {
+  margin: 8px auto;
+  display: flex;
+  gap: 8px;
+}
+
+#form input {
+  flex-grow: 1;
+}
+
+.card-text :last-child {
+  margin-bottom: 0;
+}
