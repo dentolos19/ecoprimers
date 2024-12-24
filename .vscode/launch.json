@@ -10,7 +10,6 @@
       "env": {
         "FLASK_APP": "src/main.py",
       },
-      "jinja": true,
       "autoStartBrowser": true,
       "preLaunchTask": "setup"
     },

@@ -6,6 +6,11 @@
 .venv/
 venv/
 
+# User-specific files
+*.db
+.env*
+!.env*.template
+
 # Output files
 build/
 dist/
