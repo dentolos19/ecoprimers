@@ -4,10 +4,11 @@ import ai
 import database
 
 app = Flask(__name__)
+app_debug = bool(app.config["DEBUG"])
 
 # Initialize internal systems
 ai.init()
-database.init(local=False)
+database.init(local=app_debug)
 
 # Import routes into the main module
 from api import *
