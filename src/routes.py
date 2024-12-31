@@ -34,3 +34,7 @@ def admin_users():
 @app.route("/admin/transactions")
 def admin_transactions():
     return render_template("admin-transactions.html")
+
+@app.route("/community/messages")
+def messaging_page():
+    return render_template("messaging.html")
