@@ -20,3 +20,5 @@ __pycache__/
 .DS_Store
 Desktop.ini
 Thumbs.db
+packages-microsoft-prod.deb 
+# the packages-microsoft-prod file randomly appeared in my WSL build of this project, and it didnt seem important to add so im gitignoring it -ivan
