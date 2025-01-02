@@ -42,6 +42,7 @@ def admin_transactions():
 
 @app.route("/login", methods=["GET", "POST"])
 def login():
+
     # check if user is already logged in
     if 'user_id' in session:
         flash("You're already logged in!", 'error')
@@ -68,6 +69,7 @@ def login():
 # Sign-up route
 @app.route("/signup", methods=["GET", "POST"])
 def signup():
+    
     if request.method == "POST":
         email = request.form['email']
         username = request.form['username']
