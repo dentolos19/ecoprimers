@@ -16,7 +16,7 @@ class User(Base):
     password: Mapped[str] = mapped_column(nullable=False)
 
     bio: Mapped[str] = mapped_column(nullable=False)
-    birthday: Mapped[datetime] = mapped_column(nullable=False)
+    birthday: Mapped[str] = mapped_column(nullable=False)
 
 
 class Event(Base):
