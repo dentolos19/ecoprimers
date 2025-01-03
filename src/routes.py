@@ -27,6 +27,30 @@ def admin():
 
 @app.route("/admin/events", methods=["GET", "POST"])
 def admin_events():
+    # Query all events from the database
+    events = db_session.query(Event).all()
+
+    if request.method == "POST" and request.form.get("delete_event"):
+        # Handle deletion of event
+        event_id = request.form['delete_event']
+        event_to_delete = db_session.query(Event).filter_by(id=event_id).first()
+
+        if event_to_delete:
+            try:
+                db_session.delete(event_to_delete)
+                db_session.commit()
+                flash("Event deleted successfully!", 'success')
+            except Exception as e:
+                db_session.rollback()  # Rollback in case of error
+                flash(f"An error occurred while deleting the event: {str(e)}", 'error')
+
+        return redirect(url_for('admin_events'))
+
+    return render_template("admin-events.html", events=events)
+
+
+@app.route("/admin/add/events", methods=["GET", "POST"])
+def add_events():
     if request.method == "POST":
         # Collect data from the form
         event_name = request.form['eventName']
@@ -52,8 +76,8 @@ def admin_events():
             flash(f"An error occurred while adding the event: {str(e)}", 'error')
 
         return redirect(url_for('admin_events'))
-
-    return render_template("admin-events.html")
+    
+    return render_template("add-events.html")
 
 
 @app.route("/admin/users")
