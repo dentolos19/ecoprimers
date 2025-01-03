@@ -1,4 +1,4 @@
-<nav class="navbar navbar-expand-sm bg-body-tertiary">
+<nav class="navbar navbar-expand-md bg-success">
   <div class="container-fluid">
     <!-- Navigation Brand -->
     <a class="navbar-brand" href="/">Eco Primers</a>
@@ -56,10 +56,10 @@
         {% else %}
         <!-- Display Login and Sign Up Buttons based on current page -->
         {% if request.path != '/login' %}
-        <a href="/login" class="btn btn-primary mr-2">Login</a>
+        <a href="/login" class="btn mr-2">Login</a>
         {% endif %}
         {% if request.path != '/signup' %}
-        <a href="/signup" class="btn btn-secondary">Sign Up</a>
+        <a href="/signup" class="btn">Sign Up</a>
         {% endif %}
         {% endif %}
       </form>
