@@ -6,11 +6,23 @@
     </button>
     <div id="navigation" class="collapse navbar-collapse">
       <ul class="navbar-nav mx-auto">
-        <li class="nav-item">
-          <a class="nav-link" href="/community">Community</a>
+        <li class="nav-item mr-5 dropdown">
+          <a class="nav-link dropdown-toggle" href="#" id="engagementDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+            Engagement
+          </a>
+          <div class="dropdown-menu" aria-labelledby="engagementDropdown">
+            <a class="dropdown-item" href="#">Tasks</a>
+            <a class="dropdown-item" href="#">Rewards</a>
+          </div>
         </li>
-        <li class="nav-item">
-          <a class="nav-link" href="/engagement">Engagement</a>
+        <li class="nav-item mr-5 dropdown">
+          <a class="nav-link dropdown-toggle" href="#" id="communityDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+            Community
+          </a>
+          <div class="dropdown-menu" aria-labelledby="communityDropdown">
+            <a class="dropdown-item" href="#">Explore</a>
+            <a class="dropdown-item" href="#">Text</a>
+          </div>
         </li>
         <li class="nav-item">
           <a class="nav-link" href="/events">Events</a>
@@ -19,7 +31,39 @@
           <a class="nav-link" href="/chat">Chat</a>
         </li>
       </ul>
-      <button class="btn btn-success">Login</button>
+      <form class="form-inline my-2">
+        {% if session.get('user_id') %}
+          <!-- Profile Icon Dropdown if user is logged in -->
+          <a class="nav-link dropdown-toggle" href="#" id="profileDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+            <i class="fas fa-user-circle"></i> <!-- Font Awesome profile icon -->
+          </a>
+          <div class="dropdown-menu dropdown-menu-end" aria-labelledby="profileDropdown">
+            <a class="dropdown-item" href="#">View Profile</a>
+            <a class="dropdown-item" href="/logout">Logout</a>
+          </div>
+        {% else %}
+          <!-- Display Login and Sign Up Buttons based on current page -->
+          {% if request.path != '/login' %}
+            <a href="/login" class="btn mr-2">Login</a>
+          {% endif %}
+          {% if request.path != '/signup' %}
+            <a href="/signup" class="btn">Sign Up</a>
+          {% endif %}
+        {% endif %}
+      </form>
     </div>
   </div>
 </nav>
+
+{% with messages = get_flashed_messages(with_categories=true) %}
+      {% if messages %}
+        <div class="flashes">
+          {% for category, message in messages %}
+            <div class="alert alert-{{ category }}">{{ message }}</div>
+          {% endfor %}
+        </div>
+      {% endif %}
+    {% endwith %}
+
+    {% block body %}
+    {% endblock %}

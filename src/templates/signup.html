@@ -1,0 +1,88 @@
+{% extends "base.html" %}
+
+{% block title %}Sign Up{% endblock %}
+
+{% block body %}
+
+<div class="d-flex justify-content-center align-items-center mt-5">
+    <div class="card shadow p-4" style="max-width: 400px; width: 100%;">
+        <div class="card-body text-center">
+            <h1 class="mb-4">Create Your Account</h1>
+            <form method="POST" action="/signup" onsubmit="return validateForm()">
+                <div class="form-group">
+                    <label for="email" class="sr-only">Email</label>
+                    <input type="email" id="email" name="email" placeholder="Email Address" required class="form-control mb-3"
+                           title="Email must be a valid address and at least 5 characters long.">
+                </div>
+                <div class="form-group">
+                    <label for="username" class="sr-only">Username</label>
+                    <input type="text" id="username" name="username" placeholder="Username" required class="form-control mb-3"
+                           title="Username must be at least 5 characters long.">
+                </div>
+                <div class="form-group">
+                    <label for="password" class="sr-only">Password</label>
+                    <input type="password" id="password" name="password" placeholder="Password" required class="form-control mb-3"
+                           title="Password must be at least 8 characters long, contain at least one uppercase letter, one lowercase letter, and one special character.">
+                </div>
+                <!-- New fields for bio and birthday -->
+                <div class="form-group">
+                    <label for="bio" class="sr-only">Bio</label>
+                    <textarea id="bio" name="bio" placeholder="Tell us about yourself" required class="form-control mb-3"></textarea>
+                </div>
+                <div class="form-group">
+                    <label for="birthday" class="sr-only">Birthday</label>
+                    <input type="date" id="birthday" name="birthday" required class="form-control mb-3">
+                </div>
+                <button type="submit" class="w-100 rounded-lg mb-3">Sign Up</button>
+                <p>Already have an account? <a href="/login">Log in here!</a></p>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+function validateForm() {
+    const email = document.getElementById("email").value;
+    const username = document.getElementById("username").value;
+    const password = document.getElementById("password").value;
+    const bio = document.getElementById("bio").value;
+    const birthday = document.getElementById("birthday").value;
+    
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\W).{8,}$/;
+
+    // Email validation: at least 5 characters and valid email format
+    if (email.length < 10 || !emailRegex.test(email)) {
+        alert("Email must be a valid address and at least 10 characters long.");
+        return false;
+    }
+
+    // Username validation: at least 5 characters
+    if (username.length < 5) {
+        alert("Username must be at least 5 characters long.");
+        return false;
+    }
+
+    // Password validation: at least 8 characters, one uppercase, one lowercase, and one special character
+    if (!passwordRegex.test(password)) {
+        alert("Password must be at least 8 characters long, contain at least one uppercase letter, one lowercase letter, and one special character.");
+        return false;
+    }
+
+    // Bio validation: ensure it's not empty
+    if (bio.trim() === "") {
+        alert("Please provide a bio.");
+        return false;
+    }
+
+    // Birthday validation: ensure it's selected
+    if (!birthday) {
+        alert("Please select your birthday.");
+        return false;
+    }
+
+    return true;
+}
+</script>
+
+{% endblock %}
