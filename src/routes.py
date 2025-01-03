@@ -1,7 +1,7 @@
 from flask import render_template, request, redirect, url_for, flash, session
 from werkzeug.security import generate_password_hash, check_password_hash
 
-from models import User
+from models import User, Event
 from database import session as db_session
 
 from main import app
@@ -25,8 +25,34 @@ def admin():
     return render_template("admin-dashboard.html")
 
 
-@app.route("/admin/events")
+@app.route("/admin/events", methods=["GET", "POST"])
 def admin_events():
+    if request.method == "POST":
+        # Collect data from the form
+        event_name = request.form['eventName']
+        event_description = request.form['eventDescription']
+        event_location = request.form['eventLocation']
+        event_date = request.form['eventDate']
+
+        # Create an Event object and save it to the database
+        new_event = Event(
+            title=event_name,
+            description=event_description,
+            location=event_location,
+            date=event_date
+        )
+
+        try:
+            # Add the event to the session and commit it to the database
+            db_session.add(new_event)
+            db_session.commit()
+            flash("Event added successfully!", 'success')
+        except Exception as e:
+            db_session.rollback()  # Rollback if there's an error
+            flash(f"An error occurred while adding the event: {str(e)}", 'error')
+
+        return redirect(url_for('admin_events'))
+
     return render_template("admin-events.html")
 
 
@@ -111,3 +137,10 @@ def logout():
     session.pop('user_id', None)  # Clear the session
     flash("You've been logged out successfully.", 'success')
     return redirect(url_for("home"))
+
+@app.route("/events")
+def events():
+    # Query the database for all events
+    events = db_session.query(Event).all()
+
+    return render_template("events.html", events=events)

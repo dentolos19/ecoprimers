@@ -26,7 +26,7 @@ class Event(Base):
     title: Mapped[str] = mapped_column(nullable=False)
     description: Mapped[str] = mapped_column(nullable=False)
     location: Mapped[str] = mapped_column(nullable=False)
-    date: Mapped[datetime] = mapped_column(nullable=False)
+    date: Mapped[str] = mapped_column(nullable=False)
 
 
 class EventAttendee(Base):
