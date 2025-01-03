@@ -4,6 +4,8 @@ from werkzeug.security import generate_password_hash, check_password_hash
 from models import User, Event
 from database import session as db_session
 
+from utils import admin_required
+
 from main import app
 
 # Page Routes
@@ -21,11 +23,13 @@ def chat():
 
 
 @app.route("/admin")
+@admin_required
 def admin():
     return render_template("admin-dashboard.html")
 
 
 @app.route("/admin/events", methods=["GET", "POST"])
+@admin_required
 def admin_events():
     # Query all events from the database
     events = db_session.query(Event).all()
@@ -50,6 +54,7 @@ def admin_events():
 
 
 @app.route("/admin/add/events", methods=["GET", "POST"])
+@admin_required
 def add_events():
     if request.method == "POST":
         # Collect data from the form
@@ -81,11 +86,13 @@ def add_events():
 
 
 @app.route("/admin/users")
+@admin_required
 def admin_users():
     return render_template("admin-users.html")
 
 
 @app.route("/admin/transactions")
+@admin_required
 def admin_transactions():
     return render_template("admin-transactions.html")
 
@@ -93,7 +100,7 @@ def admin_transactions():
 @app.route("/login", methods=["GET", "POST"])
 def login():
 
-    # check if user is already logged in
+    # Check if the user is already logged in
     if 'user_id' in session:
         flash("You're already logged in!", 'error')
         return redirect(url_for("home"))
@@ -102,15 +109,23 @@ def login():
         email = request.form['email']
         password = request.form['password']
 
-        # get the user from the Turso database
+        # Get the user from the database
         user = db_session.query(User).filter_by(email=email).first()
 
-        # check if user exists and password matches
+        # Check if user exists and password matches
         if user and check_password_hash(user.password, password):
-            # store user ID in session to keep the user logged in
+            # Store user ID in session to keep the user logged in
             session['user_id'] = user.id
-            flash("Login successful!", 'success')  
-            return redirect(url_for("home"))
+            session['user_email'] = user.email  # Store the email in the session
+
+
+            # Check the email domain
+            if user.email.endswith("@mymail.nyp.edu.sg"):
+                flash("Admin login successful!", 'success')
+                return redirect(url_for("admin"))
+            else:
+                flash("Login successful!", 'success')
+                return redirect(url_for("home"))
         else:
             flash("Invalid email or password. Please try again.", 'error')
 
@@ -158,7 +173,7 @@ def signup():
 # Logout route
 @app.route("/logout")
 def logout():
-    session.pop('user_id', None)  # Clear the session
+    session.clear()  # Clear all session data
     flash("You've been logged out successfully.", 'success')
     return redirect(url_for("home"))
 
