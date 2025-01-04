@@ -4,34 +4,33 @@
     <a class="navbar-brand" href="/">Eco Primers</a>
 
     <!-- Mobile Menu -->
-    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navigation">
+    <button class="navbar-toggler" data-bs-toggle="collapse" data-bs-target="#navigation">
       <span class="navbar-toggler-icon"></span>
     </button>
 
-    <div id="navigation" class="collapse navbar-collapse">
+    <div id="navigation" class="navbar-collapse collapse">
 
       <!-- Navigation Items -->
       <ul class="navbar-nav mx-auto">
         <li class="nav-item dropdown">
-          <a class="nav-link dropdown-toggle" href="#" id="engagementDropdown" role="button" data-bs-toggle="dropdown"
-            aria-expanded="false">
+          <a class="nav-link dropdown-toggle" href="#" data-bs-toggle="dropdown">
             Engagement
           </a>
-          <div class="dropdown-menu" aria-labelledby="engagementDropdown">
+          <ul class="dropdown-menu">
             <!-- TODO: Add href to pages -->
-            <a class="dropdown-item" href="#">Tasks</a>
-            <a class="dropdown-item" href="#">Rewards</a>
-          </div>
+            <li><a class="dropdown-item" href="#">Tasks</a></li>
+            <li><a class="dropdown-item" href="#">Rewards</a></li>
+          </ul>
         </li>
         <li class="nav-item dropdown">
-          <a class="nav-link dropdown-toggle" href="#" id="communityDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+          <a class="nav-link dropdown-toggle" href="#" data-bs-toggle="dropdown">
             Community
           </a>
-          <div class="dropdown-menu" aria-labelledby="communityDropdown">
+          <ul class="dropdown-menu">
             <!-- TODO: Add href to pages -->
-            <a class="dropdown-item" href="#">Explore</a>
-            <a class="dropdown-item" href="#">Text</a>
-          </div>
+            <li><a class="dropdown-item" href="#">Explore</a></li>
+            <li><a class="dropdown-item" href="#">Text</a></li>
+          </ul>
         </li>
         <li class="nav-item">
           <a class="nav-link" href="/events">Events</a>
@@ -42,7 +41,7 @@
       </ul>
 
       <!-- User Authentication -->
-      <form class="form-inline my-2">
+      <form class="form-inline">
         {% if session.get('user_id') %}
         <!-- Profile Icon Dropdown if user is logged in -->
         <a class="nav-link dropdown-toggle" href="#" id="profileDropdown" data-bs-toggle="dropdown"
