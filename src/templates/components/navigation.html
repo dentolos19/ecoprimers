@@ -30,14 +30,14 @@
           <ul class="dropdown-menu">
             <!-- TODO: Add href to pages -->
             <li><a class="dropdown-item" href="#">Explore</a></li>
-            <li><a class="dropdown-item" href="#">Text</a></li>
+            <li><a class="dropdown-item" href="{{ url_for('messaging_page') }}">Messaging</a></li>
           </ul>
         </li>
         <li class="nav-item">
-          <a class="nav-link" href="/events">Events</a>
+          <a class="nav-link" href="{{ url_for('events') }}">Events</a>
         </li>
         <li class="nav-item">
-          <a class="nav-link" href="/chat">Chat</a>
+          <a class="nav-link" href="{{ url_for('chat') }}">Chat</a>
         </li>
         {% endif %}
       </ul>
@@ -46,20 +46,19 @@
       <form class="form-inline">
         {% if session.get('user_id') %}
         <!-- Profile Icon Dropdown if user is logged in -->
-        <a class="nav-link dropdown-toggle" href="#" id="profileDropdown" data-bs-toggle="dropdown"
-          aria-expanded="false">
-          <i class="fas fa-user-circle"></i> <!-- Font Awesome profile icon -->
+        <a class="nav-link dropdown-toggle" href="#" data-bs-toggle="dropdown">
+          <i class="fas fa-user-circle"></i>
         </a>
-        <div class="dropdown-menu dropdown-menu-end" aria-labelledby="profileDropdown">
+        <div class="dropdown-menu dropdown-menu-end">
           <a class="dropdown-item" href="#">View Profile</a>
-          <a class="dropdown-item" href="/logout">Logout</a>
+          <a class="dropdown-item" href="{{ url_for('logout') }}">Logout</a>
         </div>
         {% else %}
         <!-- Display Login and Sign Up Buttons based on current page -->
-        {% if request.path != '/login' %}
+        {% if request.path != url_for('login') %}
         <a href="/login" class="btn mr-2">Login</a>
         {% endif %}
-        {% if request.path != '/signup' %}
+        {% if request.path != url_for('signup') %}
         <a href="/signup" class="btn">Sign Up</a>
         {% endif %}
         {% endif %}

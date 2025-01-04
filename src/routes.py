@@ -4,12 +4,12 @@ from werkzeug.security import check_password_hash, generate_password_hash
 from database import session as db_session
 from main import app
 from models import Event, User
-from utils import require_admin, require_login
+from utils import check_logged_in, require_admin, require_login
 
 
 @app.context_processor
 def init():
-    is_logged_in = ("user_id" in session) and ("user_email" in session)
+    is_logged_in = check_logged_in()
     return dict(is_logged_in=is_logged_in)
 
 
