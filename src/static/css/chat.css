@@ -4,7 +4,6 @@ main {
 }
 
 #messages {
-  padding: 8px;
   display: flex;
   flex-grow: 1;
   flex-direction: column;
@@ -14,7 +13,6 @@ main {
 }
 
 #form {
-  margin: 8px auto;
   display: flex;
   gap: 8px;
 }
