@@ -1,8 +1,10 @@
 {% extends "base.html" %}
 
+{% set admin = True %}
+
 {% block body %}
 <div class="admin">
-  <div class="navigation bg-body-tertiary">
+  <div class="navigation bg-secondary-subtle">
     <a class="item" title="Dashboard" href="{{ url_for('admin') }}">
       <i class="fa-solid fa-house"></i>
     </a>
