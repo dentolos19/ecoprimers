@@ -44,25 +44,27 @@
 
       <!-- User Authentication -->
       <form class="form-inline">
-        {% if session.get('user_id') %}
+        {% if is_logged_in %}
         <!-- Show Profile Button if user is logged in -->
-        <a class="nav-link dropdown-toggle" href="#" data-bs-toggle="dropdown">
-          <i class="fas fa-user-circle"></i>
+        <a class="nav-link" href="#" data-bs-toggle="dropdown">
+          <img class="ratio ratio-1x1" src="https://github.com/shadcn.png" alt="Profile Picture" style="height: 35px; border-radius: 100%;" />
         </a>
-        <div class="dropdown-menu dropdown-menu-end">
-          <a class="dropdown-item" href="#">View Profile</a>
-          <a class="dropdown-item" href="{{ url_for('admin') }}">Manage Platform</a>
-          <hr class="dropdown-divider" />
-          <a class="dropdown-item" href="{{ url_for('logout') }}">Logout</a>
-        </div>
+        <ul class="dropdown-menu dropdown-menu-end">
+          <li><a class="dropdown-item" href="#">View Profile</a></li>
+          <li><a class="dropdown-item" href="{{ url_for('admin') }}">Manage Platform</a></li>
+          <li><hr class="dropdown-divider" /></li>
+          <li><a class="dropdown-item" href="{{ url_for('logout') }}">Logout</a></li>
+        </ul>
         {% else %}
         <!-- Display Login and Sign Up Buttons if user is not logged in -->
-        {% if request.path != url_for('login') %}
-        <a href="/login" class="btn mr-2">Login</a>
-        {% endif %}
-        {% if request.path != url_for('signup') %}
-        <a href="/signup" class="btn">Sign Up</a>
-        {% endif %}
+        <div class="d-flex gap-1">
+          {% if request.path != url_for('login') %}
+          <a href="/login" class="btn btn-outline-primary">Login</a>
+          {% endif %}
+          {% if request.path != url_for('signup') %}
+          <a href="/signup" class="btn btn-outline-secondary">Sign Up</a>
+          {% endif %}
+        </div>
         {% endif %}
       </form>
     </div>
