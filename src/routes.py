@@ -4,13 +4,14 @@ from werkzeug.security import check_password_hash, generate_password_hash
 from database import session as db_session
 from main import app
 from models import Event, User
-from utils import check_logged_in, require_admin, require_login
+from utils import check_admin_status, check_logged_in, require_admin, require_login
 
 
 @app.context_processor
 def init():
     is_logged_in = check_logged_in()
-    return dict(is_logged_in=is_logged_in)
+    is_admin_user = check_admin_status()
+    return dict(is_logged_in=is_logged_in, is_admin_user=is_admin_user)
 
 
 @app.route("/")

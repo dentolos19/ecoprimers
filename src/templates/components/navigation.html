@@ -45,16 +45,18 @@
       <!-- User Authentication -->
       <form class="form-inline">
         {% if session.get('user_id') %}
-        <!-- Profile Icon Dropdown if user is logged in -->
+        <!-- Show Profile Button if user is logged in -->
         <a class="nav-link dropdown-toggle" href="#" data-bs-toggle="dropdown">
           <i class="fas fa-user-circle"></i>
         </a>
         <div class="dropdown-menu dropdown-menu-end">
           <a class="dropdown-item" href="#">View Profile</a>
+          <a class="dropdown-item" href="{{ url_for('admin') }}">Manage Platform</a>
+          <hr class="dropdown-divider" />
           <a class="dropdown-item" href="{{ url_for('logout') }}">Logout</a>
         </div>
         {% else %}
-        <!-- Display Login and Sign Up Buttons based on current page -->
+        <!-- Display Login and Sign Up Buttons if user is not logged in -->
         {% if request.path != url_for('login') %}
         <a href="/login" class="btn mr-2">Login</a>
         {% endif %}

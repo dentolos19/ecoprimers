@@ -15,6 +15,12 @@ def check_logged_in():
     return ("user_id" in session) or ("user_email" in session)
 
 
+def check_admin_status():
+    if not check_logged_in():
+        return False
+    return session.get("user_email").endswith("@mymail.nyp.edu.sg") or app_debug
+
+
 def require_login(func):
     @wraps(func)
     def decorator(*args, **kwargs):
@@ -31,22 +37,8 @@ def require_login(func):
 def require_admin(func):
     @wraps(func)
     def decorator(*args, **kwargs):
-        # Check if the user is logged in
-        if check_logged_in():
-            flash("You must be logged in to access this page.", "danger")
-            return redirect(url_for("login"))
-
-        # Skip admin check process if in debug mode
-        if app_debug:
-            return func(*args, **kwargs)
-
-        # Check if the logged-in user has an admin email
-        user_email = session.get(
-            "user_email"
-        )  # Assuming email is stored in the session during login
-
-        # Check if the user email is an admin email
-        if not user_email or not user_email.endswith("@mymail.nyp.edu.sg"):
+        # Check if the user is an admin
+        if not check_admin_status():
             flash("Unauthorized access! Admin only.", "danger")
             return redirect(url_for("home"))
 
