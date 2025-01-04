@@ -22,7 +22,7 @@
       referrerpolicy="no-referrer"
     />
 
-    <!-- FontAwesome Icons -->
+    <!-- Font Awesome Icons -->
     <link
       rel="stylesheet"
       href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css"
@@ -40,13 +40,16 @@
     {% block scripts %} {% endblock %}
   </head>
   <body>
+    <!-- Main Application -->
     <main class="app">
       {% include "components/navigation.html" %}
+      {% include "components/flash.html" %}
+      {% include "components/toast.html" %}
       <div class="body">
         {% block body %} {% endblock %}
       </div>
-      {% include "components/toast.html" %}
     </main>
+
     <!-- jQuery -->
     <script
       src="https://cdnjs.cloudflare.com/ajax/libs/jquery/4.0.0-beta.2/jquery.min.js"

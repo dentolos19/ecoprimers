@@ -59,7 +59,7 @@ function sendMessage(event) {
   const { content } = entries;
 
   if (!content) {
-    toast("Error", "Please enter a message!");
+    toast("Please enter a message!", "danger");
     return;
   }
 
@@ -98,7 +98,8 @@ function sendMessage(event) {
       messages.push({ role: "bot", content: response });
     })
     .catch((error) => {
-      toast("Error", error);
+      console.error(error);
+      toast("An error had occurred! Please check the console for more information.", "danger");
     })
     .finally(() => {
       renderMessages();

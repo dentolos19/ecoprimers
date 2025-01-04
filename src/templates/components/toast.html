@@ -1,13 +1,17 @@
-<div class="toast-container position-fixed bottom-0 end-0 p-3">
-  <div id="toast" class="toast" role="alert">
-    <div class="toast-header">
-      <strong id="toast-title" class="me-auto">
-        <!-- To be added by JavaScript -->
-      </strong>
-      <button class="btn-close" type="button" data-bs-dismiss="toast"></button>
-    </div>
-    <div id="toast-content" class="toast-body">
-      <!-- To be added by JavaScript -->
+<div id="toaster" class="d-flex flex-column gap-2 toast-container position-fixed bottom-0 end-0 p-3">
+  {# TODO: Remove the commented code to enable flashing with toast #}
+  {# {% with messages = get_flashed_messages(with_categories=true) %}
+  {% if messages %}
+  {% for category, message in messages %}
+  <div class="m-0 toast border-{{ category }} show">
+    <div class="d-flex">
+      <div class="toast-body">
+        {{ message }}
+      </div>
+      <button class="m-auto me-2 btn-close" data-bs-dismiss="toast"></button>
     </div>
   </div>
+  {% endfor %}
+  {% endif %}
+  {% endwith %} #}
 </div>

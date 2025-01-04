@@ -1,11 +1,11 @@
 {% extends "base.html" %}
 
 {% block stylesheets %}
-<link rel="stylesheet" href="../static/css/chat.css" />
+<link rel="stylesheet" href="{{ url_for('static', filename='css/chat.css') }}" />
 {% endblock %}
 
 {% block scripts %}
-<script type="module" src="../static/js/chat.js"></script>
+<script type="module" src="{{ url_for('static', filename='js/chat.js') }}"></script>
 {% endblock %}
 
 {% block body %}

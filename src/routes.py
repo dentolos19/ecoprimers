@@ -24,7 +24,7 @@ def home():
 def login():
     # Check if the user is already logged in
     if "user_id" in session:
-        flash("You're already logged in!", "error")
+        flash("You're already logged in!", "danger")
         return redirect(url_for("home"))
 
     if request.method == "POST":
@@ -152,7 +152,7 @@ def admin_events():
                 flash("Event deleted successfully!", "success")
             except Exception as e:
                 db_session.rollback()  # Rollback in case of error
-                flash(f"An error occurred while deleting the event: {str(e)}", "error")
+                flash(f"An error occurred while deleting the event: {str(e)}", "danger")
 
         return redirect(url_for("admin_events"))
 
@@ -184,7 +184,7 @@ def admin_events_add():
             flash("Event added successfully!", "success")
         except Exception as e:
             db_session.rollback()  # Rollback if there's an error
-            flash(f"An error occurred while adding the event: {str(e)}", "error")
+            flash(f"An error occurred while adding the event: {str(e)}", "danger")
 
         return redirect(url_for("admin_events"))
 
