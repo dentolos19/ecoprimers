@@ -1,0 +1,28 @@
+{% extends "admin/base.html" %}
+
+{% block abody %}
+
+<main class="container mt-4 pb-5">
+  <h2>Manage Events</h2>
+  <form method="POST" action="{{ url_for('admin_events_add') }}">
+    <div class="mb-3">
+      <label for="eventName" class="form-label">Event Name</label>
+      <input type="text" class="form-control" id="eventName" name="eventName" required>
+    </div>
+    <div class="mb-3">
+      <label for="eventDescription" class="form-label">Event Description</label>
+      <textarea class="form-control" id="eventDescription" name="eventDescription" rows="4" required></textarea>
+    </div>
+    <div class="mb-3">
+      <label for="eventLocation" class="form-label">Event Location</label>
+      <input type="text" class="form-control" id="eventLocation" name="eventLocation" required>
+    </div>
+    <div class="mb-3">
+      <label for="eventDate" class="form-label">Event Date</label>
+      <input type="date" class="form-control" id="eventDate" name="eventDate" required>
+    </div>
+    <button type="submit" class="btn btn-primary">Add Event</button>
+  </form>
+</main>
+
+{% endblock %}

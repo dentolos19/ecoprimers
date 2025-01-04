@@ -21,7 +21,7 @@ def chat():
 @app.route("/admin")
 @admin_required
 def admin():
-    return render_template("admin-dashboard.html")
+    return render_template("admin/dashboard.html")
 
 
 @app.route("/admin/events", methods=["GET", "POST"])
@@ -46,12 +46,12 @@ def admin_events():
 
         return redirect(url_for("admin_events"))
 
-    return render_template("admin-events.html", events=events)
+    return render_template("admin/events.html", events=events)
 
 
-@app.route("/admin/add/events", methods=["GET", "POST"])
+@app.route("/admin/events/add", methods=["GET", "POST"])
 @admin_required
-def add_events():
+def admin_events_add():
     if request.method == "POST":
         # Collect data from the form
         event_name = request.form["eventName"]
@@ -78,19 +78,19 @@ def add_events():
 
         return redirect(url_for("admin_events"))
 
-    return render_template("add-events.html")
+    return render_template("admin/events-add.html")
 
 
 @app.route("/admin/users")
 @admin_required
 def admin_users():
-    return render_template("admin-users.html")
+    return render_template("admin/users.html")
 
 
 @app.route("/admin/transactions")
 @admin_required
 def admin_transactions():
-    return render_template("admin-transactions.html")
+    return render_template("admin/transactions.html")
 
 
 @app.route("/community/messages")
