@@ -10,7 +10,6 @@ from main import app
 
 # Page Routes
 
-
 @app.route("/")
 @app.route("/home")
 def home():
@@ -179,7 +178,21 @@ def logout():
 
 @app.route("/events")
 def events():
-    # Query the database for all events
-    events = db_session.query(Event).all()
+    # Get filter values from the request
+    from_date = request.args.get('fromDate')
+    to_date = request.args.get('toDate')
+    location = request.args.get('location')
+
+    # Query the database for events based on filter values
+    query = db_session.query(Event)
+    
+    if from_date:
+        query = query.filter(Event.date >= from_date)
+    if to_date:
+        query = query.filter(Event.date <= to_date)
+    if location:
+        query = query.filter(Event.location == location)
+
+    events = query.all()
 
     return render_template("events.html", events=events)
