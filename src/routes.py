@@ -4,98 +4,19 @@ from werkzeug.security import check_password_hash, generate_password_hash
 from database import session as db_session
 from main import app
 from models import Event, User
-from utils import admin_required
+from utils import require_admin, require_login
+
+
+@app.context_processor
+def init():
+    is_logged_in = ("user_id" in session) and ("user_email" in session)
+    return dict(is_logged_in=is_logged_in)
 
 
 @app.route("/")
 @app.route("/home")
 def home():
     return render_template("home.html")
-
-
-@app.route("/chat")
-def chat():
-    return render_template("chat.html")
-
-
-@app.route("/admin")
-@admin_required
-def admin():
-    return render_template("admin/dashboard.html")
-
-
-@app.route("/admin/events", methods=["GET", "POST"])
-@admin_required
-def admin_events():
-    # Query all events from the database
-    events = db_session.query(Event).all()
-
-    if request.method == "POST" and request.form.get("delete_event"):
-        # Handle deletion of event
-        event_id = request.form["delete_event"]
-        event_to_delete = db_session.query(Event).filter_by(id=event_id).first()
-
-        if event_to_delete:
-            try:
-                db_session.delete(event_to_delete)
-                db_session.commit()
-                flash("Event deleted successfully!", "success")
-            except Exception as e:
-                db_session.rollback()  # Rollback in case of error
-                flash(f"An error occurred while deleting the event: {str(e)}", "error")
-
-        return redirect(url_for("admin_events"))
-
-    return render_template("admin/events.html", events=events)
-
-
-@app.route("/admin/events/add", methods=["GET", "POST"])
-@admin_required
-def admin_events_add():
-    if request.method == "POST":
-        # Collect data from the form
-        event_name = request.form["eventName"]
-        event_description = request.form["eventDescription"]
-        event_location = request.form["eventLocation"]
-        event_date = request.form["eventDate"]
-
-        # Create an Event object and save it to the database
-        new_event = Event(
-            title=event_name,
-            description=event_description,
-            location=event_location,
-            date=event_date,
-        )
-
-        try:
-            # Add the event to the session and commit it to the database
-            db_session.add(new_event)
-            db_session.commit()
-            flash("Event added successfully!", "success")
-        except Exception as e:
-            db_session.rollback()  # Rollback if there's an error
-            flash(f"An error occurred while adding the event: {str(e)}", "error")
-
-        return redirect(url_for("admin_events"))
-
-    return render_template("admin/events-add.html")
-
-
-@app.route("/admin/users")
-@admin_required
-def admin_users():
-    return render_template("admin/users.html")
-
-
-@app.route("/admin/transactions")
-@admin_required
-def admin_transactions():
-    return render_template("admin/transactions.html")
-
-
-@app.route("/community/messages")
-def messaging_page():
-    return render_template("messaging.html")
 
 
 @app.route("/login", methods=["GET", "POST"])
@@ -185,8 +106,97 @@ def logout():
 
 
 @app.route("/events")
+@require_login
 def events():
     # Query the database for all events
     events = db_session.query(Event).all()
 
     return render_template("events.html", events=events)
+
+
+@app.route("/chat")
+@require_login
+def chat():
+    return render_template("chat.html")
+
+
+@app.route("/community/messages")
+@require_login
+def messaging_page():
+    return render_template("messaging.html")
+
+
+@app.route("/admin")
+@app.route("/admin/dashboard")
+@require_admin
+def admin():
+    return render_template("admin/dashboard.html")
+
+
+@app.route("/admin/events", methods=["GET", "POST"])
+@require_admin
+def admin_events():
+    # Query all events from the database
+    events = db_session.query(Event).all()
+
+    if request.method == "POST" and request.form.get("delete_event"):
+        # Handle deletion of event
+        event_id = request.form["delete_event"]
+        event_to_delete = db_session.query(Event).filter_by(id=event_id).first()
+
+        if event_to_delete:
+            try:
+                db_session.delete(event_to_delete)
+                db_session.commit()
+                flash("Event deleted successfully!", "success")
+            except Exception as e:
+                db_session.rollback()  # Rollback in case of error
+                flash(f"An error occurred while deleting the event: {str(e)}", "error")
+
+        return redirect(url_for("admin_events"))
+
+    return render_template("admin/events.html", events=events)
+
+
+@app.route("/admin/events/add", methods=["GET", "POST"])
+@require_admin
+def admin_events_add():
+    if request.method == "POST":
+        # Collect data from the form
+        event_name = request.form["eventName"]
+        event_description = request.form["eventDescription"]
+        event_location = request.form["eventLocation"]
+        event_date = request.form["eventDate"]
+
+        # Create an Event object and save it to the database
+        new_event = Event(
+            title=event_name,
+            description=event_description,
+            location=event_location,
+            date=event_date,
+        )
+
+        try:
+            # Add the event to the session and commit it to the database
+            db_session.add(new_event)
+            db_session.commit()
+            flash("Event added successfully!", "success")
+        except Exception as e:
+            db_session.rollback()  # Rollback if there's an error
+            flash(f"An error occurred while adding the event: {str(e)}", "error")
+
+        return redirect(url_for("admin_events"))
+
+    return render_template("admin/events-add.html")
+
+
+@app.route("/admin/users")
+@require_admin
+def admin_users():
+    return render_template("admin/users.html")
+
+
+@app.route("/admin/transactions")
+@require_admin
+def admin_transactions():
+    return render_template("admin/transactions.html")

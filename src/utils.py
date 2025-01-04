@@ -11,12 +11,29 @@ def generate_random_string(length: int = 8):
     return "".join(random.choices(string.ascii_letters + string.digits, k=length))
 
 
-def admin_required(func):
+def check_logged_in():
+    return ("user_id" in session) or ("user_email" in session)
+
+
+def require_login(func):
     @wraps(func)
     def decorator(*args, **kwargs):
         # Check if the user is logged in
-        if ("user_id" not in session) or ("user_email" not in session):
-            flash("You must be logged in to access this page.", "error")
+        if check_logged_in():
+            flash("You must be logged in to access this page.", "danger")
+            return redirect(url_for("login"))
+
+        return func(*args, **kwargs)
+
+    return decorator
+
+
+def require_admin(func):
+    @wraps(func)
+    def decorator(*args, **kwargs):
+        # Check if the user is logged in
+        if check_logged_in():
+            flash("You must be logged in to access this page.", "danger")
             return redirect(url_for("login"))
 
         # Skip admin check process if in debug mode
@@ -30,7 +47,7 @@ def admin_required(func):
 
         # Check if the user email is an admin email
         if not user_email or not user_email.endswith("@mymail.nyp.edu.sg"):
-            flash("Unauthorized access! Admins only.", "error")
+            flash("Unauthorized access! Admin only.", "danger")
             return redirect(url_for("home"))
 
         return func(*args, **kwargs)
