@@ -5,7 +5,7 @@ import database
 
 app = Flask(__name__)
 app_debug = bool(app.config["DEBUG"])
-app.config['SECRET_KEY'] = 'hello_world'
+app.config["SECRET_KEY"] = "hello_world"
 
 # Initialize internal systems
 ai.init()

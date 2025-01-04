@@ -1,13 +1,10 @@
 from flask import flash, redirect, render_template, request, session, url_for
 from werkzeug.security import check_password_hash, generate_password_hash
 
-from models import User, Event
 from database import session as db_session
-
-from utils import admin_required
-
 from main import app
-from models import User
+from models import Event, User
+from utils import admin_required
 
 
 @app.route("/")
@@ -35,19 +32,19 @@ def admin_events():
 
     if request.method == "POST" and request.form.get("delete_event"):
         # Handle deletion of event
-        event_id = request.form['delete_event']
+        event_id = request.form["delete_event"]
         event_to_delete = db_session.query(Event).filter_by(id=event_id).first()
 
         if event_to_delete:
             try:
                 db_session.delete(event_to_delete)
                 db_session.commit()
-                flash("Event deleted successfully!", 'success')
+                flash("Event deleted successfully!", "success")
             except Exception as e:
                 db_session.rollback()  # Rollback in case of error
-                flash(f"An error occurred while deleting the event: {str(e)}", 'error')
+                flash(f"An error occurred while deleting the event: {str(e)}", "error")
 
-        return redirect(url_for('admin_events'))
+        return redirect(url_for("admin_events"))
 
     return render_template("admin-events.html", events=events)
 
@@ -57,30 +54,30 @@ def admin_events():
 def add_events():
     if request.method == "POST":
         # Collect data from the form
-        event_name = request.form['eventName']
-        event_description = request.form['eventDescription']
-        event_location = request.form['eventLocation']
-        event_date = request.form['eventDate']
+        event_name = request.form["eventName"]
+        event_description = request.form["eventDescription"]
+        event_location = request.form["eventLocation"]
+        event_date = request.form["eventDate"]
 
         # Create an Event object and save it to the database
         new_event = Event(
             title=event_name,
             description=event_description,
             location=event_location,
-            date=event_date
+            date=event_date,
         )
 
         try:
             # Add the event to the session and commit it to the database
             db_session.add(new_event)
             db_session.commit()
-            flash("Event added successfully!", 'success')
+            flash("Event added successfully!", "success")
         except Exception as e:
             db_session.rollback()  # Rollback if there's an error
-            flash(f"An error occurred while adding the event: {str(e)}", 'error')
+            flash(f"An error occurred while adding the event: {str(e)}", "error")
 
-        return redirect(url_for('admin_events'))
-    
+        return redirect(url_for("admin_events"))
+
     return render_template("add-events.html")
 
 
@@ -103,10 +100,9 @@ def messaging_page():
 
 @app.route("/login", methods=["GET", "POST"])
 def login():
-
     # Check if the user is already logged in
-    if 'user_id' in session:
-        flash("You're already logged in!", 'error')
+    if "user_id" in session:
+        flash("You're already logged in!", "error")
         return redirect(url_for("home"))
 
     if request.method == "POST":
@@ -119,16 +115,15 @@ def login():
         # Check if user exists and password matches
         if user and check_password_hash(user.password, password):
             # Store user ID in session to keep the user logged in
-            session['user_id'] = user.id
-            session['user_email'] = user.email  # Store the email in the session
-
+            session["user_id"] = user.id
+            session["user_email"] = user.email  # Store the email in the session
 
             # Check the email domain
             if user.email.endswith("@mymail.nyp.edu.sg"):
-                flash("Admin login successful!", 'success')
+                flash("Admin login successful!", "success")
                 return redirect(url_for("admin"))
             else:
-                flash("Login successful!", 'success')
+                flash("Login successful!", "success")
                 return redirect(url_for("home"))
         else:
             flash("Invalid email or password. Please try again.", "danger")
@@ -185,8 +180,9 @@ def signup():
 @app.route("/logout")
 def logout():
     session.clear()  # Clear all session data
-    flash("You've been logged out successfully.", 'success')
+    flash("You've been logged out successfully.", "success")
     return redirect(url_for("home"))
+
 
 @app.route("/events")
 def events():
