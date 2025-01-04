@@ -4,7 +4,6 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Eco Primers</title>
-    <link rel="stylesheet" href="../static/css/base.css" />
 
     <!-- Bootstrap -->
     <link
@@ -30,10 +29,11 @@
     />
 
     <!-- Custom Stylesheets -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/base.css') }}" />
     {% block stylesheets %} {% endblock %}
 
     <!-- Custom Scripts -->
-    <script type="module" src="../static/js/base.js"></script>
+    <script type="module" src="{{ url_for('static', filename='js/base.js') }}"></script>
     {% block scripts %} {% endblock %}
   </head>
   <body>
