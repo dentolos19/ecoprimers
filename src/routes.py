@@ -34,3 +34,11 @@ def admin_users():
 @app.route("/admin/transactions")
 def admin_transactions():
     return render_template("admin-transactions.html")
+
+@app.route("/admin/social-media-post")
+def admin_social_media_post():
+    return render_template("social-media-post.html")
+
+@app.route("/admin/social-media")
+def admin_social_media():
+    return render_template("social-media.html")

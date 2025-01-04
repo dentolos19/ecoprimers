@@ -1,0 +1,45 @@
+{% extends "base.html" %}
+
+{% block stylesheets %}
+<link rel="stylesheet" href="../static/uploads/navbar.css" />
+<link rel="stylesheet" href="../static/uploads/style.css" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" />
+{% endblock %}
+
+{% block body %}
+<h1>Welcome to the Social Media App</h1>
+<a href="{{ url_for('add_post') }}">Add a Post</a>
+
+{% for post in posts %}
+<div class="container">
+    <div class="post">
+        <div class="align">
+            <p>
+                <span class="username">{{ post.user_id }}
+                    <button class="follow-btn">follow</button>
+                </span>
+            </p>
+            {% if post.image_filename %}
+        </div>
+        <img src="{{ url_for('static', filename='uploads/' + post.image_filename) }}" alt="Post Image"
+            style="width: 1000px; height: 600px" />
+        <div class="action-buttons">
+            <button class="like-btn"><i class="fas fa-heart"></i> Like</button>
+            <button class="comment-btn">
+                <i class="fas fa-comment"></i> Comment
+            </button>
+            <button class="share-btn"><i class="fas fa-share"></i> Share</button>
+            <button class="save-btn"><i class="fas fa-bookmark"></i> Save</button>
+        </div>
+        <div class="align">
+            <p>
+                <span class="username">{{ post.user_id }}</span> {{ post.content }}
+            </p>
+        </div>
+        <hr />
+        {% endif %}
+        <br /><br />
+    </div>
+</div>
+{% endfor %}
+{% endblock %}

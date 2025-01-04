@@ -1,0 +1,24 @@
+{% extends "base.html" %}
+
+{% block stylesheets %}
+<link rel="stylesheet" href="../static/uploads/navbar.css" />
+{% endblock %}
+
+{% block body %}
+<h1>Add Your Post</h1>
+<form action="{{ url_for('add_post') }}" method="POST" enctype="multipart/form-data">
+    <div>
+        <label for="content">Write your post:</label>
+        <textarea id="content" name="content" rows="4" cols="50" placeholder="What's on your mind?" required></textarea>
+    </div>
+    <div>
+        <label for="image">Upload an image:</label>
+        <input type="file" id="image" name="image">
+    </div>
+    <div>
+        <button type="submit">Post</button>
+    </div>
+</form>
+<a href="{{ url_for('home') }}">Go to Home</a>
+{% endfor %}
+{% endblock %}
