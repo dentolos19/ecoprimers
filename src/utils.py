@@ -13,7 +13,7 @@ def generate_random_string(length: int = 8):
 
 def admin_required(func):
     @wraps(func)
-    def admin_checker(*args, **kwargs):
+    def decorator(*args, **kwargs):
         # Check if the user is logged in
         if ("user_id" not in session) or ("user_email" not in session):
             flash("You must be logged in to access this page.", "error")
@@ -35,4 +35,4 @@ def admin_required(func):
 
         return func(*args, **kwargs)
 
-    return admin_checker
+    return decorator
