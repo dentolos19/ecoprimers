@@ -19,7 +19,7 @@ def require_login(func):
     @wraps(func)
     def decorator(*args, **kwargs):
         # Check if the user is logged in
-        if check_logged_in():
+        if not check_logged_in():
             flash("You must be logged in to access this page.", "danger")
             return redirect(url_for("login"))
 
