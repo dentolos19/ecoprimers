@@ -1,16 +1,11 @@
+// Enable Bootstrap Tooltips
+const tooltipTriggers = document.querySelectorAll("[data-bs-toggle='tooltip']");
+const tooltipList = [...tooltipTriggers].map((tooltipTrigger) => new bootstrap.Tooltip(tooltipTrigger));
+
 const toasterElement = document.getElementById("toaster");
 
 export function toast(message, category) {
-  // const toastElement = document.getElementById("toast");
-  // const toastTitleElement = document.getElementById("toast-title");
-  // const toastContentElement = document.getElementById("toast-content");
-
-  // toastTitleElement.innerHTML = title;
-  // toastContentElement.innerHTML = message;
-
-  // const toast = new bootstrap.Toast(toastElement);
-  // toast.show();
-
+  // Create toast element
   const toast = document.createElement("div");
   toast.classList.add("m-0");
   toast.classList.add("toast");
@@ -34,11 +29,12 @@ export function toast(message, category) {
   toastContainer.appendChild(toastButton);
   toast.appendChild(toastContainer);
 
+  // Add toast to the toaster
   toasterElement.appendChild(toast);
 
-  // Remove hidden existing toasts
+  // Remove hidden toast elments
   const hiddenToastElements = toasterElement.getElementsByClassName("hide");
   for (const element of hiddenToastElements) {
-    element.remove();
+    toasterElement.removeChild(element);
   }
 }

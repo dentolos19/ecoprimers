@@ -5,16 +5,16 @@
 {% block body %}
 <div class="admin">
   <div class="navigation bg-secondary-subtle">
-    <a class="item" title="Dashboard" href="{{ url_for('admin') }}">
+    <a class="item" title="Dashboard" href="{{ url_for('admin') }}" data-bs-toggle="tooltip" data-bs-placement="right">
       <i class="fa-solid fa-house"></i>
     </a>
-    <a class="item" title="Events" href="{{ url_for('admin_events') }}">
+    <a class="item" title="Events" href="{{ url_for('admin_events') }}" data-bs-toggle="tooltip" data-bs-placement="right">
       <i class="fa-solid fa-calendar-days"></i>
     </a>
-    <a class="item" title="Users" href="{{ url_for('admin_users') }}">
+    <a class="item" title="Users" href="{{ url_for('admin_users') }}" data-bs-toggle="tooltip" data-bs-placement="right">
       <i class="fa-solid fa-user"></i>
     </a>
-    <a class="item" title="Transactions" href="{{ url_for('admin_transactions') }}">
+    <a class="item" title="Transactions" href="{{ url_for('admin_transactions') }}" data-bs-toggle="tooltip" data-bs-placement="right">
       <i class="fa-solid fa-money-bill"></i>
     </a>
   </div>
