@@ -9,13 +9,15 @@
 {% endblock %}
 
 {% block body %}
-<main class="container my-4">
-  <div id="messages">
+<div class="h-100 d-flex flex-column">
+  <div id="messages" class="py-2 d-flex flex-fill flex-column gap-2">
     <!-- To be added by JavaScript -->
   </div>
-  <form id="form" class="container">
-    <input class="form-control" type="text" name="content" placeholder="What do you want to know?">
-    <button class="btn btn-primary" type="submit">Send</button>
-  </form>
-</main>
+  <div class="py-3 bg-body-tertiary">
+    <form id="form" class="container d-flex gap-2">
+      <input class="form-control" type="text" name="content" placeholder="What do you want to know?">
+      <button class="btn btn-primary" type="submit">Send</button>
+    </form>
+  </div>
+</div>
 {% endblock %}

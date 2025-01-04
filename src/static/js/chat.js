@@ -13,8 +13,8 @@ const messages = [
 
 function createMessageElement(name, content) {
   const card = document.createElement("div");
-  card.classList.add("card");
   card.classList.add("container");
+  card.classList.add("card");
 
   const cardBody = document.createElement("div");
   cardBody.classList.add("card-body");
