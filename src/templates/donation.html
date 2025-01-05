@@ -7,18 +7,6 @@
     <h1 class="text-center mb-4">Support Our Cause</h1>
     <p class="text-center mb-4">Thank you for considering a donation. Your support makes a difference!</p>
 
-    {% with messages = get_flashed_messages(with_categories=true) %}
-        {% if messages %}
-            <div class="alert alert-info">
-                <ul class="mb-0">
-                    {% for category, message in messages %}
-                        <li class="{{ category }}">{{ message }}</li>
-                    {% endfor %}
-                </ul>
-            </div>
-        {% endif %}
-    {% endwith %}
-
     <div class="d-flex justify-content-center">
         <form id="donation-form" class="text-center">
             <button type="submit" id="checkout-button" class="btn btn-primary btn-lg">
