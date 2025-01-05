@@ -22,7 +22,7 @@ def init(local: bool = True):
             os.makedirs(database_dir)
         url = "sqlite:///" + database_file
     else:
-        url = f"sqlite+{TURSO_DATABASE_URL}/?authToken={TURSO_AUTH_TOKEN}&secure=true"  # noqa: F821
+        url = f"sqlite+{TURSO_DATABASE_URL}/?authToken={TURSO_AUTH_TOKEN}&secure=true"
 
     try:
         # Create the database engine

@@ -134,6 +134,7 @@ def events():
 
 
 @app.route("/donation")
+@require_login
 def donation():
     stripe_session = stripe.checkout.Session.create(
         line_items=[{"price": "price_1QdsnHRxRE93gjFvEyydXEaP", "quantity": 1}],
@@ -150,6 +151,7 @@ def donation():
 
 
 @app.route("/donation/success")
+@require_login
 def donation_success():
     flash("Donation successful! Thank you for your support.", "success")
     return redirect(url_for("donation"))
@@ -234,10 +236,16 @@ def admin_events_add():
 @app.route("/admin/users")
 @require_admin
 def admin_users():
-    return render_template("admin/users.html")
+    # Query all events from the database
+    users = db_session.query(User).all()
+
+    return render_template("admin/users.html", users=users)
 
 
 @app.route("/admin/transactions")
 @require_admin
 def admin_transactions():
-    return render_template("admin/transactions.html")
+    # Query all transactions from the database
+    transactions = db_session.query(User).all()
+
+    return render_template("admin/transactions.html", transactions=transactions)
