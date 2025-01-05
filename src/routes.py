@@ -6,7 +6,11 @@ from database import session as db_session
 
 from utils import admin_required
 
+import stripe
+
 from main import app
+
+stripe.api_key = app.config['STRIPE_SECRET_KEY']
 
 # Page Routes
 
@@ -196,3 +200,21 @@ def events():
     events = query.all()
 
     return render_template("events.html", events=events)
+
+@app.route("/donation")
+def donation():
+    stripe_session = stripe.checkout.Session.create(
+    line_items=[{"price": 'price_1QdsnHRxRE93gjFvEyydXEaP', 
+                 "quantity": 1}],
+    mode="payment",
+    success_url=url_for('donation_success', _external=True) + '?session_id={CHECKOUT_SESSION_ID}',
+    cancel_url=url_for('donation', _external=True)
+    )
+    return render_template("donation.html", 
+                           checkout_session_id = stripe_session['id'], 
+                           checkout_public_key = app.config['STRIPE_PUBLIC_KEY']
+                           )
+
+@app.route("/donation/success")
+def donation_success():
+    return "SUCCESS"

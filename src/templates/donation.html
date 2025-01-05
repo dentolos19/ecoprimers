@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Donate</title>
+</head>
+<body>
+    <h1>Support Our Cause</h1>
+    <p>Thank you for considering a donation. Your support makes a difference!</p>
+    
+    <form id="donation-form">
+        <button type="submit" id="checkout-button">Donate</button>
+    </form>
+</body>
+<footer>
+    <script src="https://js.stripe.com/v3/"></script>
+    <script>
+        const checkout_public_key = '{{checkout_public_key}}'
+        const checkout_session_id = '{{checkout_session_id}}'
+    </script>
+    <script src="../static/js/script.js"></script>
+</footer>
+</html>
