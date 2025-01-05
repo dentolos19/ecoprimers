@@ -1,24 +1,22 @@
+import stripe
 from flask import flash, redirect, render_template, request, session, url_for
 from werkzeug.security import check_password_hash, generate_password_hash
 
 from database import session as db_session
+from environment import STRIPE_SECRET_KEY
 from main import app
 from models import Event, User
 from utils import check_admin_status, check_logged_in, require_admin, require_login
 
+stripe.api_key = STRIPE_SECRET_KEY
 
-import stripe
 
-from main import app
 @app.context_processor
 def init():
     is_logged_in = check_logged_in()
     is_admin_user = check_admin_status()
     return dict(is_logged_in=is_logged_in, is_admin_user=is_admin_user)
 
-stripe.api_key = app.config['STRIPE_SECRET_KEY']
-
-# Page Routes
 
 @app.route("/")
 @app.route("/home")
@@ -116,13 +114,13 @@ def logout():
 @require_login
 def events():
     # Get filter values from the request
-    from_date = request.args.get('fromDate')
-    to_date = request.args.get('toDate')
-    location = request.args.get('location')
+    from_date = request.args.get("fromDate")
+    to_date = request.args.get("toDate")
+    location = request.args.get("location")
 
     # Query the database for events based on filter values
     query = db_session.query(Event)
-    
+
     if from_date:
         query = query.filter(Event.date >= from_date)
     if to_date:
@@ -134,24 +132,27 @@ def events():
 
     return render_template("events.html", events=events)
 
+
 @app.route("/donation")
 def donation():
     stripe_session = stripe.checkout.Session.create(
-    line_items=[{"price": 'price_1QdsnHRxRE93gjFvEyydXEaP', 
-                 "quantity": 1}],
-    mode="payment",
-    success_url=url_for('donation_success', _external=True) + '?session_id={CHECKOUT_SESSION_ID}',
-    cancel_url=url_for('donation', _external=True)
+        line_items=[{"price": "price_1QdsnHRxRE93gjFvEyydXEaP", "quantity": 1}],
+        mode="payment",
+        success_url=url_for("donation_success", _external=True)
+        + "?session_id={CHECKOUT_SESSION_ID}",
+        cancel_url=url_for("donation", _external=True),
     )
-    return render_template("donation.html", 
-                           checkout_session_id = stripe_session['id'], 
-                           checkout_public_key = app.config['STRIPE_PUBLIC_KEY']
-                           )
+    return render_template(
+        "donation.html",
+        checkout_session_id=stripe_session["id"],
+        checkout_public_key=app.config["STRIPE_PUBLIC_KEY"],
+    )
+
 
 @app.route("/donation/success")
 def donation_success():
     flash("Donation successful! Thank you for your support.", "success")
-    return redirect(url_for('donation'))
+    return redirect(url_for("donation"))
 
 
 @app.route("/chat")
