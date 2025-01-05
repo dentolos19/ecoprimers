@@ -1,6 +1,53 @@
 #users {
     height: 100%;
     width: 400px;
-    background-color: #d9d9d9;
+    background-color: #d9d9d9 !important;
 }
 
+.user {
+    display: flex;
+    align-items: center;
+    gap: 15px;  /* Space between circle and text */
+    padding: 11px;
+    height: 75px;
+    width: 100%;
+    border-top: 1px solid #b0b0b0;
+    border-left: 1px solid #b0b0b0;
+    border-right: 1px solid #b0b0b0;
+}
+
+.user:last-child {
+    border-bottom: 1px solid #b0b0b0;
+}
+
+.user .initials {
+    background-color: #fff;
+    height: 53px;
+    width: 53px;
+    border-radius: 50%;
+}
+
+.user .initials h3 {
+    margin: 0;
+    line-height: 53px;
+    text-align: center;
+    font-weight: bold;
+}
+
+.user-info {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+
+.user-info .name {
+    margin: 0;
+    font-size: 1.2rem;
+    font-weight: normal;  /* Makes it match the screenshot */
+}
+
+.user-info .status {
+    margin: 0;
+    color: #666;
+    font-size: 0.9rem;
+}
