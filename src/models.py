@@ -107,3 +107,4 @@ class Donation(Base):
     id: Mapped[int] = mapped_column(primary_key=True)
     username: Mapped[str] = mapped_column(nullable=False)
     amount: Mapped[float] = mapped_column(nullable=False)
+    date_time: Mapped[datetime] = mapped_column(nullable=False)

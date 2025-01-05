@@ -217,4 +217,5 @@ def donation():
 
 @app.route("/donation/success")
 def donation_success():
-    return "SUCCESS"
+    flash("Donation successful! Thank you for your support.", "success")
+    return redirect(url_for('donation'))
