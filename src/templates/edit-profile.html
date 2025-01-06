@@ -1,0 +1,38 @@
+{% extends "base.html" %}
+
+{% block title %}Edit Profile{% endblock %}
+
+{% block body %}
+
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-6 col-md-8 col-sm-12">
+            <div class="card shadow-lg p-4">
+                <div class="card-body">
+                    <h2 class="text-center mb-4">Edit Your Profile</h2>
+                    <form method="POST" action="/edit_profile">
+                        <div class="form-group">
+                            <label for="email" class="form-label">Email</label>
+                            <input type="email" id="email" name="email" value="{{ user.email }}" required class="form-control mb-3">
+                        </div>
+                        <div class="form-group">
+                            <label for="username" class="form-label">Username</label>
+                            <input type="text" id="username" name="username" value="{{ user.username }}" required class="form-control mb-3">
+                        </div>
+                        <div class="form-group">
+                            <label for="bio" class="form-label">Bio</label>
+                            <textarea id="bio" name="bio" required class="form-control mb-3">{{ user.bio }}</textarea>
+                        </div>
+                        <div class="form-group">
+                            <label for="birthday" class="form-label">Birthday</label>
+                            <input type="date" id="birthday" name="birthday" value="{{ user.birthday }}" required class="form-control mb-3">
+                        </div>
+                        <button type="submit" class="btn btn-primary btn-lg w-100 rounded-pill mt-4">Update Profile</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock %}

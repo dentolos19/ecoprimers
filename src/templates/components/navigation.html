@@ -52,7 +52,7 @@
           <img class="ratio ratio-1x1" src="https://github.com/shadcn.png" alt="Profile Picture" style="height: 35px; border-radius: 100%;" />
         </a>
         <ul class="dropdown-menu dropdown-menu-end">
-          <li><a class="dropdown-item" href="#">View Profile</a></li>
+          <li><a class="dropdown-item" href="{{url_for('profile')}}">View Profile</a></li>
           <li><a class="dropdown-item" href="{{ url_for('admin') }}">Manage Platform</a></li>
           <li><hr class="dropdown-divider" /></li>
           <li><a class="dropdown-item" href="{{ url_for('logout') }}">Logout</a></li>
