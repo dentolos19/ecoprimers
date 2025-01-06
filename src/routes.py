@@ -23,6 +23,47 @@ def init():
 def home():
     return render_template("home.html")
 
+from flask import session, redirect, url_for, render_template
+
+@app.route("/profile")
+def profile():
+    user_id = session.get("user_id")
+    if not user_id:
+        return redirect("/login")
+
+    # Query the user from the database
+    user = db_session.query(User).filter(User.id == user_id).first()
+
+    if not user:
+        return "User not found", 404
+
+    return render_template("profile.html", user=user)
+
+
+@app.route("/edit_profile", methods=["GET", "POST"])
+def edit_profile():
+    user_id = session.get("user_id")
+    if not user_id:
+        return redirect("/login") 
+
+    user = db_session.query(User).filter(User.id == user_id).first()
+    
+    if request.method == "POST":
+        user.email = request.form["email"]
+        user.username = request.form["username"]
+        user.bio = request.form["bio"]
+        user.birthday = request.form["birthday"]
+
+        try:
+            db_session.commit()
+            flash("Profile updated successfully!", "success")
+            return redirect("/profile")
+        except Exception as e:
+            db_session.rollback()
+            flash(f"An error occurred: {str(e)}", "danger")
+    
+    return render_template("edit-profile.html", user=user)
+
 
 @app.route("/login", methods=["GET", "POST"])
 def login():
