@@ -99,8 +99,9 @@ class Message(Base):
     sender_id: Mapped[int] = mapped_column(nullable=False)
     receiver_id: Mapped[int] = mapped_column(nullable=False)
     message: Mapped[str] = mapped_column(nullable=False)
-    created_at: Mapped[datetime] = mapped_column(nullable=False)
     is_read: Mapped[bool] = mapped_column(nullable=False)
+    created_at: Mapped[datetime] = mapped_column(nullable=False)
+
 
 class Donation(Base):
     __tablename__ = "donations"
@@ -109,3 +110,7 @@ class Donation(Base):
     username: Mapped[str] = mapped_column(nullable=False)
     amount: Mapped[float] = mapped_column(nullable=False)
     date_time: Mapped[datetime] = mapped_column(nullable=False)
+
+    # TODO: Use these fields below instead
+    # user_id = mapped_column(nullable=False)
+    # created_at = mapped_column(nullable=False)

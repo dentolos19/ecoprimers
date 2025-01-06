@@ -12,6 +12,10 @@ session: Session = None
 def init(local: bool = True):
     global session
 
+    # Skip if database session is already initialized
+    if session:
+        return
+
     if local:
         # Setup the local database folder
         database_dir = os.getcwd()
