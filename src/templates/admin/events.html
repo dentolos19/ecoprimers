@@ -6,9 +6,6 @@
   <!-- Title Bar -->
   <div class="d-flex justify-content-between align-items-center">
     <h3 class="m-0">Events</h3>
-    <a class="btn btn-primary" href="{{ url_for('admin_events_add') }}">
-      New Event
-    </a>
   </div>
 
   <!-- Event Items -->
@@ -27,6 +24,11 @@
       </div>
     </div>
     {% endfor %}
+  </div>
+  <div class="pt-4 float-end">
+    <a class="btn btn-primary" href="{{ url_for('admin_events_add') }}">
+        New Event
+    </a>
   </div>
 
 </main>
