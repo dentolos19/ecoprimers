@@ -7,9 +7,10 @@
 venv/
 
 # User-specific files
-*.db
 .env*
 !.env*.template
+*.db
+*.db-journal
 
 # Output files
 build/
