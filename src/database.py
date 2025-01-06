@@ -12,6 +12,10 @@ session: Session = None
 def init(local: bool = True):
     global session
 
+    # Skip if database session is already initialized
+    if session:
+        return
+
     if local:
         # Setup the local database folder
         database_dir = os.getcwd()
@@ -22,7 +26,7 @@ def init(local: bool = True):
             os.makedirs(database_dir)
         url = "sqlite:///" + database_file
     else:
-        url = f"sqlite+{TURSO_DATABASE_URL}/?authToken={TURSO_AUTH_TOKEN}&secure=true"  # noqa: F821
+        url = f"sqlite+{TURSO_DATABASE_URL}/?authToken={TURSO_AUTH_TOKEN}&secure=true"
 
     try:
         # Create the database engine

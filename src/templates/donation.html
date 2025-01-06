@@ -1,0 +1,28 @@
+{% extends "base.html" %}
+
+{% block title %}Events{% endblock %}
+
+{% block body %}
+<div class="container mt-5">
+    <h1 class="text-center mb-4">Support Our Cause</h1>
+    <p class="text-center mb-4">Thank you for considering a donation. Your support makes a difference!</p>
+
+    <div class="d-flex justify-content-center">
+        <form id="donation-form" class="text-center">
+            <button type="submit" id="checkout-button" class="btn btn-primary btn-lg">
+                Donate
+            </button>
+        </form>
+    </div>
+</div>
+
+<footer class="mt-5 text-center">
+    <script src="https://js.stripe.com/v3/"></script>
+    <script>
+        const checkout_public_key = '{{checkout_public_key}}'
+        const checkout_session_id = '{{checkout_session_id}}'
+    </script>
+    <script src="../static/js/script.js"></script>
+</footer>
+
+{% endblock %}

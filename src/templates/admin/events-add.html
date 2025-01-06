@@ -1,0 +1,31 @@
+{% extends "admin/base.html" %}
+
+{% block abody %}
+
+<main class="container mt-2">
+  <h3>New Event</h3>
+  <form class="d-flex flex-column gap-2" method="POST" action="{{ url_for('admin_events_add') }}">
+    <div>
+      <label class="form-label" for="eventName">Name</label>
+      <input class="form-control" type="text" id="eventName" name="eventName" required />
+    </div>
+    <div>
+      <label class="form-label" for="eventDescription">Event Description</label>
+      <textarea class="form-control" id="eventDescription" name="eventDescription" rows="4" required></textarea>
+    </div>
+    <div>
+      <label class="form-label" for="eventLocation">Event Location</label>
+      <input class="form-control" type="text" id="eventLocation" name="eventLocation" required />
+    </div>
+    <div>
+      <label class="form-label" for="eventDate">Event Date</label>
+      <input class="form-control" type="date" id="eventDate" name="eventDate" required />
+    </div>
+    <div class="d-flex justify-content-end gap-2">
+      <button type="submit" class="btn btn-primary">Create</button>
+      <button type="button" class="btn btn-secondary">Cancel</button>
+    </div>
+  </form>
+</main>
+
+{% endblock %}

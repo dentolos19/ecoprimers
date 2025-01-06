@@ -16,7 +16,7 @@ class User(Base):
     password: Mapped[str] = mapped_column(nullable=False)
 
     bio: Mapped[str] = mapped_column(nullable=False)
-    birthday: Mapped[datetime] = mapped_column(nullable=False)
+    birthday: Mapped[str] = mapped_column(nullable=False)
 
 
 class Event(Base):
@@ -26,7 +26,7 @@ class Event(Base):
     title: Mapped[str] = mapped_column(nullable=False)
     description: Mapped[str] = mapped_column(nullable=False)
     location: Mapped[str] = mapped_column(nullable=False)
-    date: Mapped[datetime] = mapped_column(nullable=False)
+    date: Mapped[str] = mapped_column(nullable=False)
 
 
 class EventAttendee(Base):
@@ -99,4 +99,18 @@ class Message(Base):
     sender_id: Mapped[int] = mapped_column(nullable=False)
     receiver_id: Mapped[int] = mapped_column(nullable=False)
     message: Mapped[str] = mapped_column(nullable=False)
+    is_read: Mapped[bool] = mapped_column(nullable=False)
     created_at: Mapped[datetime] = mapped_column(nullable=False)
+
+
+class Donation(Base):
+    __tablename__ = "donations"
+
+    id: Mapped[int] = mapped_column(primary_key=True)
+    username: Mapped[str] = mapped_column(nullable=False)
+    amount: Mapped[float] = mapped_column(nullable=False)
+    date_time: Mapped[datetime] = mapped_column(nullable=False)
+
+    # TODO: Use these fields below instead
+    # user_id = mapped_column(nullable=False)
+    # created_at = mapped_column(nullable=False)
