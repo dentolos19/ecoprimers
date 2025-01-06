@@ -1,25 +1,47 @@
 import random
 import string
 from functools import wraps
-from flask import session, redirect, url_for, flash
+
+from flask import flash, redirect, session, url_for
+
+from main import app_debug
 
 
 def generate_random_string(length: int = 8):
     return "".join(random.choices(string.ascii_letters + string.digits, k=length))
 
-def admin_required(f):
-    @wraps(f)
-    def decorated_function(*args, **kwargs):
+
+def check_logged_in():
+    return ("user_id" in session) or ("user_email" in session)
+
+
+def check_admin_status():
+    if not check_logged_in():
+        return False
+    return session.get("user_email").endswith("@mymail.nyp.edu.sg") or app_debug
+
+
+def require_login(func):
+    @wraps(func)
+    def decorator(*args, **kwargs):
         # Check if the user is logged in
-        if 'user_id' not in session:
-            flash("You must be logged in to access this page.", 'error')
-            return redirect(url_for('login'))
+        if not check_logged_in():
+            flash("You must be logged in to access this page.", "danger")
+            return redirect(url_for("login"))
 
-        # Check if the logged-in user has an admin email
-        user_email = session.get('user_email')  # Assuming email is stored in the session during login
-        if not user_email or not user_email.endswith("@mymail.nyp.edu.sg"):
-            flash("Unauthorized access! Admins only.", 'error')
-            return redirect(url_for('home'))
+        return func(*args, **kwargs)
 
-        return f(*args, **kwargs)
-    return decorated_function
+    return decorator
+
+
+def require_admin(func):
+    @wraps(func)
+    def decorator(*args, **kwargs):
+        # Check if the user is an admin
+        if not check_admin_status():
+            flash("Unauthorized access! Admin only.", "danger")
+            return redirect(url_for("home"))
+
+        return func(*args, **kwargs)
+
+    return decorator

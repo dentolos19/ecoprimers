@@ -1,8 +1,7 @@
 @import url("https://cdnjs.cloudflare.com/ajax/libs/normalize/8.0.1/normalize.min.css");
 
 html, body {
-  width: 100%;
-  height: 100%;
+  height: 100dvh;
 }
 
 .app {
@@ -11,14 +10,14 @@ html, body {
   flex-direction: column;
 }
 
-.app > main {
-  flex-grow: 1;
+.app > .body {
+  flex: 1;
   overflow: auto;
 }
 
 .admin {
-  display: flex;
   height: 100%;
+  display: flex;
 }
 
 .admin > .navigation {
@@ -39,11 +38,7 @@ html, body {
   background-color: #f1f1f1;
 }
 
-.admin > main {
-  flex-grow: 1;
+.admin > .body {
+  flex: 1;
   overflow: auto;
-}
-
-.fas.fa-user-circle {
-  font-size: 24px;
 }

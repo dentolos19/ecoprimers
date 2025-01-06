@@ -7,5 +7,10 @@ model: genai.GenerativeModel = None
 
 def init():
     global model
+
+    # Skip if AI model is already initialized
+    if model:
+        return
+
     genai.configure(api_key=GEMINI_API_KEY)
     model = genai.GenerativeModel("gemini-1.5-flash")
