@@ -201,19 +201,19 @@ def admin_events():
     return render_template("admin/events.html", events=events)
 
 
-@app.route("/admin/events/add", methods=["GET", "POST"])
+@app.route("/admin/events/new", methods=["GET", "POST"])
 @require_admin
-def admin_events_add():
+def admin_events_new():
     if request.method == "POST":
         # Collect data from the form
-        event_name = request.form["eventName"]
-        event_description = request.form["eventDescription"]
-        event_location = request.form["eventLocation"]
-        event_date = request.form["eventDate"]
+        event_title = request.form["title"]
+        event_description = request.form["description"]
+        event_location = request.form["location"]
+        event_date = request.form["date"]
 
         # Create an Event object and save it to the database
         new_event = Event(
-            title=event_name,
+            title=event_title,
             description=event_description,
             location=event_location,
             date=event_date,
@@ -230,7 +230,62 @@ def admin_events_add():
 
         return redirect(url_for("admin_events"))
 
-    return render_template("admin/events-add.html")
+    return render_template("admin/events-new.html")
+
+
+@app.route("/admin/events/<int:id>", methods=["GET", "POST"])
+def admin_events_edit(id):
+    # Query the event from the database
+    event = db_session.query(Event).filter_by(id=id).first()
+
+    if request.method == "POST":
+        # Collect data from the form
+        event_title = request.form["title"]
+        event_description = request.form["description"]
+        event_location = request.form["location"]
+        event_date = request.form["date"]
+
+        # Update the event object with the new data
+        event.title = event_title
+        event.description = event_description
+        event.location = event_location
+        event.date = event_date
+
+        try:
+            # Commit the changes to the database
+            db_session.commit()
+            flash("Event updated successfully!", "success")
+        except Exception as e:
+            db_session.rollback()
+            flash(f"An error occurred while updating the event: {str(e)}", "danger")
+
+        return redirect(url_for("admin_events"))
+
+    return render_template("admin/events-edit.html", event=event)
+
+
+@app.route("/admin/events/<int:id>/delete", methods=["GET", "POST"])
+def admin_events_delete(id):
+    # Query the event from the database
+    event = db_session.query(Event).filter_by(id=id).first()
+
+    if request.method == "POST":
+        # Collect data from the form
+        event_title = request.form["title"]
+
+        if event.title != event_title:
+            flash("The event title does not match. Please try again.", "danger")
+            return redirect(url_for("admin_events_delete", id=id))
+
+        try:
+            db_session.delete(event)
+        except Exception as e:
+            db_session.rollback()
+            flash(f"An error occurred while deleting the event: {str(e)}", "danger")
+
+        return redirect(url_for("admin_events"))
+
+    return render_template("admin/events-delete.html", event=event)
 
 
 @app.route("/admin/users")
