@@ -5,7 +5,7 @@ from werkzeug.security import check_password_hash, generate_password_hash
 from database import session as db_session
 from environment import STRIPE_SECRET_KEY
 from main import app
-from models import Event, User
+from models import Event, Transaction, User
 from utils import check_admin_status, check_logged_in, require_admin, require_login
 
 stripe.api_key = STRIPE_SECRET_KEY
@@ -246,6 +246,6 @@ def admin_users():
 @require_admin
 def admin_transactions():
     # Query all transactions from the database
-    transactions = db_session.query(User).all()
+    transactions = db_session.query(Transaction).all()
 
     return render_template("admin/transactions.html", transactions=transactions)
