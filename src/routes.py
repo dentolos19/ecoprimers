@@ -420,3 +420,10 @@ def admin_transactions():
     transactions = db_session.query(Transaction).all()
 
     return render_template("admin/transactions.html", transactions=transactions)
+
+@app.route("/event/details")
+def event_info():
+    event_id = request.args.get("id")
+    event = db_session.query(Event).filter_by(id=event_id).first()
+
+    return render_template("event-details.html", event=event)
