@@ -1,0 +1,35 @@
+{% extends "admin/base.html" %}
+
+{% block abody %}
+<main class="h-100 d-flex justify-content-center align-items-center">
+  <div class="card" style="width: 500px;">
+    <form class="card-body" method="POST" action="{{ url_for('admin_users_edit', id=user.id) }}">
+      <div>
+        <h5 class="card-title text-center">Edit User</h5>
+      </div>
+      <div class="vstack gap-2">
+        <div>
+          <label class="form-label" for="username">Username</label>
+          <input class="form-control" type="text" id="username" name="username" value="{{ user.username }}" required />
+        </div>
+        <div>
+          <label class="form-label" for="email">Email</label>
+          <input class="form-control" type="email" id="email" name="email" value="{{ user.email }}" required />
+        </div>
+        <div>
+          <label class="form-label" for="bio">Bio</label>
+          <textarea class="form-control" id="bio" name="bio" rows="4" required>{{ user.bio }}</textarea>
+        </div>
+        <div>
+          <label class="form-label" for="birthday">Birthday</label>
+          <input class="form-control" type="date" id="birthday" name="birthday" value="{{ user.birthday }}" required />
+        </div>
+      </div>
+      <div class="mt-4 d-flex justify-content-end gap-2">
+        <a class="btn btn-light" href="{{ url_for('admin_users') }}">Cancel</a>
+        <button class="btn btn-primary" type="submit">Save</button>
+      </div>
+    </form>
+  </div>
+</main>
+{% endblock %}

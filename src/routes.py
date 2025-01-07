@@ -23,7 +23,6 @@ def init():
 def home():
     return render_template("home.html")
 
-from flask import session, redirect, url_for, render_template
 
 @app.route("/profile")
 def profile():
@@ -44,10 +43,10 @@ def profile():
 def edit_profile():
     user_id = session.get("user_id")
     if not user_id:
-        return redirect("/login") 
+        return redirect("/login")
 
     user = db_session.query(User).filter(User.id == user_id).first()
-    
+
     if request.method == "POST":
         user.email = request.form["email"]
         user.username = request.form["username"]
@@ -61,7 +60,7 @@ def edit_profile():
         except Exception as e:
             db_session.rollback()
             flash(f"An error occurred: {str(e)}", "danger")
-    
+
     return render_template("edit-profile.html", user=user)
 
 
@@ -336,6 +335,63 @@ def admin_users():
     users = db_session.query(User).all()
 
     return render_template("admin/users.html", users=users)
+
+
+@app.route("/admin/users/<int:id>", methods=["GET", "POST"])
+@require_admin
+def admin_users_edit(id):
+    # Query the user from the database
+    user = db_session.query(User).filter_by(id=id).first()
+
+    if request.method == "POST":
+        # Collect data from the form
+        user_username = request.form["username"]
+        user_email = request.form["email"]
+        user_bio = request.form["bio"]
+        user_birthday = request.form["birthday"]
+
+        # Update the user object with the new data
+        user.email = user_email
+        user.username = user_username
+        user.bio = user_bio
+        user.birthday = user_birthday
+
+        try:
+            # Commit the changes to the database
+            db_session.commit()
+            flash("User updated successfully!", "success")
+        except Exception as e:
+            db_session.rollback()
+            flash(f"An error occurred while updating the user: {str(e)}", "danger")
+
+        return redirect(url_for("admin_users"))
+
+    return render_template("admin/users-edit.html", user=user)
+
+
+@app.route("/admin/users/<int:id>/delete", methods=["GET", "POST"])
+@require_admin
+def admin_users_delete(id):
+    # Query the user from the database
+    user = db_session.query(User).filter_by(id=id).first()
+
+    if request.method == "POST":
+        # Collect data from the form
+        user_username = request.form["username"]
+
+        if user.username != user_username:
+            flash("The username does not match. Please try again.", "danger")
+            return redirect(url_for("admin_users_delete", id=id))
+
+        try:
+            db_session.delete(user)
+        except Exception as e:
+            db_session.rollback()
+            flash(f"An error occurred while deleting the user: {str(e)}", "danger")
+
+        return redirect(url_for("admin_users"))
+
+    return render_template("admin/users-delete.html", user=user)
 
 
 @app.route("/admin/transactions")
