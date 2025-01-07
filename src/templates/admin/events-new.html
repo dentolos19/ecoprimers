@@ -1,7 +1,7 @@
 {% extends "admin/base.html" %}
 
 {% block abody %}
-<main class="h-100 d-flex justify-content-center align-items-center">
+<div class="h-100 d-flex justify-content-center align-items-center">
   <div class="card" style="width: 500px;">
     <form class="card-body" method="POST" action="{{ url_for('admin_events_new') }}">
       <div>
@@ -31,6 +31,6 @@
       </div>
     </form>
   </div>
-</main>
+</div>
 
 {% endblock %}
