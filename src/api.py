@@ -1,6 +1,6 @@
 from flask import jsonify, request
 
-from ai import model
+from ai import agent
 from main import app
 
 
@@ -26,7 +26,7 @@ def api_chat():
     ai_request += f"user (current prompt): {prompt}\n"
 
     # Generate a response
-    ai_response = model.generate_content(ai_request)
+    ai_response = agent.generate_content(ai_request)
     ai_response_text = ai_response.candidates[0].content.parts[0].text.strip()
 
     return jsonify({"response": ai_response_text})

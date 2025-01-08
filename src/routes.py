@@ -3,12 +3,11 @@ from flask import flash, redirect, render_template, request, session, url_for
 from werkzeug.security import check_password_hash, generate_password_hash
 
 from database import session as db_session
-from environment import STRIPE_SECRET_KEY
 from main import app
 from models import Event, Transaction, User
 from utils import check_admin_status, check_logged_in, require_admin, require_login
 
-stripe.api_key = STRIPE_SECRET_KEY
+stripe.api_key = app.config["STRIPE_SECRET_KEY"]
 
 
 @app.context_processor
