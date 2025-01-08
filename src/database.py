@@ -1,6 +1,7 @@
 import os
 
 from flask import Flask
+from flask_migrate import Migrate
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy.orm import Session
 
@@ -9,12 +10,14 @@ from models import Base
 initialized: bool = False
 sql: SQLAlchemy = None
 session: Session = None
+migrate: Migrate = None
 
 
 def init(app: Flask, local: bool = True):
     global initialized
     global sql
     global session
+    global migrate
 
     # Skip if database session is already initialized
     if initialized:
@@ -52,5 +55,7 @@ def init(app: Flask, local: bool = True):
         # Automatically update the database schema to match the models
         with app.app_context():
             sql.create_all()
+
+        migrate = Migrate(app, sql)
 
         initialized = True
