@@ -1,10 +1,16 @@
 from datetime import datetime
 
+from sqlalchemy import DateTime, func
 from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column
 
 
 class Base(DeclarativeBase):
-    pass
+    updated_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), default=func.now(), onupdate=func.now()
+    )
+    created_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), default=func.now()
+    )
 
 
 class User(Base):
@@ -15,8 +21,8 @@ class User(Base):
     email: Mapped[str] = mapped_column(unique=True, nullable=False)
     password: Mapped[str] = mapped_column(nullable=False)
 
-    bio: Mapped[str] = mapped_column(nullable=False)
-    birthday: Mapped[str] = mapped_column(nullable=False)
+    bio: Mapped[str] = mapped_column(nullable=True)
+    birthday: Mapped[str] = mapped_column(nullable=True)
 
 
 class Event(Base):
@@ -44,7 +50,6 @@ class Post(Base):
     user_id: Mapped[int] = mapped_column(nullable=False)
     title: Mapped[str] = mapped_column(nullable=False)
     description: Mapped[str] = mapped_column(nullable=False)
-    created_at: Mapped[datetime] = mapped_column(nullable=False)
 
 
 class PostComment(Base):
@@ -54,7 +59,6 @@ class PostComment(Base):
     post_id: Mapped[int] = mapped_column(nullable=False)
     user_id: Mapped[int] = mapped_column(nullable=False)
     message: Mapped[str] = mapped_column(nullable=False)
-    created_at: Mapped[datetime] = mapped_column(nullable=False)
 
 
 class Task(Base):
@@ -89,7 +93,6 @@ class Transaction(Base):
     id: Mapped[int] = mapped_column(primary_key=True)
     user_id: Mapped[int] = mapped_column(nullable=False)
     product_id: Mapped[int] = mapped_column(nullable=False)
-    created_at: Mapped[datetime] = mapped_column(nullable=False)
 
 
 class Message(Base):
@@ -100,7 +103,6 @@ class Message(Base):
     receiver_id: Mapped[int] = mapped_column(nullable=False)
     message: Mapped[str] = mapped_column(nullable=False)
     is_read: Mapped[bool] = mapped_column(nullable=False)
-    created_at: Mapped[datetime] = mapped_column(nullable=False)
 
 
 class Donation(Base):
@@ -113,4 +115,3 @@ class Donation(Base):
 
     # TODO: Use these fields below instead
     # user_id = mapped_column(nullable=False)
-    # created_at = mapped_column(nullable=False)
