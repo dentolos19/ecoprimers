@@ -172,21 +172,40 @@ def events():
     return render_template("events.html", events=events)
 
 
-@app.route("/donation")
+@app.route("/donation", methods=["GET", "POST"])
 @require_login
 def donation():
-    stripe_session = stripe.checkout.Session.create(
-        line_items=[{"price": "price_1QdsnHRxRE93gjFvEyydXEaP", "quantity": 1}],
-        mode="payment",
-        success_url=url_for("donation_success", _external=True)
-        + "?session_id={CHECKOUT_SESSION_ID}",
-        cancel_url=url_for("donation", _external=True),
-    )
-    return render_template(
-        "donation.html",
-        checkout_session_id=stripe_session["id"],
-        checkout_public_key=app.config["STRIPE_PUBLIC_KEY"],
-    )
+    if request.method == "POST":
+        try:
+            amount = int(request.form["amount"]) * 100
+            if amount < 50:
+                return "Donation amount must be at least $0.50.", 400
+        except ValueError:
+            return "Invalid donation amount.", 400
+
+        stripe_session = stripe.checkout.Session.create(
+            payment_method_types=["card"],
+            line_items=[
+                {
+                    "price_data": {
+                        "currency": "sgd", 
+                        "product_data": {
+                            "name": "Donation",
+                        },
+                        "unit_amount": amount,
+                    },
+                    "quantity": 1,
+                }
+            ],
+            mode="payment",
+            success_url=url_for("donation_success", _external=True)
+            + "?session_id={CHECKOUT_SESSION_ID}",
+            cancel_url=url_for("donation", _external=True),
+        )
+
+        return redirect(stripe_session.url, code=303)
+
+    return render_template("donation.html")
 
 
 @app.route("/donation/success")
@@ -400,3 +419,10 @@ def admin_transactions():
     transactions = db_session.query(Transaction).all()
 
     return render_template("admin/transactions.html", transactions=transactions)
+
+@app.route("/event/details")
+def event_info():
+    event_id = request.args.get("id")
+    event = db_session.query(Event).filter_by(id=event_id).first()
+
+    return render_template("event-details.html", event=event)
