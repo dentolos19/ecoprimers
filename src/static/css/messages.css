@@ -7,17 +7,10 @@
 .user {
     display: flex;
     align-items: center;
-    gap: 15px;  /* Space between circle and text */
+    gap: 15px;
     padding: 11px;
     height: 75px;
     width: 100%;
-    border-top: 1px solid #b0b0b0;
-    border-left: 1px solid #b0b0b0;
-    border-right: 1px solid #b0b0b0;
-}
-
-.user:last-child {
-    border-bottom: 1px solid #b0b0b0;
 }
 
 .user .initials {
@@ -43,11 +36,21 @@
 .user-info .name {
     margin: 0;
     font-size: 1.2rem;
-    font-weight: normal;  /* Makes it match the screenshot */
+    font-weight: normal;  
 }
 
 .user-info .status {
     margin: 0;
     color: #666;
     font-size: 0.9rem;
+}
+
+.user img {
+    height: 53px;
+    width: 53px;
+    border-radius: 50%;
+}
+
+#users :hover {
+    background-color: #b0b0b0;
 }
