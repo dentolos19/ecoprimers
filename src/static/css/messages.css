@@ -1,6 +1,99 @@
+.body {
+    display: flex;
+}
+
 #users {
     height: 100%;
     width: 400px;
-    background-color: #d9d9d9;
+    background-color: #d9d9d9 !important;
 }
 
+.user {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    padding: 11px;
+    height: 75px;
+    width: 100%;
+}
+
+.user .initials {
+    background-color: #fff;
+    height: 53px;
+    width: 53px;
+    border-radius: 50%;
+}
+
+.user .initials h3 {
+    margin: 0;
+    line-height: 53px;
+    text-align: center;
+    font-weight: bold;
+}
+
+.user-info {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+
+.user-info .name {
+    margin: 0;
+    font-size: 1.2rem;
+    font-weight: normal;  
+}
+
+.user-info .status {
+    margin: 0;
+    color: #666;
+    font-size: 0.9rem;
+}
+
+.user img {
+    height: 53px;
+    width: 53px;
+    border-radius: 50%;
+}
+
+#users :hover {
+    background-color: #b0b0b0;
+}
+
+#users .active {
+    background-color: #b0b0b0;
+}
+
+#input-space {
+    height:80px;
+}
+
+#message-space {
+    display: flex;
+    flex-direction: column-reverse;
+    width: max;
+    height: max;
+}
+
+.message-block {
+    padding-top: 10px;
+    padding-left: 50px;
+    padding-right: 50px;
+}
+
+.message-block .message {
+    padding-left: 10px;
+    padding-right: 10px;
+    border: 1px solid #000;
+    border-radius: 10px;
+
+    max-width: 275px;
+    height: auto;
+}
+
+.input-space {
+    height: 100px;
+}
+
+#chat-space {
+    overflow-y: auto;
+}

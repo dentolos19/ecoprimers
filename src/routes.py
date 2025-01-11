@@ -1,11 +1,18 @@
 import stripe
-from flask import flash, redirect, render_template, request, session, url_for
+from flask import flash, redirect, render_template, request, session, url_for, jsonify
 from werkzeug.security import check_password_hash, generate_password_hash
 
+from database import sql
+from main import app, socketio
+from models import Event, Transaction, User, Message
 from database import sql
 from main import app
 from models import Event, Transaction, User
 from utils import check_admin_status, check_logged_in, require_admin, require_login
+from sqlalchemy import or_
+
+from datetime import datetime, timezone
+from flask_socketio import SocketIO, emit, join_room
 
 stripe.api_key = app.config["STRIPE_SECRET_KEY"]
 
@@ -217,14 +224,45 @@ def donation_success():
 
 @app.route("/chat")
 @require_login
+
 def chat():
     return render_template("chat.html")
 
 
-@app.route("/community/messages")
+@app.route("/community/messages", methods=["GET", "POST"])
+@app.route("/community/messages/<int:receiver_id>", methods=["GET", "POST"])
 @require_login
-def messaging_page():
-    return render_template("messaging.html")
+def messaging(receiver_id=None):
+    user_list = sql.session.query(User).all()
+
+    if request.method == "POST":
+        message_content = request.form.get("message")
+        receiver_id = request.form.get("receiver-id")
+        sender_id = request.form.get("sender-id")
+
+        message = Message(
+            sender_id=sender_id, 
+            receiver_id=receiver_id,  # Changed spelling to match model
+            message=message_content, 
+            is_read=False,
+            created_at=datetime.now(timezone.utc)
+        )
+        
+        sql.session.add(message)
+        sql.session.commit()
+        
+        socketio.emit("receive_message", {
+            "id": message.id,
+            "sender_id": message.sender_id,
+            "receiver_id": message.receiver_id,
+            "message": message.message,
+            "is_read": message.is_read,
+            "created_at": message.created_at.isoformat(),
+        }, room=receiver_id)
+        
+        return render_template("messaging.html", users=user_list, sender_id=session["user_id"], receiver_id=receiver_id)
+    
+    return render_template("messaging.html", users=user_list, sender_id=session["user_id"], receiver_id=receiver_id)
 
 
 @app.route("/admin")
@@ -427,3 +465,34 @@ def event_info():
     event = sql.session.query(Event).filter_by(id=event_id).first()
 
     return render_template("event-details.html", event=event)
+
+@socketio.on('join')
+def on_join(data):
+    room = data.get('recipient_id')
+    if room:
+        join_room(room)  
+
+@socketio.on('disconnect')
+def on_disconnect():
+    pass  
+
+@app.route('/api/messages', methods=["GET", "POST"])
+@require_login
+def api_messages():
+    sender_id = request.args.get("sender_id")
+    receiver_id = request.args.get("receiver_id")
+
+    messages = sql.session.query(Message).filter(or_(Message.sender_id == sender_id, Message.sender_id == receiver_id)).all()
+    message_list = [
+        {
+            "id": message.id,
+            "sender_id": message.sender_id,
+            "receiver_id": message.receiver_id,
+            "message": message.message,
+            "is_read": message.is_read,
+            "created_at": message.created_at.isoformat(),
+        }
+        for message in messages
+    ]
+    
+    return message_list
