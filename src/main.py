@@ -1,5 +1,6 @@
 import os
 
+import stripe
 from flask import Flask
 from flask_socketio import SocketIO
 
@@ -17,6 +18,7 @@ ai.init(app)
 database.init(app, local=app_debug)
 
 socketio = SocketIO(app, cors_allowed_origins="*")
+stripe.api_key = app.config["STRIPE_SECRET_KEY"]
 
 # Import routes into the main module
 from api import *
