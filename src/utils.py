@@ -1,5 +1,6 @@
 import random
 import string
+from datetime import datetime
 from functools import wraps
 
 from flask import flash, redirect, session, url_for
@@ -9,6 +10,12 @@ from main import app_debug
 
 def generate_random_string(length: int = 8):
     return "".join(random.choices(string.ascii_letters + string.digits, k=length))
+
+def convert_from_form_date(date: str):
+    return datetime.strptime(date, "%Y-%m-%d").date()
+
+def convert_to_form_date(date: datetime):
+    return date.strftime("%Y-%m-%d")
 
 
 def check_logged_in():
