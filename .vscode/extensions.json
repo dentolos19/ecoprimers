@@ -1,3 +1,6 @@
 {
-  "recommendations": ["samuelcolvin.jinjahtml"]
+  "recommendations": [
+    "charliermarsh.ruff",
+    "samuelcolvin.jinjahtml",
+  ]
 }
