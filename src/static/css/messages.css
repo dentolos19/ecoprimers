@@ -67,22 +67,29 @@
     height:80px;
 }
 
-#chat-space {
+#message-space {
     display: flex;
     flex-direction: column-reverse;
     width: max;
+    height: max;
 }
 
 .message-block {
-    padding-top: 
+    padding-top: 10px;
     padding-left: 50px;
     padding-right: 50px;
 }
 
 .message-block .message {
+    padding-left: 10px;
+    padding-right: 10px;
     border: 1px solid #000;
     border-radius: 10px;
 
     max-width: 275px;
     height: auto;
+}
+
+.input-space {
+    height: 100px;
 }

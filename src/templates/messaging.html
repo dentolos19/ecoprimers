@@ -7,6 +7,7 @@
 
 {% block scripts %}
 <script src="../static/js/messages.js"></script>
+<script src="https://cdn.socket.io/4.0.0/socket.io.min.js"></script>
 {% endblock %}
 
 {% block body %}
@@ -68,11 +69,26 @@
     </div>
 </div>
 
-<div class="chat-space">
-    <div class = "message-block">
-        <div class = "message">
-            <p> this is a sample message </p>
+<div id = "chat-scape">
+    <div class="message-space">
+        <div class = "message-block other-person">
+            <div class = "message">
+                <p> this is a sample message </p>
+            </div>
         </div>
+        <div class = "message-block you">
+            <div class = "message">
+                <p> this is a sample message </p>
+            </div>
+        </div>
+    </div>
+    <div class = "input space">
+        <form method = "POST" action = "/community/messages">
+            <input type = "int" hidden id="recepient-id">
+            <input type = "int" hidden id="sender-id">
+            <input type = "text" id = "message" name = "message" placeholder="Enter message here">
+            <input type = "submit" id = "send-message" placeholder="Send">
+        </form>
     </div>
 </div>
 

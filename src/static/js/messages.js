@@ -7,6 +7,7 @@ function open_chat(event) {
         
         clickedUser.classList.add('active');
     }
+
 }
 
 document.addEventListener("DOMContentLoaded", function () {

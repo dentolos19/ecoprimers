@@ -4,8 +4,11 @@ from werkzeug.security import check_password_hash, generate_password_hash
 
 from database import session as db_session
 from main import app
-from models import Event, Transaction, User
+from models import Event, Transaction, User, Message
 from utils import check_admin_status, check_logged_in, require_admin, require_login
+
+from datetime import datetime, timezone
+from flask_socketio import SocketIO, emit
 
 stripe.api_key = app.config["STRIPE_SECRET_KEY"]
 
@@ -426,3 +429,18 @@ def event_info():
     event = db_session.query(Event).filter_by(id=event_id).first()
 
     return render_template("event-details.html", event=event)
+
+@app.route('/community/messages', methods=["POST"])
+@require_login
+def send_message():
+    message_content = request.form["message"]
+    recepient_id = request.form["recepient-id"]
+    sender_id = request.form["sender-id"]
+    sent_time = datetime.now(timezone.utcoffset(8))
+
+    message = Message(message = message_content, sender_id = sender_id, recepient_id = recepient_id, created_at = sent_time, is_read = False)
+    db_session.add(message)
+    db_session.commit()
+
+    SocketIO.emit("receive message", {"sender_id": sender_id, "receipient_id": recepient_id, "message": message_content, "sent_time": sent_time}, room = recepient_id)
+    return render_template("messaging.html")

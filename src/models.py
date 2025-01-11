@@ -97,7 +97,7 @@ class Message(Base):
 
     id: Mapped[int] = mapped_column(primary_key=True)
     sender_id: Mapped[int] = mapped_column(nullable=False)
-    receiver_id: Mapped[int] = mapped_column(nullable=False)
+    receipient_id: Mapped[int] = mapped_column(nullable=False)
     message: Mapped[str] = mapped_column(nullable=False)
     is_read: Mapped[bool] = mapped_column(nullable=False)
     created_at: Mapped[datetime] = mapped_column(nullable=False)
