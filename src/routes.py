@@ -1,18 +1,15 @@
+from datetime import datetime, timezone
+
 import stripe
-from flask import flash, redirect, render_template, request, session, url_for, jsonify
+from flask import flash, redirect, render_template, request, session, url_for
+from flask_socketio import join_room
+from sqlalchemy import or_
 from werkzeug.security import check_password_hash, generate_password_hash
 
 from database import sql
 from main import app, socketio
-from models import Event, Transaction, User, Message
-from database import sql
-from main import app
-from models import Event, Transaction, User
+from models import Event, Message, Transaction, User
 from utils import check_admin_status, check_logged_in, require_admin, require_login
-from sqlalchemy import or_
-
-from datetime import datetime, timezone
-from flask_socketio import SocketIO, emit, join_room
 
 stripe.api_key = app.config["STRIPE_SECRET_KEY"]
 
@@ -224,7 +221,6 @@ def donation_success():
 
 @app.route("/chat")
 @require_login
-
 def chat():
     return render_template("chat.html")
 
@@ -241,28 +237,42 @@ def messaging(receiver_id=None):
         sender_id = request.form.get("sender-id")
 
         message = Message(
-            sender_id=sender_id, 
+            sender_id=sender_id,
             receiver_id=receiver_id,  # Changed spelling to match model
-            message=message_content, 
+            message=message_content,
             is_read=False,
-            created_at=datetime.now(timezone.utc)
+            created_at=datetime.now(timezone.utc),
         )
-        
+
         sql.session.add(message)
         sql.session.commit()
-        
-        socketio.emit("receive_message", {
-            "id": message.id,
-            "sender_id": message.sender_id,
-            "receiver_id": message.receiver_id,
-            "message": message.message,
-            "is_read": message.is_read,
-            "created_at": message.created_at.isoformat(),
-        }, room=receiver_id)
-        
-        return render_template("messaging.html", users=user_list, sender_id=session["user_id"], receiver_id=receiver_id)
-    
-    return render_template("messaging.html", users=user_list, sender_id=session["user_id"], receiver_id=receiver_id)
+
+        socketio.emit(
+            "receive_message",
+            {
+                "id": message.id,
+                "sender_id": message.sender_id,
+                "receiver_id": message.receiver_id,
+                "message": message.message,
+                "is_read": message.is_read,
+                "created_at": message.created_at.isoformat(),
+            },
+            room=receiver_id,
+        )
+
+        return render_template(
+            "messaging.html",
+            users=user_list,
+            sender_id=session["user_id"],
+            receiver_id=receiver_id,
+        )
+
+    return render_template(
+        "messaging.html",
+        users=user_list,
+        sender_id=session["user_id"],
+        receiver_id=receiver_id,
+    )
 
 
 @app.route("/admin")
@@ -466,23 +476,30 @@ def event_info():
 
     return render_template("event-details.html", event=event)
 
-@socketio.on('join')
+
+@socketio.on("join")
 def on_join(data):
-    room = data.get('recipient_id')
+    room = data.get("recipient_id")
     if room:
-        join_room(room)  
+        join_room(room)
 
-@socketio.on('disconnect')
+
+@socketio.on("disconnect")
 def on_disconnect():
-    pass  
+    pass
 
-@app.route('/api/messages', methods=["GET", "POST"])
+
+@app.route("/api/messages", methods=["GET", "POST"])
 @require_login
 def api_messages():
     sender_id = request.args.get("sender_id")
     receiver_id = request.args.get("receiver_id")
 
-    messages = sql.session.query(Message).filter(or_(Message.sender_id == sender_id, Message.sender_id == receiver_id)).all()
+    messages = (
+        sql.session.query(Message)
+        .filter(or_(Message.sender_id == sender_id, Message.sender_id == receiver_id))
+        .all()
+    )
     message_list = [
         {
             "id": message.id,
@@ -494,5 +511,5 @@ def api_messages():
         }
         for message in messages
     ]
-    
+
     return message_list
