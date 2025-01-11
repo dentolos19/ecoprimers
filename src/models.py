@@ -5,12 +5,8 @@ from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column
 
 
 class Base(DeclarativeBase):
-    updated_at: Mapped[datetime] = mapped_column(
-        DateTime(timezone=True), default=func.now(), onupdate=func.now()
-    )
-    created_at: Mapped[datetime] = mapped_column(
-        DateTime(timezone=True), default=func.now()
-    )
+    updated_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=func.now(), onupdate=func.now())
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=func.now())
 
 
 class User(Base):
@@ -102,7 +98,7 @@ class Message(Base):
     sender_id: Mapped[int] = mapped_column(nullable=False)
     receiver_id: Mapped[int] = mapped_column(nullable=False)
     message: Mapped[str] = mapped_column(nullable=False)
-    is_read: Mapped[bool] = mapped_column(nullable=False)
+    is_read: Mapped[bool] = mapped_column(nullable=False, default=False)
 
     def to_dict(self):
         return {
@@ -122,6 +118,3 @@ class Donation(Base):
     username: Mapped[str] = mapped_column(nullable=False)
     amount: Mapped[float] = mapped_column(nullable=False)
     date_time: Mapped[datetime] = mapped_column(nullable=False)
-
-    # TODO: Use these fields below instead
-    # user_id = mapped_column(nullable=False)
