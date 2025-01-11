@@ -1,4 +1,3 @@
-from datetime import datetime, timezone
 
 import stripe
 from flask import flash, redirect, render_template, request, session, url_for
@@ -110,11 +109,7 @@ def signup():
         birthday = request.form["birthday"]
 
         # Check if the username or email already exists in the database
-        existing_user = (
-            sql.session.query(User)
-            .filter((User.email == email) | (User.username == username))
-            .first()
-        )
+        existing_user = sql.session.query(User).filter((User.email == email) | (User.username == username)).first()
 
         if existing_user:
             flash("Error! Username or email already exists.", "danger")
@@ -201,8 +196,7 @@ def donation():
                 }
             ],
             mode="payment",
-            success_url=url_for("donation_success", _external=True)
-            + "?session_id={CHECKOUT_SESSION_ID}",
+            success_url=url_for("donation_success", _external=True) + "?session_id={CHECKOUT_SESSION_ID}",
             cancel_url=url_for("donation", _external=True),
         )
 
@@ -240,7 +234,6 @@ def messaging(receiver_id=None):
             receiver_id=receiver_id,
             message=message_content,
             is_read=False,
-            created_at=datetime.now(timezone.utc),
         )
 
         sql.session.add(message)
