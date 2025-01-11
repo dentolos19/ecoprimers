@@ -1,3 +1,7 @@
+.body {
+    display: flex;
+}
+
 #users {
     height: 100%;
     width: 400px;
@@ -53,4 +57,32 @@
 
 #users :hover {
     background-color: #b0b0b0;
+}
+
+#users .active {
+    background-color: #b0b0b0;
+}
+
+#input-space {
+    height:80px;
+}
+
+#chat-space {
+    display: flex;
+    flex-direction: column-reverse;
+    width: max;
+}
+
+.message-block {
+    padding-top: 
+    padding-left: 50px;
+    padding-right: 50px;
+}
+
+.message-block .message {
+    border: 1px solid #000;
+    border-radius: 10px;
+
+    max-width: 275px;
+    height: auto;
 }

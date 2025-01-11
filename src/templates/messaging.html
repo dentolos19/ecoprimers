@@ -5,8 +5,11 @@
 {% endblock %}
 
 
-{% block body %}
+{% block scripts %}
 <script src="../static/js/messages.js"></script>
+{% endblock %}
+
+{% block body %}
 <div id="users">
     <div class="user">
         <div class="initials">
@@ -65,13 +68,12 @@
     </div>
 </div>
 
-<div id="chat-space">
-    <div id="message-space">
-
-    </div>
-    
-    <div id ="input-space">
-
+<div class="chat-space">
+    <div class = "message-block">
+        <div class = "message">
+            <p> this is a sample message </p>
+        </div>
     </div>
 </div>
+
 {% endblock %}
