@@ -1,7 +1,10 @@
-from flask import jsonify, request, render_template
+from flask import request
+from sqlalchemy import and_
 
 from ai import agent
+from database import sql
 from main import app
+from models import Message
 
 
 @app.route("/api/chat", methods=["POST"])
@@ -29,4 +32,23 @@ def api_chat():
     ai_response = agent.generate_content(ai_request)
     ai_response_text = ai_response.candidates[0].content.parts[0].text.strip()
 
-    return jsonify({"response": ai_response_text})
+    return {"response": ai_response_text}
+
+
+@app.route("/api/messages", methods=["GET"])
+def api_messages():
+    # Get data from search parameters
+    sender_id = request.args.get("sender_id")
+    receiver_id = request.args.get("receiver_id")
+
+    # Query messages in the database
+    messages = (
+        sql.session.query(Message)
+        .filter(
+            and_(Message.sender_id == sender_id, Message.receiver_id == receiver_id),
+            and_(Message.sender_id == receiver_id, Message.receiver_id == sender_id),
+        )
+        .all()
+    )
+
+    return messages

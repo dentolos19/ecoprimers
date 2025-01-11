@@ -3,7 +3,6 @@ from datetime import datetime, timezone
 import stripe
 from flask import flash, redirect, render_template, request, session, url_for
 from flask_socketio import join_room
-from sqlalchemy import or_
 from werkzeug.security import check_password_hash, generate_password_hash
 
 from database import sql
@@ -238,7 +237,7 @@ def messaging(receiver_id=None):
 
         message = Message(
             sender_id=sender_id,
-            receiver_id=receiver_id,  # Changed spelling to match model
+            receiver_id=receiver_id,
             message=message_content,
             is_read=False,
             created_at=datetime.now(timezone.utc),
@@ -247,18 +246,11 @@ def messaging(receiver_id=None):
         sql.session.add(message)
         sql.session.commit()
 
-        socketio.emit(
-            "receive_message",
-            {
-                "id": message.id,
-                "sender_id": message.sender_id,
-                "receiver_id": message.receiver_id,
-                "message": message.message,
-                "is_read": message.is_read,
-                "created_at": message.created_at.isoformat(),
-            },
-            room=receiver_id,
-        )
+        # socketio.emit(
+        #     "receive_message",
+        #     message.to_dict(),
+        #     room=receiver_id,
+        # )
 
         return render_template(
             "messaging.html",
@@ -487,29 +479,3 @@ def on_join(data):
 @socketio.on("disconnect")
 def on_disconnect():
     pass
-
-
-@app.route("/api/messages", methods=["GET", "POST"])
-@require_login
-def api_messages():
-    sender_id = request.args.get("sender_id")
-    receiver_id = request.args.get("receiver_id")
-
-    messages = (
-        sql.session.query(Message)
-        .filter(or_(Message.sender_id == sender_id, Message.sender_id == receiver_id))
-        .all()
-    )
-    message_list = [
-        {
-            "id": message.id,
-            "sender_id": message.sender_id,
-            "receiver_id": message.receiver_id,
-            "message": message.message,
-            "is_read": message.is_read,
-            "created_at": message.created_at.isoformat(),
-        }
-        for message in messages
-    ]
-
-    return message_list

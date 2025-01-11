@@ -104,6 +104,16 @@ class Message(Base):
     message: Mapped[str] = mapped_column(nullable=False)
     is_read: Mapped[bool] = mapped_column(nullable=False)
 
+    def to_dict(self):
+        return {
+            "id": self.id,
+            "sender_id": self.sender_id,
+            "receiver_id": self.receiver_id,
+            "message": self.message,
+            "is_read": self.is_read,
+            "created_at": self.created_at.isoformat(),
+        }
+
 
 class Donation(Base):
     __tablename__ = "donations"
