@@ -1,14 +1,15 @@
 import stripe
-from flask import flash, redirect, render_template, request, session, url_for
+from flask import flash, redirect, render_template, request, session, url_for, jsonify
 from werkzeug.security import check_password_hash, generate_password_hash
 
-from database import session as db_session
-from main import app
+from database import sql
+from main import app, socketio
 from models import Event, Transaction, User, Message
 from utils import check_admin_status, check_logged_in, require_admin, require_login
+from sqlalchemy import or_
 
 from datetime import datetime, timezone
-from flask_socketio import SocketIO, emit
+from flask_socketio import SocketIO, emit, join_room
 
 stripe.api_key = app.config["STRIPE_SECRET_KEY"]
 
@@ -33,7 +34,7 @@ def profile():
         return redirect("/login")
 
     # Query the user from the database
-    user = db_session.query(User).filter(User.id == user_id).first()
+    user = sql.session.query(User).filter(User.id == user_id).first()
 
     if not user:
         return "User not found", 404
@@ -47,7 +48,7 @@ def edit_profile():
     if not user_id:
         return redirect("/login")
 
-    user = db_session.query(User).filter(User.id == user_id).first()
+    user = sql.session.query(User).filter(User.id == user_id).first()
 
     if request.method == "POST":
         user.email = request.form["email"]
@@ -56,11 +57,11 @@ def edit_profile():
         user.birthday = request.form["birthday"]
 
         try:
-            db_session.commit()
+            sql.session.commit()
             flash("Profile updated successfully!", "success")
             return redirect("/profile")
         except Exception as e:
-            db_session.rollback()
+            sql.session.rollback()
             flash(f"An error occurred: {str(e)}", "danger")
 
     return render_template("edit-profile.html", user=user)
@@ -78,7 +79,7 @@ def login():
         password = request.form["password"]
 
         # Get the user from the database
-        user = db_session.query(User).filter_by(email=email).first()
+        user = sql.session.query(User).filter_by(email=email).first()
 
         # Check if user exists and password matches
         if user and check_password_hash(user.password, password):
@@ -111,7 +112,7 @@ def signup():
 
         # Check if the username or email already exists in the database
         existing_user = (
-            db_session.query(User)
+            sql.session.query(User)
             .filter((User.email == email) | (User.username == username))
             .first()
         )
@@ -134,12 +135,12 @@ def signup():
 
         try:
             # Add the new user to the database
-            db_session.add(new_user)
-            db_session.commit()
+            sql.session.add(new_user)
+            sql.session.commit()
             flash("Sign up successful! You can now log in.", "success")
             return redirect("/login")
         except Exception as e:
-            db_session.rollback()  # Rollback if there's an error
+            sql.session.rollback()  # Rollback if there's an error
             flash(f"An error occurred: {str(e)}", "danger")
 
     return render_template("signup.html")
@@ -161,7 +162,7 @@ def events():
     location = request.args.get("location")
 
     # Query the database for events based on filter values
-    query = db_session.query(Event)
+    query = sql.session.query(Event)
 
     if from_date:
         query = query.filter(Event.date >= from_date)
@@ -220,14 +221,45 @@ def donation_success():
 
 @app.route("/chat")
 @require_login
+
 def chat():
     return render_template("chat.html")
 
 
-@app.route("/community/messages")
+@app.route("/community/messages", methods=["GET", "POST"])
+@app.route("/community/messages/<int:receiver_id>", methods=["GET", "POST"])
 @require_login
-def messaging_page():
-    return render_template("messaging.html")
+def messaging(receiver_id=None):
+    user_list = sql.session.query(User).all()
+
+    if request.method == "POST":
+        message_content = request.form.get("message")
+        receiver_id = request.form.get("receiver-id")
+        sender_id = request.form.get("sender-id")
+
+        message = Message(
+            sender_id=sender_id, 
+            receiver_id=receiver_id,  # Changed spelling to match model
+            message=message_content, 
+            is_read=False,
+            created_at=datetime.now(timezone.utc)
+        )
+        
+        sql.session.add(message)
+        sql.session.commit()
+        
+        socketio.emit("receive_message", {
+            "id": message.id,
+            "sender_id": message.sender_id,
+            "receiver_id": message.receiver_id,
+            "message": message.message,
+            "is_read": message.is_read,
+            "created_at": message.created_at.isoformat(),
+        }, room=receiver_id)
+        
+        return render_template("messaging.html", users=user_list, sender_id=session["user_id"], receiver_id=receiver_id)
+    
+    return render_template("messaging.html", users=user_list, sender_id=session["user_id"], receiver_id=receiver_id)
 
 
 @app.route("/admin")
@@ -241,20 +273,20 @@ def admin():
 @require_admin
 def admin_events():
     # Query all events from the database
-    events = db_session.query(Event).all()
+    events = sql.session.query(Event).all()
 
     if request.method == "POST" and request.form.get("delete_event"):
         # Handle deletion of event
         event_id = request.form["delete_event"]
-        event_to_delete = db_session.query(Event).filter_by(id=event_id).first()
+        event_to_delete = sql.session.query(Event).filter_by(id=event_id).first()
 
         if event_to_delete:
             try:
-                db_session.delete(event_to_delete)
-                db_session.commit()
+                sql.session.delete(event_to_delete)
+                sql.session.commit()
                 flash("Event deleted successfully!", "success")
             except Exception as e:
-                db_session.rollback()  # Rollback in case of error
+                sql.session.rollback()  # Rollback in case of error
                 flash(f"An error occurred while deleting the event: {str(e)}", "danger")
 
         return redirect(url_for("admin_events"))
@@ -282,11 +314,11 @@ def admin_events_new():
 
         try:
             # Add the event to the session and commit it to the database
-            db_session.add(new_event)
-            db_session.commit()
+            sql.session.add(new_event)
+            sql.session.commit()
             flash("Event added successfully!", "success")
         except Exception as e:
-            db_session.rollback()  # Rollback if there's an error
+            sql.session.rollback()  # Rollback if there's an error
             flash(f"An error occurred while adding the event: {str(e)}", "danger")
 
         return redirect(url_for("admin_events"))
@@ -297,7 +329,7 @@ def admin_events_new():
 @app.route("/admin/events/<int:id>", methods=["GET", "POST"])
 def admin_events_edit(id):
     # Query the event from the database
-    event = db_session.query(Event).filter_by(id=id).first()
+    event = sql.session.query(Event).filter_by(id=id).first()
 
     if request.method == "POST":
         # Collect data from the form
@@ -314,10 +346,10 @@ def admin_events_edit(id):
 
         try:
             # Commit the changes to the database
-            db_session.commit()
+            sql.session.commit()
             flash("Event updated successfully!", "success")
         except Exception as e:
-            db_session.rollback()
+            sql.session.rollback()
             flash(f"An error occurred while updating the event: {str(e)}", "danger")
 
         return redirect(url_for("admin_events"))
@@ -328,7 +360,7 @@ def admin_events_edit(id):
 @app.route("/admin/events/<int:id>/delete", methods=["GET", "POST"])
 def admin_events_delete(id):
     # Query the event from the database
-    event = db_session.query(Event).filter_by(id=id).first()
+    event = sql.session.query(Event).filter_by(id=id).first()
 
     if request.method == "POST":
         # Collect data from the form
@@ -339,9 +371,9 @@ def admin_events_delete(id):
             return redirect(url_for("admin_events_delete", id=id))
 
         try:
-            db_session.delete(event)
+            sql.session.delete(event)
         except Exception as e:
-            db_session.rollback()
+            sql.session.rollback()
             flash(f"An error occurred while deleting the event: {str(e)}", "danger")
 
         return redirect(url_for("admin_events"))
@@ -353,7 +385,7 @@ def admin_events_delete(id):
 @require_admin
 def admin_users():
     # Query all events from the database
-    users = db_session.query(User).all()
+    users = sql.session.query(User).all()
 
     return render_template("admin/users.html", users=users)
 
@@ -362,7 +394,7 @@ def admin_users():
 @require_admin
 def admin_users_edit(id):
     # Query the user from the database
-    user = db_session.query(User).filter_by(id=id).first()
+    user = sql.session.query(User).filter_by(id=id).first()
 
     if request.method == "POST":
         # Collect data from the form
@@ -379,10 +411,10 @@ def admin_users_edit(id):
 
         try:
             # Commit the changes to the database
-            db_session.commit()
+            sql.session.commit()
             flash("User updated successfully!", "success")
         except Exception as e:
-            db_session.rollback()
+            sql.session.rollback()
             flash(f"An error occurred while updating the user: {str(e)}", "danger")
 
         return redirect(url_for("admin_users"))
@@ -394,7 +426,7 @@ def admin_users_edit(id):
 @require_admin
 def admin_users_delete(id):
     # Query the user from the database
-    user = db_session.query(User).filter_by(id=id).first()
+    user = sql.session.query(User).filter_by(id=id).first()
 
     if request.method == "POST":
         # Collect data from the form
@@ -405,9 +437,9 @@ def admin_users_delete(id):
             return redirect(url_for("admin_users_delete", id=id))
 
         try:
-            db_session.delete(user)
+            sql.session.delete(user)
         except Exception as e:
-            db_session.rollback()
+            sql.session.rollback()
             flash(f"An error occurred while deleting the user: {str(e)}", "danger")
 
         return redirect(url_for("admin_users"))
@@ -419,28 +451,44 @@ def admin_users_delete(id):
 @require_admin
 def admin_transactions():
     # Query all transactions from the database
-    transactions = db_session.query(Transaction).all()
+    transactions = sql.session.query(Transaction).all()
 
     return render_template("admin/transactions.html", transactions=transactions)
 
 @app.route("/event/details")
 def event_info():
     event_id = request.args.get("id")
-    event = db_session.query(Event).filter_by(id=event_id).first()
+    event = sql.session.query(Event).filter_by(id=event_id).first()
 
     return render_template("event-details.html", event=event)
 
-@app.route('/community/messages', methods=["POST"])
+@socketio.on('join')
+def on_join(data):
+    room = data.get('recipient_id')
+    if room:
+        join_room(room)  
+
+@socketio.on('disconnect')
+def on_disconnect():
+    pass  
+
+@app.route('/api/messages', methods=["GET", "POST"])
 @require_login
-def send_message():
-    message_content = request.form["message"]
-    recepient_id = request.form["recepient-id"]
-    sender_id = request.form["sender-id"]
-    sent_time = datetime.now(timezone.utcoffset(8))
+def api_messages():
+    sender_id = request.args.get("sender_id")
+    receiver_id = request.args.get("receiver_id")
 
-    message = Message(message = message_content, sender_id = sender_id, recepient_id = recepient_id, created_at = sent_time, is_read = False)
-    db_session.add(message)
-    db_session.commit()
-
-    SocketIO.emit("receive message", {"sender_id": sender_id, "receipient_id": recepient_id, "message": message_content, "sent_time": sent_time}, room = recepient_id)
-    return render_template("messaging.html")
+    messages = sql.session.query(Message).filter(or_(Message.sender_id == sender_id, Message.sender_id == receiver_id)).all()
+    message_list = [
+        {
+            "id": message.id,
+            "sender_id": message.sender_id,
+            "receiver_id": message.receiver_id,
+            "message": message.message,
+            "is_read": message.is_read,
+            "created_at": message.created_at.isoformat(),
+        }
+        for message in messages
+    ]
+    
+    return message_list

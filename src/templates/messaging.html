@@ -1,95 +1,49 @@
 {% extends "base.html" %}
 
 {% block stylesheets %}
-<link rel="stylesheet" href="../static/css/messages.css">
+<link rel="stylesheet" href="{{ url_for('static', filename='css/messages.css') }}">
 {% endblock %}
 
-
 {% block scripts %}
-<script src="../static/js/messages.js"></script>
 <script src="https://cdn.socket.io/4.0.0/socket.io.min.js"></script>
+<script src="{{ url_for('static', filename='js/messages.js') }}"></script>
 {% endblock %}
 
 {% block body %}
 <div id="users">
-    <div class="user">
-        <div class="initials">
-            <img class="ratio ratio-1x1" src="https://github.com/shadcn.png" alt="Profile Picture" />
-        </div>
-        <div class="user-info">
-            <div class="user-info">
-                <h2 class="name">User's name</h2>
-                <p class="status">Read sample</p>
-            </div>
-        </div>
-    </div>
-    <div class="user">
-        <div class="initials">
-            <img class="ratio ratio-1x1" src="https://github.com/shadcn.png" alt="Profile Picture" />
-        </div>
-        <div class="user-info">
-            <div class="user-info">
-                <h2 class="name">User's name</h2>
-                <p class="status">Read sample</p>
-            </div>
-        </div>
-    </div>
-    <div class="user">
-        <div class="initials">
-            <img class="ratio ratio-1x1" src="https://github.com/shadcn.png" alt="Profile Picture" />
-        </div>
-        <div class="user-info">
-            <div class="user-info">
-                <h2 class="name">User's name</h2>
-                <p class="status">Read sample</p>
-            </div>
-        </div>
-    </div>
-    <div class="user">
-        <div class="initials">
-            <img class="ratio ratio-1x1" src="https://github.com/shadcn.png" alt="Profile Picture" />
-        </div>
-        <div class="user-info">
-            <div class="user-info">
-                <h2 class="name">User's name</h2>
-                <p class="status">Read sample</p>
-            </div>
-        </div>
-    </div>
-    <div class="user">
-        <div class="initials">
-            <img class="ratio ratio-1x1" src="https://github.com/shadcn.png" alt="Profile Picture" />
-        </div>
-        <div class="user-info">
-            <div class="user-info">
-                <h2 class="name">User's name</h2>
-                <p class="status">Read sample</p>
-            </div>
-        </div>
-    </div>
+    {% for user in users %}
+        {% if sender_id != user.id %}
+            <a class="user" href="{{ url_for('messaging', receiver_id=user.id) }}">
+                <div class="initials">
+                    <img class="ratio ratio-1x1" src="https://github.com/shadcn.png" alt="Profile Picture" />
+                </div>
+                <div class="user-info">
+                    <div class="user-info">
+                        <h2 class="name">{{ user.username }}</h2>
+                        <p class="status">Read sample</p>
+                    </div>
+                </div>
+            </a>
+        {% endif %}
+   {% endfor %} 
 </div>
 
+{% if receiver_id %}
 <div id = "chat-scape">
     <div class="message-space">
-        <div class = "message-block other-person">
-            <div class = "message">
-                <p> this is a sample message </p>
-            </div>
-        </div>
-        <div class = "message-block you">
-            <div class = "message">
-                <p> this is a sample message </p>
-            </div>
-        </div>
     </div>
     <div class = "input space">
-        <form method = "POST" action = "/community/messages">
-            <input type = "int" hidden id="recepient-id">
-            <input type = "int" hidden id="sender-id">
-            <input type = "text" id = "message" name = "message" placeholder="Enter message here">
-            <input type = "submit" id = "send-message" placeholder="Send">
+        <form method="POST" action="{{ url_for('messaging') }}">
+            <input type="hidden" name="receiver-id" id="receiver-id" value="{{ receiver_id }}">
+            <input type="hidden" name="sender-id" id="sender-id" value="{{ sender_id }}">
+            <input type="text" name="message" id="message" placeholder="Enter message here" required>
+            <button type="submit" id="send-message">Send</button>
         </form>
     </div>
 </div>
-
+{% else %}
+<div>
+    asds
+</div>
+{% endif %}
 {% endblock %}

@@ -1,6 +1,7 @@
 import os
 
 from flask import Flask
+from flask_socketio import SocketIO
 
 import ai
 import database
@@ -14,6 +15,8 @@ app.config["STRIPE_PUBLIC_KEY"] = os.environ.get("STRIPE_PUBLIC_KEY")
 # Initialize internal systems
 ai.init(app)
 database.init(app, local=app_debug)
+
+socketio = SocketIO(app, cors_allowed_origins="*")
 
 # Import routes into the main module
 from api import *

@@ -93,3 +93,7 @@
 .input-space {
     height: 100px;
 }
+
+#chat-space {
+    overflow-y: auto;
+}
