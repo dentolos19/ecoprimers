@@ -1,10 +1,19 @@
 from flask import Flask
 
+import os
 import ai
 import database
 
 app = Flask(__name__)
+# Configuration for the Flask app and database
+app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///social_media.db'
+app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+app.config['UPLOAD_FOLDER'] = 'static/uploads'  # Folder to save uploaded images
+
 app_debug = bool(app.config["DEBUG"])
+
+if not os.path.exists(app.config['UPLOAD_FOLDER']):
+    os.makedirs(app.config['UPLOAD_FOLDER'])
 
 # Initialize internal systems
 ai.init()

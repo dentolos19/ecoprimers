@@ -45,6 +45,14 @@ class Post(Base):
     title: Mapped[str] = mapped_column(nullable=False)
     description: Mapped[str] = mapped_column(nullable=False)
     created_at: Mapped[datetime] = mapped_column(nullable=False)
+    image_filename: Mapped[str] = mapped_column(nullable=False)
+    
+class PostLike(Base):
+    __tablename__ = "post_likes"
+    
+    id: Mapped[int] = mapped_column(primary_key=True)
+    user_id: Mapped[int] = mapped_column(nullable=False)
+    post_id: Mapped[int] = mapped_column(nullable=False)
 
 
 class PostComment(Base):
