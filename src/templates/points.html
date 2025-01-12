@@ -1,0 +1,88 @@
+{% extends "base.html" %}
+
+{% block stylesheets %}
+<style>
+  .points-box {
+    background-color: #fff9c4;
+    border: 1px solid #ffe082;
+    border-radius: 8px;
+    font-weight: bold;
+    font-size: 1.5em;
+    padding: 20px;
+    text-align: center;
+  }
+
+  .referral-section {
+    background-color: #e3f4f8;
+    border-radius: 8px;
+    padding: 20px;
+  }
+
+  .referral-code {
+    font-weight: bold;
+    font-size: 1.2em;
+  }
+
+  .btn-dark {
+    background-color: #000;
+    color: #fff;
+    font-size: 1.2em;
+  }
+
+  .btn-dark:hover {
+    background-color: #333;
+  }
+
+  .btn-secondary {
+    background-color: #f5f5f5;
+    color: #333;
+    border: none;
+    font-size: 1em;
+    text-align: center;
+  }
+
+  .btn-secondary:hover {
+    background-color: #ddd;
+  }
+</style>
+{% endblock %}
+
+{% block body %}
+<div class="container mt-4">
+    <!-- Success Message -->
+    <div class="alert alert-success text-center" role="alert">
+        Iron On Badge claimed successfully
+    </div>
+
+    <!-- Points Box -->
+    <div class="points-box mb-4">
+        <span class="icon-star" style="font-size: 2em; color: #ff6f61;">⭐</span>
+        Points: 0
+    </div>
+
+    <!-- Referral Code Section -->
+    <div class="referral-section mb-4">
+        <div class="d-flex justify-content-center align-items-center mb-3">
+            <div class="referral-code bg-light px-3 py-2 rounded-start">
+                ab12-cd34-ef56-gh78
+            </div>
+            <button class="btn btn-light rounded-end ms-2">
+                Copy <i class="bi bi-clipboard"></i>
+            </button>
+        </div>
+        <button class="btn btn-dark w-100">Share & earn 100 points</button>
+    </div>
+
+    <!-- Rewards Buttons Section -->
+    <div class="d-flex justify-content-around">
+        <button class="btn btn-secondary d-flex align-items-center gap-2 p-3">
+            <i class="bi bi-arrow-clockwise" style="font-size: 1.5em;"></i>
+            <span>Rewards Transaction</span>
+        </button>
+        <button class="btn btn-secondary d-flex align-items-center gap-2 p-3">
+            <i class="bi bi-calculator" style="font-size: 1.5em;"></i>
+            <span>Check Availability</span>
+        </button>
+    </div>
+</div>
+{% endblock %}

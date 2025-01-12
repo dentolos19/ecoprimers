@@ -1,7 +1,7 @@
 {% extends "admin/base.html" %}
 
 {% block abody %}
-<div class="h-100 d-flex justify-content-center align-items-center">
+<main class="h-100 d-flex justify-content-center align-items-center">
   <div class="card" style="width: 400px;">
     <form class="card-body" method="POST" action="{{ url_for('admin_events_delete', id=event.id) }}">
       <div>
@@ -28,5 +28,5 @@
       </div>
     </form>
   </div>
-</div>
+</main>
 {% endblock %}

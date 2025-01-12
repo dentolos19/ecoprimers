@@ -22,3 +22,6 @@ __pycache__/
 Desktop.ini
 Thumbs.db
 packages-microsoft-prod.deb
+
+#left incase for future uses (aryan)
+rewards.html
