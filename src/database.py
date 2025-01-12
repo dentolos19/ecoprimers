@@ -37,10 +37,11 @@ def init(app: Flask, local: bool = True):
             os.makedirs(database_dir)
         url = "sqlite:///" + database_file
     else:
-        url = f"sqlite+{app.config["TURSO_DATABASE_URL"]}/?authToken={app.config["TURSO_AUTH_TOKEN"]}&secure=true"
+        url = f"sqlite+{app.config['TURSO_DATABASE_URL']}/?authToken={app.config['TURSO_AUTH_TOKEN']}&secure=true"
 
-    # Set the database URI
+    # Set the database environment
     app.config["SQLALCHEMY_DATABASE_URI"] = url
+    app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = True
 
     try:
         sql = SQLAlchemy(model_class=Base)
