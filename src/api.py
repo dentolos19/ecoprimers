@@ -1,5 +1,5 @@
 from flask import request
-from sqlalchemy import and_
+from sqlalchemy import and_, or_
 
 from ai import agent
 from database import sql
@@ -43,19 +43,24 @@ def api_messages():
         receiver_id = request.args.get("receiver_id")
         limit = request.args.get("limit")
 
+        if not limit:
+            limit = 50
+
         # Query messages in the database
         messages = (
             sql.session.query(Message)
             .filter(
-                and_(Message.sender_id == sender_id, Message.receiver_id == receiver_id),
-                and_(Message.sender_id == receiver_id, Message.receiver_id == sender_id),
+                or_(
+                    and_(Message.sender_id == sender_id, Message.receiver_id == receiver_id),
+                    and_(Message.sender_id == receiver_id, Message.receiver_id == sender_id),
+                )
             )
             .order_by(Message.created_at.desc())
             .limit(limit)
             .all()
         )
 
-        return messages
+        return [message.to_dict() for message in messages]
 
     if request.method == "POST":
         # Get data from the request
