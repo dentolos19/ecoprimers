@@ -1,0 +1,60 @@
+{% extends "base.html" %}
+
+{% block title %}Events{% endblock %}
+
+{% block body %}
+
+<div class="container-fluid mt-4">
+    <div class="row">
+        <!-- Sidebar Filter -->
+        <div class="col-md-3">
+            <h5>SEARCH FILTER</h5>
+            <form method="GET" action="{{ url_for('events') }}">
+                <div class="mb-3">
+                    <label for="fromDate" class="form-label">Date</label>
+                    <input type="date" class="form-control" id="fromDate" name="fromDate" placeholder="From">
+                </div>
+                <div class="mb-3">
+                    <input type="date" class="form-control" id="toDate" name="toDate" placeholder="To">
+                </div>
+                <div class="mb-3">
+                    <label for="location" class="form-label">Location</label>
+                    <select class="form-select" id="location" name="location">
+                        <option value="">Select Location</option>
+                        <option value="Orchard">Orchard</option>
+                        <option value="Chinatown">Chinatown</option>
+                        <option value="Little India">Little India</option>
+                    </select>
+                </div>
+                <button type="submit" class="btn btn-primary">Apply Filters</button>
+            </form>
+        </div>
+
+        <!-- Event Cards -->
+        <div class="col-md-9">
+            <!-- Search Bar -->
+            <div class="input-group mb-3">
+                <input type="text" class="form-control" placeholder="Search" aria-label="Search">
+                <button class="btn btn-outline-secondary" type="button">
+                    <i class="bi bi-search"></i>
+                </button>
+            </div>
+
+            <!-- Event Cards Grid -->
+            <div class="row row-cols-1 row-cols-md-2 g-4">
+                {% for event in events %}
+                <div class="col">
+                    <div class="card" id="eventDetails" data-event-id="{{ event.id }}">
+                        <img src="https://via.placeholder.com/300x200" class="card-img-top" alt="{{ event.title }}">
+                        <div class="card-body">
+                            <h5 class="card-title">{{ event.title }}</h5>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock %}

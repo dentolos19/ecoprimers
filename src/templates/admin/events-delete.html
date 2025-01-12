@@ -1,0 +1,31 @@
+{% extends "admin/base.html" %}
+
+{% block abody %}
+<div class="h-100 d-flex justify-content-center align-items-center">
+  <div class="card" style="width: 400px;">
+    <form class="card-body" method="POST" action="{{ url_for('admin_events_delete', id=event.id) }}">
+      <div>
+        <h5 class="card-title text-center">Delete Event</h5>
+      </div>
+      <div>
+        <p>Are you sure that you want to delete this event? Please re-enter the title of the event to confirm.</p>
+        <p class="text-center">
+          <b>
+            {{ event.title }}
+          </b>
+        </p>
+      </div>
+      <div>
+        <div>
+          <label class="form-label" for="name">Confirm Title</label>
+          <input class="form-control" type="text" id="title" name="title" placeholder="{{ event.title }}" required />
+        </div>
+      </div>
+      <div class="mt-4 d-flex justify-content-end gap-2">
+        <a class="btn btn-light" href="{{ url_for('admin_events') }}">Cancel</a>
+        <button class="btn btn-danger" type="submit">Delete</button>
+      </div>
+    </form>
+  </div>
+</div>
+{% endblock %}

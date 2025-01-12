@@ -1,7 +1,10 @@
-from flask import jsonify, request
+from flask import request
+from sqlalchemy import and_, or_
 
-from ai import model
+from ai import agent
+from database import sql
 from main import app
+from models import Message
 
 
 @app.route("/api/chat", methods=["POST"])
@@ -26,7 +29,51 @@ def api_chat():
     ai_request += f"user (current prompt): {prompt}\n"
 
     # Generate a response
-    ai_response = model.generate_content(ai_request)
+    ai_response = agent.generate_content(ai_request)
     ai_response_text = ai_response.candidates[0].content.parts[0].text.strip()
 
-    return jsonify({"response": ai_response_text})
+    return {"response": ai_response_text}
+
+
+@app.route("/api/messages", methods=["GET", "POST"])
+def api_messages():
+    if request.method == "GET":
+        # Get data from search parameters
+        sender_id = request.args.get("sender_id")
+        receiver_id = request.args.get("receiver_id")
+        limit = request.args.get("limit")
+
+        if not limit:
+            limit = 50
+
+        # Query messages in the database
+        messages = (
+            sql.session.query(Message)
+            .filter(
+                or_(
+                    and_(Message.sender_id == sender_id, Message.receiver_id == receiver_id),
+                    and_(Message.sender_id == receiver_id, Message.receiver_id == sender_id),
+                )
+            )
+            .order_by(Message.created_at.desc())
+            .limit(limit)
+            .all()
+        )
+
+        return [message.to_dict() for message in messages]
+
+    if request.method == "POST":
+        # Get data from the request
+        data: dict = request.get_json()
+        sender_id: str = data["sender_id"]
+        receiver_id: str = data["receiver_id"]
+        content: str = data["content"]
+
+        # Create a new message
+        message = Message(sender_id=sender_id, receiver_id=receiver_id, content=content)
+
+        # Save the message to the database
+        sql.session.add(message)
+        sql.session.commit()
+
+        return message.to_dict()
