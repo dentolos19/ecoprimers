@@ -1,11 +1,19 @@
 import stripe
 from flask import flash, redirect, render_template, request, session, url_for
 from werkzeug.security import check_password_hash, generate_password_hash
+from flask import render_template, request, redirect, url_for, session
 
 from database import sql
+
+import os
 from main import app
 from models import Event, User
 from utils import check_admin_status, check_logged_in, require_login
+from database import session as db_session
+from models import Post
+from utils import allowed_file
+from werkzeug.utils import secure_filename
+from datetime import datetime
 
 
 @app.context_processor
@@ -225,3 +233,32 @@ def event_info():
 from routing.admin import *
 from routing.engagement import *
 from routing.messaging import *
+
+
+@app.route('/community/post', methods=['GET', 'POST'])
+def community_post():
+    if request.method == 'POST':
+        content = request.form['content']
+        image = request.files['image']
+        user_id = 1 # Hardcoded user ID
+
+        # Handle image upload
+        image_filename = None
+        if image and allowed_file(image.filename):
+            # Secure the filename and save it
+            image_filename = secure_filename(image.filename)
+            image.save(os.path.join(app.config['UPLOAD_FOLDER'], image_filename))
+
+        # Add post to the database
+        new_post = Post(title="title", description=content, image_filename=image_filename, user_id=user_id, created_at=datetime.utcnow())
+        db_session.add(new_post)
+        db_session.commit()
+
+        return redirect(url_for('home'))
+
+    return render_template('community-post.html')
+    return render_template('community.html', posts=posts)
+    posts = db_session.query(Post).all()  # Get all posts
+@app.route('/community/explore')
+@app.route('/community')
+def community():

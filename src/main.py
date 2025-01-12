@@ -4,14 +4,23 @@ import stripe
 from flask import Flask
 from flask_socketio import SocketIO
 
+import os
 import ai
 import database
 
 app = Flask(__name__)
+# Configuration for the Flask app and database
+app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///social_media.db'
+app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+app.config['UPLOAD_FOLDER'] = 'static/uploads'  # Folder to save uploaded images
+
 app_debug = bool(app.config["DEBUG"])
 app.config["SECRET_KEY"] = os.environ.get("SECRET_KEY")
 app.config["STRIPE_SECRET_KEY"] = os.environ.get("STRIPE_SECRET_KEY")
 app.config["STRIPE_PUBLIC_KEY"] = os.environ.get("STRIPE_PUBLIC_KEY")
+
+if not os.path.exists(app.config['UPLOAD_FOLDER']):
+    os.makedirs(app.config['UPLOAD_FOLDER'])
 
 # Initialize internal systems
 ai.init(app)
