@@ -42,3 +42,7 @@ html, body {
   flex: 1;
   overflow: auto;
 }
+
+.header{
+    background-color: #475841 !important;
+}

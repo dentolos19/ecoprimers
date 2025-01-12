@@ -2,14 +2,10 @@ import stripe
 from flask import flash, redirect, render_template, request, session, url_for
 from werkzeug.security import check_password_hash, generate_password_hash
 
-from datetime import datetime
-from database import session as db_session
-from environment import STRIPE_SECRET_KEY
+from database import sql
 from main import app
-from models import Event, Transaction, User
-from utils import check_admin_status, check_logged_in, require_admin, require_login
-
-stripe.api_key = STRIPE_SECRET_KEY
+from models import Event, User
+from utils import check_admin_status, check_logged_in, require_login
 
 
 @app.context_processor
@@ -25,6 +21,46 @@ def home():
     return render_template("home.html")
 
 
+@app.route("/profile")
+def profile():
+    user_id = session.get("user_id")
+    if not user_id:
+        return redirect("/login")
+
+    # Query the user from the database
+    user = sql.session.query(User).filter(User.id == user_id).first()
+
+    if not user:
+        return "User not found", 404
+
+    return render_template("profile.html", user=user)
+
+
+@app.route("/edit_profile", methods=["GET", "POST"])
+def edit_profile():
+    user_id = session.get("user_id")
+    if not user_id:
+        return redirect("/login")
+
+    user = sql.session.query(User).filter(User.id == user_id).first()
+
+    if request.method == "POST":
+        user.email = request.form["email"]
+        user.username = request.form["username"]
+        user.bio = request.form["bio"]
+        user.birthday = request.form["birthday"]
+
+        try:
+            sql.session.commit()
+            flash("Profile updated successfully!", "success")
+            return redirect("/profile")
+        except Exception as e:
+            sql.session.rollback()
+            flash(f"An error occurred: {str(e)}", "danger")
+
+    return render_template("edit-profile.html", user=user)
+
+
 @app.route("/login", methods=["GET", "POST"])
 def login():
     # Check if the user is already logged in
@@ -37,7 +73,7 @@ def login():
         password = request.form["password"]
 
         # Get the user from the database
-        user = db_session.query(User).filter_by(email=email).first()
+        user = sql.session.query(User).filter_by(email=email).first()
 
         # Check if user exists and password matches
         if user and check_password_hash(user.password, password):
@@ -69,11 +105,7 @@ def signup():
         birthday = request.form["birthday"]
 
         # Check if the username or email already exists in the database
-        existing_user = (
-            db_session.query(User)
-            .filter((User.email == email) | (User.username == username))
-            .first()
-        )
+        existing_user = sql.session.query(User).filter((User.email == email) | (User.username == username)).first()
 
         if existing_user:
             flash("Error! Username or email already exists.", "danger")
@@ -93,12 +125,12 @@ def signup():
 
         try:
             # Add the new user to the database
-            db_session.add(new_user)
-            db_session.commit()
+            sql.session.add(new_user)
+            sql.session.commit()
             flash("Sign up successful! You can now log in.", "success")
             return redirect("/login")
         except Exception as e:
-            db_session.rollback()  # Rollback if there's an error
+            sql.session.rollback()  # Rollback if there's an error
             flash(f"An error occurred: {str(e)}", "danger")
 
     return render_template("signup.html")
@@ -120,7 +152,7 @@ def events():
     location = request.args.get("location")
 
     # Query the database for events based on filter values
-    query = db_session.query(Event)
+    query = sql.session.query(Event)
 
     if from_date:
         query = query.filter(Event.date >= from_date)
@@ -134,21 +166,39 @@ def events():
     return render_template("events.html", events=events)
 
 
-@app.route("/donation")
+@app.route("/donation", methods=["GET", "POST"])
 @require_login
 def donation():
-    stripe_session = stripe.checkout.Session.create(
-        line_items=[{"price": "price_1QdsnHRxRE93gjFvEyydXEaP", "quantity": 1}],
-        mode="payment",
-        success_url=url_for("donation_success", _external=True)
-        + "?session_id={CHECKOUT_SESSION_ID}",
-        cancel_url=url_for("donation", _external=True),
-    )
-    return render_template(
-        "donation.html",
-        checkout_session_id=stripe_session["id"],
-        checkout_public_key=app.config["STRIPE_PUBLIC_KEY"],
-    )
+    if request.method == "POST":
+        try:
+            amount = int(request.form["amount"]) * 100
+            if amount < 50:
+                return "Donation amount must be at least $0.50.", 400
+        except ValueError:
+            return "Invalid donation amount.", 400
+
+        stripe_session = stripe.checkout.Session.create(
+            payment_method_types=["card"],
+            line_items=[
+                {
+                    "price_data": {
+                        "currency": "sgd",
+                        "product_data": {
+                            "name": "Donation",
+                        },
+                        "unit_amount": amount,
+                    },
+                    "quantity": 1,
+                }
+            ],
+            mode="payment",
+            success_url=url_for("donation_success", _external=True) + "?session_id={CHECKOUT_SESSION_ID}",
+            cancel_url=url_for("donation", _external=True),
+        )
+
+        return redirect(stripe_session.url, code=303)
+
+    return render_template("donation.html")
 
 
 @app.route("/donation/success")
@@ -164,191 +214,15 @@ def chat():
     return render_template("chat.html")
 
 
-@app.route("/community/messages")
-@require_login
-def messaging_page():
-    return render_template("messaging.html")
+@app.route("/event/details")
+def event_info():
+    event_id = request.args.get("id")
+    event = sql.session.query(Event).filter_by(id=event_id).first()
+
+    return render_template("event-details.html", event=event)
 
 
-@app.route("/admin")
-@app.route("/admin/dashboard")
-@require_admin
-def admin():
-    return render_template("admin/dashboard.html")
-
-
-@app.route("/admin/events", methods=["GET", "POST"])
-@require_admin
-def admin_events():
-    # Query all events from the database
-    events = db_session.query(Event).all()
-
-    if request.method == "POST" and request.form.get("delete_event"):
-        # Handle deletion of event
-        event_id = request.form["delete_event"]
-        event_to_delete = db_session.query(Event).filter_by(id=event_id).first()
-
-        if event_to_delete:
-            try:
-                db_session.delete(event_to_delete)
-                db_session.commit()
-                flash("Event deleted successfully!", "success")
-            except Exception as e:
-                db_session.rollback()  # Rollback in case of error
-                flash(f"An error occurred while deleting the event: {str(e)}", "danger")
-
-        return redirect(url_for("admin_events"))
-
-    return render_template("admin/events.html", events=events)
-
-
-@app.route("/admin/events/add", methods=["GET", "POST"])
-@require_admin
-def admin_events_add():
-    if request.method == "POST":
-        # Collect data from the form
-        event_name = request.form["eventName"]
-        event_description = request.form["eventDescription"]
-        event_location = request.form["eventLocation"]
-        event_date = request.form["eventDate"]
-
-        # Create an Event object and save it to the database
-        new_event = Event(
-            title=event_name,
-            description=event_description,
-            location=event_location,
-            date=event_date,
-        )
-
-        try:
-            # Add the event to the session and commit it to the database
-            db_session.add(new_event)
-            db_session.commit()
-            flash("Event added successfully!", "success")
-        except Exception as e:
-            db_session.rollback()  # Rollback if there's an error
-            flash(f"An error occurred while adding the event: {str(e)}", "danger")
-
-        return redirect(url_for("admin_events"))
-
-    return render_template("admin/events-add.html")
-
-
-@app.route("/admin/users")
-@require_admin
-def admin_users():
-    # Query all events from the database
-    users = db_session.query(User).all()
-
-    return render_template("admin/users.html", users=users)
-
-
-@app.route("/admin/transactions")
-@require_admin
-def admin_transactions():
-    # Query all transactions from the database
-    transactions = db_session.query(Transaction).all()
-
-    return render_template("admin/transactions.html", transactions=transactions)
-
-@app.route("/engagement/task")
-def task():
-    return render_template('task.html')
-
-
-@app.route("/engagement/rewards")
-def rewards():
-    user_id = session.get("user_id")
-    user = db_session.query(User).filter_by(id=user_id).first()
-    return render_template("rewards2.html", user=user)
-
-
-@app.route("/engagement/points")
-def points():
-    return render_template('points.html')
-
-@app.route("/add_points", methods=["POST"])
-@require_login
-def add_points():
-    user_id = session.get("user_id")
-    task_points = request.form.get("task_points", type=int)  # Get task points from the form
-    task_name = request.form.get("task_name")  # Get task name from the form
-
-    
-    if not task_points or not task_name:
-        flash("Invalid task details provided.", "danger")
-        return redirect(url_for("rewards"))
-
-    user = db_session.query(User).filter_by(id=user_id).first()
-
-    if user:
-        try:
-            user.points += task_points
-
-            # Log the transaction
-            new_transaction = Transaction(
-                user_id=user_id,
-                type="earned",
-                points=task_points,
-                description=f"Points Gained from completing {task_name}",
-                created_at=datetime.utcnow()
-            )
-            db_session.add(new_transaction)
-            db_session.commit()
-
-            flash(f"Congratulations! You've earned {task_points} points for {task_name}.", "success")
-        except Exception as e:
-            db_session.rollback()
-            flash(f"An error occurred while processing points: {str(e)}", "danger")
-    else:
-        flash("User not found!", "danger")
-
-    return redirect(url_for("rewards"))
-
-
-@app.route("/redeem_reward", methods=["POST"])
-@require_login
-def redeem_reward():
-    user_id = session.get("user_id")
-    reward_name = request.form.get("reward_name")  # Reward name from the form
-    reward_cost = int(request.form.get("reward_cost"))  # Reward cost from the form
-
-    # Fetch the user
-    user = db_session.query(User).filter_by(id=user_id).first()
-
-    if user and user.points >= reward_cost:
-        try:
-            # Deduct points from user
-            user.points -= reward_cost
-
-            # Log the transaction
-            new_transaction = Transaction(
-                user_id=user_id,
-                type="redeemed",
-                points=reward_cost,
-                description=f"Redeemed {reward_name}",
-                created_at=datetime.utcnow()
-            )
-            db_session.add(new_transaction)
-            db_session.commit()
-
-            flash(f"Reward '{reward_name}' claimed successfully!", "success")
-        except Exception as e:
-            db_session.rollback()
-            flash(f"An error occurred: {str(e)}", "danger")
-    else:
-        flash("You do not have enough points to claim this reward!", "danger")
-
-    return redirect(url_for("rewards"))
-
-
-@app.route("/transactions")
-
-def transactions():
-    user_id = session.get("user_id")
-
-    # Fetch all transactions for the user
-    user_transactions = db_session.query(Transaction).filter_by(user_id=user_id).order_by(Transaction.created_at.desc()).all()
-
-    return render_template("transaction.html", transactions=user_transactions)
-
+from routing.admin import *
+from routing.community import *
+from routing.engagement import *
+from routing.messaging import *

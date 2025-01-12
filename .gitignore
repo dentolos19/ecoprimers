@@ -7,9 +7,11 @@
 venv/
 
 # User-specific files
-*.db
 .env*
 !.env*.template
+*.db
+*.db-journal
+src/static/uploads/
 
 # Output files
 build/
@@ -22,5 +24,5 @@ Desktop.ini
 Thumbs.db
 packages-microsoft-prod.deb
 
-#left incase for future uses (aryan)
+# left incase for future uses (aryan)
 rewards.html

@@ -1,28 +1,24 @@
 {% extends "base.html" %}
 
-{% block title %}Events{% endblock %}
+{% block title %}Donate{% endblock %}
 
 {% block body %}
 <div class="container mt-5">
-    <h1 class="text-center mb-4">Support Our Cause</h1>
-    <p class="text-center mb-4">Thank you for considering a donation. Your support makes a difference!</p>
+    <div class="card mx-auto shadow-lg p-4" style="max-width: 500px; border-radius: 15px;">
+        <h1 class="text-center mb-4 text-primary">Support Our Cause</h1>
+        <p class="text-center text-muted">
+            Your donation makes a difference! Every contribution helps us achieve our mission.
+        </p>
 
-    <div class="d-flex justify-content-center">
-        <form id="donation-form" class="text-center">
-            <button type="submit" id="checkout-button" class="btn btn-primary btn-lg">
-                Donate
+        <form id="donation-form" method="post" action="{{ url_for('donation') }}">
+            <div class="form-group mt-4">
+                <label for="amount" class="form-label text-secondary">Donation Amount (SGD):</label>
+                <input type="number" id="amount" name="amount" class="form-control form-control-lg border-primary" min="0.50" step="0.1" placeholder="Enter amount (e.g., 10.00)" required>
+            </div>
+            <button type="submit" class="btn btn-primary btn-lg w-100 mt-4" style="border-radius: 50px;">
+                Donate Now
             </button>
         </form>
     </div>
 </div>
-
-<footer class="mt-5 text-center">
-    <script src="https://js.stripe.com/v3/"></script>
-    <script>
-        const checkout_public_key = '{{checkout_public_key}}'
-        const checkout_session_id = '{{checkout_session_id}}'
-    </script>
-    <script src="../static/js/script.js"></script>
-</footer>
-
 {% endblock %}

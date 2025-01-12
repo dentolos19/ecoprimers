@@ -1,18 +1,30 @@
+import os
+
+import stripe
 from flask import Flask
+from flask_socketio import SocketIO
 
 import ai
 import database
-from environment import SECRET_KEY, STRIPE_PUBLIC_KEY, STRIPE_SECRET_KEY
 
+# Initialize Flask app
 app = Flask(__name__)
+app.config["SECRET_KEY"] = os.environ.get("SECRET_KEY")
+app.config["STRIPE_SECRET_KEY"] = os.environ.get("STRIPE_SECRET_KEY")
+app.config["STRIPE_PUBLIC_KEY"] = os.environ.get("STRIPE_PUBLIC_KEY")
+app.config["UPLOAD_FOLDER"] = "src/static/uploads"
+
 app_debug = bool(app.config["DEBUG"])
-app.config["SECRET_KEY"] = SECRET_KEY
-app.config["STRIPE_PUBLIC_KEY"] = STRIPE_PUBLIC_KEY
-app.config["STRIPE_SECRET_KEY"] = STRIPE_SECRET_KEY
 
 # Initialize internal systems
-ai.init()
-database.init(local=app_debug)
+ai.init(app)
+database.init(app, local=app_debug)
+
+socketio = SocketIO(app, cors_allowed_origins="*")
+stripe.api_key = app.config["STRIPE_SECRET_KEY"]
+
+if not os.path.exists(app.config["UPLOAD_FOLDER"]):
+    os.makedirs(app.config["UPLOAD_FOLDER"])
 
 # Import routes into the main module
 from api import *
