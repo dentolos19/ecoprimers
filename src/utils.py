@@ -5,7 +5,9 @@ from functools import wraps
 
 from flask import flash, redirect, session, url_for
 
+from database import sql
 from main import app_debug
+from models import User
 
 
 def generate_random_string(length: int = 8):
@@ -18,6 +20,12 @@ def convert_from_form_date(date: str):
 
 def convert_to_form_date(date: datetime):
     return date.strftime("%Y-%m-%d")
+
+
+def get_current_user():
+    if not check_logged_in():
+        return None
+    return sql.session.query(User).filter_by(id=session.get("user_id")).first()
 
 
 def check_logged_in():
