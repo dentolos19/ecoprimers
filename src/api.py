@@ -71,7 +71,9 @@ def api_messages():
 
         # Create a new message
         message = Message(sender_id=sender_id, receiver_id=receiver_id, content=content)
+
+        # Save the message to the database
         sql.session.add(message)
         sql.session.commit()
 
-        return {"message": "Message sent successfully"}
+        return message.to_dict()

@@ -9,7 +9,7 @@ from utils import require_login
 
 @socketio.on("join")
 def on_join(data):
-    room = data.get("recipient_id")
+    room = data.get("receiver_id")
     if room:
         join_room(room)
 
