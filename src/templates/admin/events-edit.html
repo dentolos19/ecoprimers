@@ -1,7 +1,7 @@
 {% extends "admin/base.html" %}
 
 {% block abody %}
-<main class="h-100 d-flex justify-content-center align-items-center">
+<div class="h-100 d-flex justify-content-center align-items-center">
   <div class="card" style="width: 500px;">
     <form class="card-body" method="POST" action="{{ url_for('admin_events_edit', id=event.id) }}">
       <div>
@@ -9,7 +9,7 @@
       </div>
       <div class="vstack gap-2">
         <div>
-          <label class="form-label" for="name">Name</label>
+          <label class="form-label" for="title">Name</label>
           <input class="form-control" type="text" id="title" name="title" value="{{ event.title }}" required />
         </div>
         <div>
@@ -31,5 +31,5 @@
       </div>
     </form>
   </div>
-</main>
+</div>
 {% endblock %}
