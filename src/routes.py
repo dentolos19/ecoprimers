@@ -2,6 +2,7 @@ import stripe
 from flask import flash, redirect, render_template, request, session, url_for
 from werkzeug.security import check_password_hash, generate_password_hash
 
+from datetime import datetime
 from database import session as db_session
 from environment import STRIPE_SECRET_KEY
 from main import app
@@ -201,19 +202,19 @@ def admin_events():
     return render_template("admin/events.html", events=events)
 
 
-@app.route("/admin/events/new", methods=["GET", "POST"])
+@app.route("/admin/events/add", methods=["GET", "POST"])
 @require_admin
-def admin_events_new():
+def admin_events_add():
     if request.method == "POST":
         # Collect data from the form
-        event_title = request.form["title"]
-        event_description = request.form["description"]
-        event_location = request.form["location"]
-        event_date = request.form["date"]
+        event_name = request.form["eventName"]
+        event_description = request.form["eventDescription"]
+        event_location = request.form["eventLocation"]
+        event_date = request.form["eventDate"]
 
         # Create an Event object and save it to the database
         new_event = Event(
-            title=event_title,
+            title=event_name,
             description=event_description,
             location=event_location,
             date=event_date,
@@ -230,62 +231,7 @@ def admin_events_new():
 
         return redirect(url_for("admin_events"))
 
-    return render_template("admin/events-new.html")
-
-
-@app.route("/admin/events/<int:id>", methods=["GET", "POST"])
-def admin_events_edit(id):
-    # Query the event from the database
-    event = db_session.query(Event).filter_by(id=id).first()
-
-    if request.method == "POST":
-        # Collect data from the form
-        event_title = request.form["title"]
-        event_description = request.form["description"]
-        event_location = request.form["location"]
-        event_date = request.form["date"]
-
-        # Update the event object with the new data
-        event.title = event_title
-        event.description = event_description
-        event.location = event_location
-        event.date = event_date
-
-        try:
-            # Commit the changes to the database
-            db_session.commit()
-            flash("Event updated successfully!", "success")
-        except Exception as e:
-            db_session.rollback()
-            flash(f"An error occurred while updating the event: {str(e)}", "danger")
-
-        return redirect(url_for("admin_events"))
-
-    return render_template("admin/events-edit.html", event=event)
-
-
-@app.route("/admin/events/<int:id>/delete", methods=["GET", "POST"])
-def admin_events_delete(id):
-    # Query the event from the database
-    event = db_session.query(Event).filter_by(id=id).first()
-
-    if request.method == "POST":
-        # Collect data from the form
-        event_title = request.form["title"]
-
-        if event.title != event_title:
-            flash("The event title does not match. Please try again.", "danger")
-            return redirect(url_for("admin_events_delete", id=id))
-
-        try:
-            db_session.delete(event)
-        except Exception as e:
-            db_session.rollback()
-            flash(f"An error occurred while deleting the event: {str(e)}", "danger")
-
-        return redirect(url_for("admin_events"))
-
-    return render_template("admin/events-delete.html", event=event)
+    return render_template("admin/events-add.html")
 
 
 @app.route("/admin/users")
@@ -304,3 +250,105 @@ def admin_transactions():
     transactions = db_session.query(Transaction).all()
 
     return render_template("admin/transactions.html", transactions=transactions)
+
+@app.route("/engagement/task")
+def task():
+    return render_template('task.html')
+
+
+@app.route("/engagement/rewards")
+def rewards():
+    user_id = session.get("user_id")
+    user = db_session.query(User).filter_by(id=user_id).first()
+    return render_template("rewards2.html", user=user)
+
+
+@app.route("/engagement/points")
+def points():
+    return render_template('points.html')
+
+@app.route("/add_points", methods=["POST"])
+@require_login
+def add_points():
+    user_id = session.get("user_id")
+    task_points = request.form.get("task_points", type=int)  # Get task points from the form
+    task_name = request.form.get("task_name")  # Get task name from the form
+
+    
+    if not task_points or not task_name:
+        flash("Invalid task details provided.", "danger")
+        return redirect(url_for("rewards"))
+
+    user = db_session.query(User).filter_by(id=user_id).first()
+
+    if user:
+        try:
+            user.points += task_points
+
+            # Log the transaction
+            new_transaction = Transaction(
+                user_id=user_id,
+                type="earned",
+                points=task_points,
+                description=f"Points Gained from completing {task_name}",
+                created_at=datetime.utcnow()
+            )
+            db_session.add(new_transaction)
+            db_session.commit()
+
+            flash(f"Congratulations! You've earned {task_points} points for {task_name}.", "success")
+        except Exception as e:
+            db_session.rollback()
+            flash(f"An error occurred while processing points: {str(e)}", "danger")
+    else:
+        flash("User not found!", "danger")
+
+    return redirect(url_for("rewards"))
+
+
+@app.route("/redeem_reward", methods=["POST"])
+@require_login
+def redeem_reward():
+    user_id = session.get("user_id")
+    reward_name = request.form.get("reward_name")  # Reward name from the form
+    reward_cost = int(request.form.get("reward_cost"))  # Reward cost from the form
+
+    # Fetch the user
+    user = db_session.query(User).filter_by(id=user_id).first()
+
+    if user and user.points >= reward_cost:
+        try:
+            # Deduct points from user
+            user.points -= reward_cost
+
+            # Log the transaction
+            new_transaction = Transaction(
+                user_id=user_id,
+                type="redeemed",
+                points=reward_cost,
+                description=f"Redeemed {reward_name}",
+                created_at=datetime.utcnow()
+            )
+            db_session.add(new_transaction)
+            db_session.commit()
+
+            flash(f"Reward '{reward_name}' claimed successfully!", "success")
+        except Exception as e:
+            db_session.rollback()
+            flash(f"An error occurred: {str(e)}", "danger")
+    else:
+        flash("You do not have enough points to claim this reward!", "danger")
+
+    return redirect(url_for("rewards"))
+
+
+@app.route("/transactions")
+
+def transactions():
+    user_id = session.get("user_id")
+
+    # Fetch all transactions for the user
+    user_transactions = db_session.query(Transaction).filter_by(user_id=user_id).order_by(Transaction.created_at.desc()).all()
+
+    return render_template("transaction.html", transactions=user_transactions)
+

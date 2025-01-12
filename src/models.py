@@ -14,9 +14,9 @@ class User(Base):
     username: Mapped[str] = mapped_column(unique=True, nullable=False)
     email: Mapped[str] = mapped_column(unique=True, nullable=False)
     password: Mapped[str] = mapped_column(nullable=False)
-
     bio: Mapped[str] = mapped_column(nullable=False)
     birthday: Mapped[str] = mapped_column(nullable=False)
+    points: Mapped[int]=mapped_column(nullable=False, default=0)
 
 
 class Event(Base):
@@ -63,6 +63,7 @@ class Task(Base):
     id: Mapped[int] = mapped_column(primary_key=True)
     title: Mapped[str] = mapped_column(nullable=False)
     description: Mapped[datetime] = mapped_column(nullable=False)
+    task_points: Mapped[int]= mapped_column(nullable=False)
 
 
 class TaskStatus(Base):
@@ -87,9 +88,11 @@ class Transaction(Base):
     __tablename__ = "transactions"
 
     id: Mapped[int] = mapped_column(primary_key=True)
-    user_id: Mapped[int] = mapped_column(nullable=False)
-    product_id: Mapped[int] = mapped_column(nullable=False)
-    created_at: Mapped[datetime] = mapped_column(nullable=False)
+    user_id: Mapped[int] = mapped_column(nullable=False) #foreign key
+    type: Mapped[str] = mapped_column(nullable=False)  # "earned" or "redeemed"
+    points: Mapped[int] = mapped_column(nullable=False)  
+    description: Mapped[str] = mapped_column(nullable=False)  
+    created_at: Mapped[datetime] = mapped_column(nullable=False, default=datetime.utcnow)
 
 
 class Message(Base):
