@@ -22,7 +22,7 @@
         </div>
         <div>
           <label class="form-label" for="date">Date</label>
-          <input class="form-control" type="date" id="date" name="date" required />
+          <input class="form-control" type="date" id="date" name="date" min="{{ current_date }}" value="{{ current_date }}" required />
         </div>
       </div>
       <div class="mt-4 d-flex justify-content-end gap-2">
