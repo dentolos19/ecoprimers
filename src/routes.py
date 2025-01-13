@@ -58,8 +58,9 @@ def edit_profile():
             flash("Profile updated successfully!", "success")
             return redirect("/profile")
         except Exception as e:
+            if "unique constraint" in str(e).lower():
+                flash("Error! Username or email already exists.", "danger")
             sql.session.rollback()
-            flash(f"An error occurred: {str(e)}", "danger")
 
     return render_template("edit-profile.html", user=user)
 
@@ -126,11 +127,9 @@ def signup():
             flash("Sign up successful! You can now log in.", "success")
             return redirect("/login")
         except Exception as e:
-            sql.session.rollback()  # Rollback if there's an error
-            if "unique constraint" in str(e):
+            if "unique constraint" in str(e).lower():
                 flash("Error! Username or email already exists.", "danger")
-            flash(f"An error occurred: {str(e)}", "danger")
-
+            sql.session.rollback()  # Rollback if there's an error
     return render_template("signup.html")
 
 
