@@ -1,4 +1,5 @@
 from flask import flash, redirect, render_template, request, url_for
+from werkzeug.security import generate_password_hash
 
 from database import sql
 from main import app
@@ -116,6 +117,7 @@ def admin_events_delete(id):
 
         try:
             sql.session.delete(event)
+            sql.session.commit()
         except Exception as e:
             sql.session.rollback()
             flash(f"An error occurred while deleting the event: {str(e)}", "danger")
@@ -132,6 +134,42 @@ def admin_users():
     users = sql.session.query(User).all()
 
     return render_template("admin/users.html", users=users)
+
+
+@app.route("/admin/users/new", methods=["GET", "POST"])
+@require_admin
+def admin_users_new():
+    if request.method == "POST":
+        # Collect data from the form
+        user_username = request.form["username"]
+        user_email = request.form["email"]
+        user_password = request.form["password"]
+        user_bio = request.form["bio"]
+        user_birthday = request.form["birthday"]
+
+        user_hashed_password = generate_password_hash(user_password, method="pbkdf2:sha1")
+
+        # Update the user object with the new data
+        new_user = User(
+            username=user_username,
+            email=user_email,
+            password=user_hashed_password,
+            bio=user_bio,
+            birthday=user_birthday,
+        )
+
+        try:
+            # Commit the changes to the database
+            sql.session.add(new_user)
+            sql.session.commit()
+            flash("User created successfully!", "success")
+        except Exception as e:
+            sql.session.rollback()
+            flash(f"An error occurred while creating the user: {str(e)}", "danger")
+
+        return redirect(url_for("admin_users"))
+
+    return render_template("admin/users-new.html")
 
 
 @app.route("/admin/users/<int:id>", methods=["GET", "POST"])

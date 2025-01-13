@@ -1,3 +1,5 @@
+from datetime import date
+
 import stripe
 from flask import flash, redirect, render_template, request, session, url_for
 from werkzeug.security import check_password_hash, generate_password_hash
@@ -10,9 +12,10 @@ from utils import check_admin_status, check_logged_in, require_login
 
 @app.context_processor
 def init():
+    current_date = date.today().isoformat()
     is_logged_in = check_logged_in()
     is_admin_user = check_admin_status()
-    return dict(is_logged_in=is_logged_in, is_admin_user=is_admin_user)
+    return dict(current_date=current_date, is_logged_in=is_logged_in, is_admin_user=is_admin_user)
 
 
 @app.route("/")
@@ -104,13 +107,6 @@ def signup():
         bio = request.form["bio"]
         birthday = request.form["birthday"]
 
-        # Check if the username or email already exists in the database
-        existing_user = sql.session.query(User).filter((User.email == email) | (User.username == username)).first()
-
-        if existing_user:
-            flash("Error! Username or email already exists.", "danger")
-            return redirect("/signup")
-
         # Hash the password
         hashed_password = generate_password_hash(password, method="pbkdf2:sha1")
 
@@ -131,6 +127,8 @@ def signup():
             return redirect("/login")
         except Exception as e:
             sql.session.rollback()  # Rollback if there's an error
+            if "unique constraint" in str(e):
+                flash("Error! Username or email already exists.", "danger")
             flash(f"An error occurred: {str(e)}", "danger")
 
     return render_template("signup.html")
