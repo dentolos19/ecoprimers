@@ -21,12 +21,12 @@
     }
 
     .card-img {
-        width: 300px; 
-        height: 300px; 
-        object-fit: cover; 
-        border-radius: 10px; 
-        margin: 0 auto; 
-        display: block; 
+        width: 300px;
+        height: 300px;
+        object-fit: cover;
+        border-radius: 10px;
+        margin: 0 auto;
+        display: block;
     }
 
     .card-title {
@@ -93,8 +93,8 @@
                 Step out for the planet! Take a walk, pick up litter, snap a photo, and upload it for AI verification. Keep your surroundings clean and beautiful!
             </p>
             <form action="{{ url_for('add_points') }}" method="post">
-                <input class="hidden" name="task_name" value="Eco Challenge">
-                <input class="hidden" name="task_points" value="100">
+                <input style="display: none;" name="task_name" value="EcoWalkSnap">
+                <input style="display: none;" name="task_points" value="100">
                 <button type="submit" class="card-button">Take on the Challenge</button>
             </form>
         </div>
@@ -105,6 +105,8 @@
                 Collect recyclables, snap a picture as you drop them in the bin, and let AI verify your eco-friendly actions. Save reusable material and save the world!
             </p>
             <form action="{{ url_for('add_points') }}" method="post">
+            <input style="display: none;" name="task_name" value="RecycleVision">
+                <input style="display: none;" name="task_points" value="100">
                 <button type="submit" class="card-button">Take on the Challenge</button>
             </form>
         </div>
@@ -115,6 +117,8 @@
                 Water a plant or tree, snap a picture, and let AI verify your care for nature. Help save your environment with your conscious effort.
             </p>
             <form action="{{ url_for('add_points') }}" method="post">
+            <input style="display: none;" name="task_name" value="Thirsty Roots">
+                <input style="display: none;" name="task_points" value="100">
                 <button type="submit" class="card-button">Take on the Challenge</button>
             </form>
         </div>
@@ -125,6 +129,8 @@
                 Turn off unused lights, snap a pic, and let AI confirm your energy-saving efforts. With your help we can save our environment.
             </p>
             <form action="{{ url_for('add_points') }}" method="post">
+            <input style="display: none;" name="task_name" value="Lights Out">
+                <input style="display: none;" name="task_points" value="100">
                 <button type="submit" class="card-button">Take on the Challenge</button>
             </form>
         </div>
