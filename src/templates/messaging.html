@@ -11,6 +11,9 @@
 
 {% block body %}
 <div id="users">
+    <form method = "get" action = "{{ url_for('search_messages') }}">
+        <input type = "text" name = "search_query" id = "search-query" required placeholder = "Search for a message">
+    </form>
     {% for user in users %}
         {% if sender_id != user.id %}
             <a class="user" href="{{ url_for('messaging', receiver_id=user.id) }}">

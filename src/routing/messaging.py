@@ -5,6 +5,7 @@ from database import sql
 from main import app, socketio
 from models import Message, User
 from utils import require_login
+from sqlalchemy import and_, or_
 
 
 @socketio.on("join")
@@ -59,3 +60,11 @@ def messaging(receiver_id=None):
         sender_id=session["user_id"],
         receiver_id=receiver_id,
     )
+
+
+
+@app.route("/community/messages")
+@app.route("/community/messages/<int:receiver_id>", methods=["GET", "POST"])
+def search_messages():
+    search_query = request.args.get("search_query") 
+    sql.session.query(Message).filter(and_(Message.message.like(f"%{search_query}%"), or_(Message.receiver_id == session["user_id"], Message.sender_id == session["user_id"]))).all()
