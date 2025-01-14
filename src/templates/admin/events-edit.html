@@ -9,6 +9,10 @@
       </div>
       <div class="vstack gap-2">
         <div>
+          <label class="form-label" for="id">ID</label>
+          <input class="form-control" type="text" id="id" name="id" value="{{ event.id }}" disabled />
+        </div>
+        <div>
           <label class="form-label" for="title">Name</label>
           <input class="form-control" type="text" id="title" name="title" value="{{ event.title }}" required />
         </div>
