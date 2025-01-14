@@ -12,10 +12,11 @@ from utils import check_admin_status, check_logged_in, require_login
 
 @app.context_processor
 def init():
+    utils = __import__("utils")
     current_date = date.today().isoformat()
     is_logged_in = check_logged_in()
     is_admin_user = check_admin_status()
-    return dict(current_date=current_date, is_logged_in=is_logged_in, is_admin_user=is_admin_user)
+    return dict(utils=utils, current_date=current_date, is_logged_in=is_logged_in, is_admin_user=is_admin_user)
 
 
 @app.route("/")

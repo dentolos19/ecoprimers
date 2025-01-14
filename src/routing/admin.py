@@ -236,3 +236,38 @@ def admin_transactions():
     transactions = sql.session.query(Transaction).all()
 
     return render_template("admin/transactions.html", transactions=transactions)
+
+@app.route("/admin/transactions/<int:id>")
+@require_admin
+def admin_transactions_view(id):
+    # Query the transaction and user from the database
+    transaction = sql.session.query(Transaction).filter_by(id=id).first()
+    user = sql.session.query(User).filter_by(id=transaction.user_id).first()
+
+    return render_template("admin/transactions-view.html", transaction=transaction, user=user)
+
+@app.route("/admin/transactions/<int:id>/delete", methods=["GET", "POST"])
+@require_admin
+def admin_transactions_delete(id):
+    # Query the transaction from the database
+    transaction = sql.session.query(Transaction).filter_by(id=id).first()
+
+    if request.method == "POST":
+        # Collect data from the form
+        transaction_id = request.form["id"]
+
+        if transaction.id != int(transaction_id):
+            flash("The transaction ID does not match. Please try again.", "danger")
+            return redirect(url_for("admin_transactions_delete", id=id))
+
+        try:
+            sql.session.delete(transaction)
+            sql.session.commit()
+            flash("Transaction deleted successfully!", "success")
+        except Exception as e:
+            sql.session.rollback()
+            flash(f"An error occurred while deleting the transaction: {str(e)}", "danger")
+
+        return redirect(url_for("admin_transactions"))
+
+    return render_template("admin/transactions-delete.html", transaction=transaction)

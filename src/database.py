@@ -4,6 +4,7 @@ from flask import Flask
 from flask_migrate import Migrate
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy.orm import Session
+from werkzeug.security import generate_password_hash
 
 from models import Base
 
@@ -77,14 +78,20 @@ def init(app: Flask, local: bool = True):
 def setup(app: Flask, sql: SQLAlchemy):
     from models import Event, User
 
-    # Create the data
-    user_admin = User(username="admin", email="admin@appdev.proj", password="admin")
-    dennise_user = User(username="dennise", email="dennise@duck.com", password="Dennise!123")
-    event = Event(title="Event 1", description="Description 1", location="Location 1", date="2025-01-01")
-
-    # Commit the changes
     with app.app_context():
-        sql.session.add(user_admin)
-        sql.session.add(dennise_user)
-        sql.session.add(event)
+        sql.session.add(
+            User(
+                username="admin",
+                email="admin@appdev.proj",
+                password=generate_password_hash("admin", method="pbkdf2:sha1"),
+            )
+        )
+        sql.session.add(
+            User(
+                username="dennise",
+                email="dennise@duck.com",
+                password=generate_password_hash("Dennise!123", method="pbkdf2:sha1"),
+            )
+        )
+        sql.session.add(Event(title="Event 1", description="Description 1", location="Location 1", date="2025-01-01"))
         sql.session.commit()
