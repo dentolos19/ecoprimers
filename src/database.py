@@ -38,7 +38,7 @@ def init(app: Flask, local: bool = True):
         if not os.path.exists(database_dir):
             os.makedirs(database_dir)
 
-        # Check if the database file exists; if not, pre-create data
+        # Check if the database file exists
         if not os.path.exists(database_file):
             first_setup = True
 
@@ -60,14 +60,16 @@ def init(app: Flask, local: bool = True):
         # Uses local database if the remote database is not available
         init(app, local=True)
     else:
-        # Automatically update the database schema to match the models
+        # Create all the tables of the database; does not update existing tables
         with app.app_context():
             sql.create_all()
 
+        # Initializes migration support; use migration script to update the database
         migrate = Migrate(app, sql)
 
         initialized = True
 
+        # Setup the database with initial data
         if first_setup:
             setup(app, sql)
 
