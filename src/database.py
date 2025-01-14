@@ -76,7 +76,7 @@ def init(app: Flask, local: bool = True):
 
 
 def setup(app: Flask, sql: SQLAlchemy):
-    from models import Event, User
+    from models import Event, Product, User
 
     with app.app_context():
         sql.session.add(
@@ -93,5 +93,6 @@ def setup(app: Flask, sql: SQLAlchemy):
                 password=generate_password_hash("Dennise!123", method="pbkdf2:sha1"),
             )
         )
-        sql.session.add(Event(title="Event 1", description="Description 1", location="Location 1", date="2025-01-01"))
+        sql.session.add(Event(title="Cleaning Day", description="Todo", location="Chinatown", date="2025-03-01"))
+        sql.session.add(Product(name="Reusable Cup", points=200, stock=50))
         sql.session.commit()
