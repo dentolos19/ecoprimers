@@ -63,8 +63,10 @@ def messaging(receiver_id=None):
 
 
 
-@app.route("/community/messages")
+@app.route("/community/search-results")
 @app.route("/community/messages/<int:receiver_id>", methods=["GET", "POST"])
 def search_messages():
     search_query = request.args.get("search_query") 
-    sql.session.query(Message).filter(and_(Message.message.like(f"%{search_query}%"), or_(Message.receiver_id == session["user_id"], Message.sender_id == session["user_id"]))).all()
+    valid_messages = (sql.session.query(Message).filter(and_(Message.message.like(f"%{search_query}%"), or_(Message.receiver_id == session["user_id"], Message.sender_id == session["user_id"]))).order_by(Message.created_at).limit(50).all())
+    users = sql.session.query(User).all()
+    return render_template("search-results.html", messages=[message.to_dict() for message in valid_messages], users = users)

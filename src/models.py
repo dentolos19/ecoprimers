@@ -16,7 +16,6 @@ class Base(DeclarativeBase):
             "updated_at": self.updated_at.isoformat(),
         }
 
-
 class User(Base):
     __tablename__ = "users"
 
