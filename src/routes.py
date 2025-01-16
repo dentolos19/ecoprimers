@@ -6,7 +6,7 @@ from werkzeug.security import check_password_hash, generate_password_hash
 
 from database import sql
 from main import app
-from models import Event, User
+from models import Event, User, EventAttendee
 from utils import check_admin_status, check_logged_in, require_login
 
 
@@ -218,6 +218,40 @@ def event_info():
     event = sql.session.query(Event).filter_by(id=event_id).first()
 
     return render_template("event-details.html", event=event)
+
+@app.route("/event/signup", methods=["GET", "POST"])
+@require_login
+def event_signup():
+    event_id = request.args.get("id")  # Get event ID from the query parameter
+    user_id = session.get("user_id")  # Get the logged-in user's ID from the session
+
+    # Fetch event details from the database
+    event = sql.session.query(Event).filter_by(id=event_id).first()
+    if not event:
+        flash("Event not found", "danger")
+
+    existing_attendee = sql.session.query(EventAttendee).filter_by(event_id=event_id, user_id=user_id).first()
+    if existing_attendee:
+        flash("You are already signed up for this event.", "info")
+        return redirect(url_for("event_info", id=event_id))
+
+    user = sql.session.query(User).filter_by(id=user_id).first()
+    if not user:
+        flash("User not found", "danger")
+
+    if request.method == "POST":
+        try:
+            attendee = EventAttendee(event_id=event_id, user_id=user_id)
+            sql.session.add(attendee)
+            sql.session.commit()
+            flash("You have successfully signed up for the event!", "success")
+            return redirect(url_for("event_info", id=event_id))
+        except Exception as e:
+            sql.session.rollback()
+            flash("Error signing up for the event. Please try again.", "danger")
+
+    return render_template("event-signup.html", event=event, user=user)
+
 
 
 from routing.admin import *
