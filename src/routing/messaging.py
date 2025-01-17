@@ -1,4 +1,4 @@
-from flask import render_template, request, session
+from flask import render_template, request, session, redirect, url_for
 from flask_socketio import join_room
 
 from database import sql
@@ -70,3 +70,17 @@ def search_messages():
     valid_messages = (sql.session.query(Message).filter(and_(Message.message.like(f"%{search_query}%"), or_(Message.receiver_id == session["user_id"], Message.sender_id == session["user_id"]))).order_by(Message.created_at).limit(50).all())
     users = sql.session.query(User).all()
     return render_template("search-results.html", messages=[message.to_dict() for message in valid_messages], users = users)
+
+@app.route("/community/messages", methods=["GET"])
+def edit_message(id):
+    content = request.args.get("new_content")
+
+@app.route("/community/messages/<int:receiver_id>/<int:message_id>", methods=["POST"])
+def delete_message(receiver_id, message_id):
+    print(receiver_id, message_id)
+    
+    message = sql.session.query(Message).filter(and_(Message.receiver_id == receiver_id, Message.id == message_id)).first()
+    sql.session.delete(message)
+    sql.session.commit()
+    
+    return redirect(url_for("messaging", receiver_id=receiver_id))

@@ -9,15 +9,15 @@ function displayMessage(messageData) {
 	const messageSpace = document.querySelector(".message-space");
 	const messageBlock = document.createElement("div");
 	messageBlock.className = `message-block ${messageData.sender_id === currentSenderId ? "you" : "other-person"}`;
+	messageBlock.id = messageData.id;
 
 	messageBlock.innerHTML = `
-	<form class = "edit-button" action = {{ url_for("edit_message(id = ${messageData.id}") }} method = "get">
+	<form action="/community/messages/${messageData.receiver_id}/${messageData.id}" method="POST">
 		<div class="message">
 			<p>${messageData.message}</p>
 			<span class="timestamp">Read status: ${messageData.is_read ? "Read" : "Unread"}</span>
+			<button type="submit">Delete</button> 
 		</div>
-		<button value = "Edit message" type = "submit">
-	</form>
   `;
 
 	messageSpace.appendChild(messageBlock);
@@ -54,3 +54,11 @@ document.addEventListener("DOMContentLoaded", function () {
 			});
 	});
 });
+
+
+function editMessage(form, id) {
+	const message = document.querySelector(`#${id} .message p`).textContent;
+	prompt("Enter the new content of your message.", message);
+	
+	
+}
