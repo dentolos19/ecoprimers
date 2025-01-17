@@ -1,0 +1,39 @@
+{% extends "admin/base.html" %}
+
+{% block abody %}
+<div class="h-100 d-flex justify-content-center align-items-center">
+  <div class="card" style="width: 500px;">
+    <div class="card-body">
+      <div>
+        <h5 class="card-title text-center">View Transaction</h5>
+      </div>
+      <div class="vstack gap-2">
+        <div>
+          <label class="form-label" for="id">ID</label>
+          <input class="form-control" type="text" id="id" name="id" value="{{ transaction.id }}" disabled />
+        </div>
+        <div>
+          <label class="form-label" for="type">Type</label>
+          <input class="form-control" type="text" id="type" name="type" value="{{ transaction.type }}" disabled />
+        </div>
+        <div>
+          <label class="form-label" for="points">Points</label>
+          <input class="form-control" type="number" id="points" name="points" value="{{ transaction.points }}" disabled />
+        </div>
+        <div>
+          <label class="form-label" for="description">Description</label>
+          <input class="form-control" type="text" id="description" name="description" value="{{ transaction.description }}" disabled />
+        </div>
+        <div>
+          <label class="form-label" for="date">Date</label>
+          <input class="form-control" type="text" id="date" name="date" value="{{ transaction.created_at }}" disabled />
+        </div>
+      </div>
+      <div class="mt-4 d-flex justify-content-end gap-2">
+        <a class="btn btn-light" href="{{ url_for('admin_transactions') }}">Back</a>
+        <a class="btn btn-primary" href="{{ url_for('admin_users_edit', id=user.id) }}">View User</a>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

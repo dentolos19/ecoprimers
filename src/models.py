@@ -100,6 +100,14 @@ class Transaction(Base):
     points: Mapped[int] = mapped_column(nullable=False)
     description: Mapped[str] = mapped_column(nullable=False)
 
+    def to_dict(self):
+        base_dict = super().to_dict()
+        base_dict["user_id"] = self.user_id
+        base_dict["type"] = self.type
+        base_dict["points"] = self.points
+        base_dict["description"] = self.description
+        return base_dict
+
 
 class Message(Base):
     __tablename__ = "messages"
