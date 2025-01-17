@@ -11,22 +11,37 @@ function displayMessage(messageData) {
 	messageBlock.className = `message-block ${messageData.sender_id === currentSenderId ? "you" : "other-person"}`;
 	messageBlock.id = messageData.id;
 
-	messageBlock.innerHTML = `
-	<form action="/community/messages/${messageData.receiver_id}/${messageData.id}" method="POST">
-		<div class="message">
-			<p>${messageData.message}</p>
-			<span class="timestamp">Read status: ${messageData.is_read ? "Read" : "Unread"}</span>
-			<button type="submit">Delete</button> 
-		</div>
-  `;
+	if (messageData.sender_id !== currentReceiverId) {
+		// Current sender's message block
+		messageBlock.innerHTML = `
+		<form action="/community/messages/${messageData.receiver_id}/${messageData.id}" method="POST">
+			<div class="message">
+				<p>${messageData.message}</p>
+				<span class="timestamp">Read status: ${messageData.is_read ? "Read" : "Unread"}</span>
+				<button type="submit">Delete</button> 
+			</div>
+		</form>
+		`;
+	} else {
+		// Other person's message block
+		messageBlock.innerHTML = `
+		<form action="/community/messages/${messageData.receiver_id}/${messageData.id}" method="POST">
+			<div class="message">
+				<p>${messageData.message}</p>
+				<span class="timestamp">Read status: ${messageData.is_read ? "Read" : "Unread"}</span>
+			</div>
+		</form>
+		`;
+	}
 
 	messageSpace.appendChild(messageBlock);
 	messageSpace.scrollTop = messageSpace.scrollHeight;
 }
 
+
 document.addEventListener("DOMContentLoaded", function () {
 	currentSenderId = document.querySelector("#receiver-id").value;
-	currentRecipientId = document.querySelector("#sender-id").value;
+	currentRecipientId = window.location.pathname.split("/")[3];
 
 	fetch(`/api/messages?sender_id=${currentSenderId}&receiver_id=${currentRecipientId}`)
 		.then((response) => {

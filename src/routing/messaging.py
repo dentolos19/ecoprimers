@@ -83,4 +83,4 @@ def delete_message(receiver_id, message_id):
     sql.session.delete(message)
     sql.session.commit()
     
-    return redirect(url_for("messaging", receiver_id=receiver_id))
+    return redirect(url_for("messaging", receiver_id=receiver_id if receiver_id != session["user_id"] else message.sender_id))
