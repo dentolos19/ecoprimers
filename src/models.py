@@ -35,6 +35,8 @@ class Event(Base):
     description: Mapped[str] = mapped_column(nullable=False)
     location: Mapped[str] = mapped_column(nullable=False)
     date: Mapped[str] = mapped_column(nullable=False)
+    image_filename: Mapped[str] = mapped_column(nullable=True)
+
 
 
 class EventAttendee(Base):
