@@ -22,9 +22,9 @@
                     <label for="location" class="form-label">Location</label>
                     <select class="form-select" id="location" name="location">
                         <option value="">Select Location</option>
-                        <option value="Orchard">Orchard</option>
-                        <option value="Chinatown">Chinatown</option>
-                        <option value="Little India">Little India</option>
+                        {% for event in all_events %}
+                        <option value="{{event.location}}">{{event.location}}</option>
+                        {% endfor %}
                     </select>
                 </div>
                 <button type="submit" class="btn btn-success w-100">Apply Filters</button>
