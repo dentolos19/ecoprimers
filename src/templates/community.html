@@ -1,44 +1,34 @@
 {% extends "base.html" %}
 
-{% block stylesheets %}
-<link rel="stylesheet" href="../static/css/social-media.css" />
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" />
-{% endblock %}
-
 {% block body %}
-<h1>Welcome to the Social Media App</h1>
-<a href="{{ url_for('community_post') }}">Add a Post</a>
-
-{% for post in posts %}
-<div class="container">
-    <div class="post">
-        <div class="align">
-            <p>
-                <span class="username">{{ post.user_id }}
-                    <button class="follow-btn">follow</button>
-                </span>
-            </p>
-            {% if post.image_filename %}
-        </div>
-        <img src="{{ url_for('static', filename='uploads/' + post.image_filename) }}" alt="Post Image"
-            style="width: 1000px; height: 600px" />
-        <div class="action-buttons">
-            <button class="like-btn"><i class="fas fa-heart"></i> Like</button>
-            <button class="comment-btn">
-                <i class="fas fa-comment"></i> Comment
-            </button>
-            <button class="share-btn"><i class="fas fa-share"></i> Share</button>
-            <button class="save-btn"><i class="fas fa-bookmark"></i> Save</button>
-        </div>
-        <div class="align">
-            <p>
-                <span class="username">{{ post.user_id }}</span> {{ post.content }}
-            </p>
-        </div>
-        <hr />
-        {% endif %}
-        <br /><br />
+<div class="container my-5">
+    <h1 class="text-center mb-4">Welcome to the Social Media App</h1>
+    <div class="text-center mb-4">
+        <a href="{{ url_for('community_post') }}" class="btn btn-success">Add a Post</a>
     </div>
+
+    {% for post in posts %}
+    <div class="card mb-4 shadow-sm">
+        <div class="card-body">
+            <div class="d-flex justify-content-between">
+                <p class="font-weight-bold">{{ post.user_id }}</p>
+                <button class="btn btn-outline-primary btn-sm follow-btn">Follow</button>
+            </div>
+            {% if post.image_filename %}
+            <img src="{{ url_for('static', filename='uploads/' + post.image_filename) }}" class="img-fluid mb-3" alt="Post Image" />
+            <div class="action-buttons d-flex justify-content-between">
+                <button class="btn btn-outline-danger btn-sm"><i class="fas fa-heart"></i> Like</button>
+                <button class="btn btn-outline-info btn-sm"><i class="fas fa-comment"></i> Comment</button>
+                <button class="btn btn-outline-secondary btn-sm"><i class="fas fa-share"></i> Share</button>
+                <button class="btn btn-outline-warning btn-sm"><i class="fas fa-bookmark"></i> Save</button>
+            </div>
+            {% endif %}
+            <hr />
+            <div class="align">
+                <p>{{ post.content }}</p>
+            </div>
+        </div>
+    </div>
+    {% endfor %}
 </div>
-{% endfor %}
 {% endblock %}
