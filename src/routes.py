@@ -148,6 +148,7 @@ def events():
     from_date = request.args.get("fromDate")
     to_date = request.args.get("toDate")
     location = request.args.get("location")
+    search_query = request.args.get("search", "")  # Get the search query if provided
 
     # Query the database for events based on filter values
     query = sql.session.query(Event)
@@ -158,6 +159,11 @@ def events():
         query = query.filter(Event.date <= to_date)
     if location:
         query = query.filter(Event.location == location)
+
+    if search_query:
+        query = query.filter(
+            Event.title.ilike(f"%{search_query}%") | Event.description.ilike(f"%{search_query}%")
+        )
 
     events = query.all()
 
