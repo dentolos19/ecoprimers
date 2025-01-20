@@ -220,6 +220,7 @@ def admin_users_delete(id):
 
         try:
             sql.session.delete(user)
+            sql.session.commit()
         except Exception as e:
             sql.session.rollback()
             flash(f"An error occurred while deleting the user: {str(e)}", "danger")
