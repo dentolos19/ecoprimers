@@ -6,6 +6,7 @@ from flask_socketio import SocketIO
 
 import ai
 import database
+import lib.google as google
 
 # Initialize Flask app
 app = Flask(__name__)
@@ -19,6 +20,7 @@ app_debug = bool(app.config["DEBUG"])
 # Initialize internal systems
 ai.init(app)
 database.init(app, local=app_debug)
+google.init(app)
 
 socketio = SocketIO(app, cors_allowed_origins="*")
 stripe.api_key = app.config["STRIPE_SECRET_KEY"]

@@ -221,6 +221,7 @@ def event_info():
 
 
 from routing.admin import *
+from routing.auth import *
 from routing.community import *
 from routing.engagement import *
 from routing.messaging import *
