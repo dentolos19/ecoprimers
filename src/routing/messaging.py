@@ -2,20 +2,20 @@ from flask import render_template, request, session, redirect, url_for
 from flask_socketio import join_room
 
 from database import sql
-from main import app, socketio
+from main import app, socket
 from models import Message, User
 from utils import require_login
 from sqlalchemy import and_, or_
 
 
-@socketio.on("join")
+@socket.on("join")
 def on_join(data):
     room = data.get("receiver_id")
     if room:
         join_room(room)
 
 
-@socketio.on("disconnect")
+@socket.on("disconnect")
 def on_disconnect():
     pass
 
@@ -41,11 +41,7 @@ def messaging(receiver_id=None):
         sql.session.add(message)
         sql.session.commit()
 
-        # socketio.emit(
-        #     "receive_message",
-        #     message.to_dict(),
-        #     room=receiver_id,
-        # )
+        socket.emit('receive_message', message.to_dict(), room=receiver_id)
 
         return render_template(
             "messaging.html",

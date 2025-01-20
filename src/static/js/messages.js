@@ -5,33 +5,35 @@ const socket = io();
 let currentRecipientId = null;
 let currentSenderId = null;
 
-function displayMessage(messageData) {
+function displayMessage(message) {
 	const messageSpace = document.querySelector(".message-space");
 	const messageBlock = document.createElement("div");
-	messageBlock.className = `message-block ${messageData.sender_id === currentSenderId ? "you" : "other-person"}`;
-	messageBlock.id = messageData.id;
+	messageBlock.className = `message-block ${message.sender_id === currentSenderId ? "you" : "other-person"}`;
+	messageBlock.id = message.id;
 
-	if (messageData.sender_id !== currentReceiverId) {
-		// Current sender's message block
+	if (message.sender_id == currentSenderId) {
+		
 		messageBlock.innerHTML = `
-		<form action="/community/messages/${messageData.receiver_id}/${messageData.id}" method="POST">
+		<form action="/community/messages/${message.receiver_id}/${message.id}" method="POST">
 			<div class="message">
-				<p>${messageData.message}</p>
-				<span class="timestamp">Read status: ${messageData.is_read ? "Read" : "Unread"}</span>
+				<p>${message.message}</p>
+				<span class="timestamp">Read status: ${message.is_read ? "Read" : "Unread"}</span>
 				<button type="submit">Delete</button> 
 			</div>
 		</form>
 		`;
+		console.log(`test: logged in user = sender, sender id = ${message.sender_id}, current sender id = ${currentSenderId}`);
 	} else {
-		// Other person's message block
+		
 		messageBlock.innerHTML = `
-		<form action="/community/messages/${messageData.receiver_id}/${messageData.id}" method="POST">
+		<form action="/community/messages/${message.receiver_id}/${message.id}" method="POST">
 			<div class="message">
-				<p>${messageData.message}</p>
-				<span class="timestamp">Read status: ${messageData.is_read ? "Read" : "Unread"}</span>
+				<p>${message.message}</p>
+				<span class="timestamp">Read status: ${message.is_read ? "Read" : "Unread"}</span>
 			</div>
 		</form>
 		`;
+		console.log(`test: logged in user = receiver, sender id = ${message.sender_id}, current sender id = ${currentSenderId}`);
 	}
 
 	messageSpace.appendChild(messageBlock);
@@ -40,8 +42,8 @@ function displayMessage(messageData) {
 
 
 document.addEventListener("DOMContentLoaded", function () {
-	currentSenderId = document.querySelector("#receiver-id").value;
-	currentRecipientId = window.location.pathname.split("/")[3];
+	currentSenderId = document.querySelector("#sender-id").value;
+	currentRecipientId = document.querySelector("#receiver-id").value;
 
 	fetch(`/api/messages?sender_id=${currentSenderId}&receiver_id=${currentRecipientId}`)
 		.then((response) => {
@@ -54,9 +56,13 @@ document.addEventListener("DOMContentLoaded", function () {
 	// Socket event listeners
 	socket.on("connect", () => {
 		console.log("Connected to Socket.IO server");
+
+		if(currentRecipientId) {
+			socket.emit("join",  { receiver_id: currentRecipientId });
+		}
 	});
 
-	socket.on("receive_message", (data) => {
+	socket.on("receive_message", (messages) => {
 		// TODO: Fix socket updates
 		const messageSpace = document.querySelector(".message-space");
 		messageSpace.innerHTML = "";
@@ -74,6 +80,4 @@ document.addEventListener("DOMContentLoaded", function () {
 function editMessage(form, id) {
 	const message = document.querySelector(`#${id} .message p`).textContent;
 	prompt("Enter the new content of your message.", message);
-	
-	
 }

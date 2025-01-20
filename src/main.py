@@ -3,6 +3,7 @@ import os
 import stripe
 from flask import Flask
 from flask_socketio import SocketIO
+import eventlet
 
 import ai
 import database
@@ -20,7 +21,7 @@ app_debug = bool(app.config["DEBUG"])
 ai.init(app)
 database.init(app, local=app_debug)
 
-socketio = SocketIO(app, cors_allowed_origins="*")
+socket = SocketIO(app, async_mode='eventlet', cors_allowed_origins="*", logger=True, engineio_logger=True)
 stripe.api_key = app.config["STRIPE_SECRET_KEY"]
 
 if not os.path.exists(app.config["UPLOAD_FOLDER"]):
