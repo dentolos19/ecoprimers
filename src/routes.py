@@ -166,8 +166,9 @@ def events():
         )
 
     events = query.all()
+    all_events = sql.session.query(Event).all()
 
-    return render_template("events.html", events=events)
+    return render_template("events.html", events=events, all_events=all_events)
 
 
 @app.route("/donation", methods=["GET", "POST"])

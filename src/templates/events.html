@@ -22,9 +22,9 @@
                     <label for="location" class="form-label">Location</label>
                     <select class="form-select" id="location" name="location">
                         <option value="">Select Location</option>
-                        <option value="Orchard">Orchard</option>
-                        <option value="Chinatown">Chinatown</option>
-                        <option value="Little India">Little India</option>
+                        {% for event in all_events %}
+                        <option value="{{event.location}}">{{event.location}}</option>
+                        {% endfor %}
                     </select>
                 </div>
                 <button type="submit" class="btn btn-success w-100">Apply Filters</button>
@@ -47,11 +47,11 @@
             <div class="row row-cols-1 row-cols-md-2 g-4">
                 {% for event in events %}
                 <div class="col">
-                    <div class="card" id="eventDetails" data-event-id="{{ event.id }}">
+                    <div class="card shadow-sm hover-item" id="eventDetails" data-event-id="{{ event.id }}">
                         <img 
                             src="{{ url_for('static', filename='uploads/' + event.image_filename) if event.image_filename else 'https://via.placeholder.com/300x200' }}" 
                             class="card-img-top" 
-                            style="height: 400px; width: 100%; object-fit: cover;"
+                            style="height: 300px; width: 100%; object-fit: cover;"
                             alt="{{ event.title }}">
                         <div class="card-body">
                             <h5 class="card-title">{{ event.title }}</h5>
