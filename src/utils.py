@@ -5,9 +5,9 @@ from functools import wraps
 
 from flask import flash, redirect, session, url_for
 
-from database import sql
+from lib.database import sql
+from lib.models import User
 from main import app_debug
-from models import User
 
 
 # Helper function to check allowed file extensions

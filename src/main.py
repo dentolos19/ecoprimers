@@ -4,9 +4,7 @@ import stripe
 from flask import Flask
 from flask_socketio import SocketIO
 
-import ai
-import database
-import lib.google as google
+from lib import ai, database, google
 
 # Initialize Flask app
 app = Flask(__name__)

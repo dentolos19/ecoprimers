@@ -4,9 +4,9 @@ import stripe
 from flask import flash, redirect, render_template, request, session, url_for
 from werkzeug.security import check_password_hash, generate_password_hash
 
-from database import sql
+from lib.database import sql
+from lib.models import Event, EventAttendee, User
 from main import app
-from models import Event, User, EventAttendee
 from utils import check_admin_status, check_logged_in, require_login
 
 
@@ -161,9 +161,7 @@ def events():
         query = query.filter(Event.location == location)
 
     if search_query:
-        query = query.filter(
-            Event.title.ilike(f"%{search_query}%") | Event.description.ilike(f"%{search_query}%")
-        )
+        query = query.filter(Event.title.ilike(f"%{search_query}%") | Event.description.ilike(f"%{search_query}%"))
 
     events = query.all()
     all_events = sql.session.query(Event).all()
@@ -226,6 +224,7 @@ def event_info():
 
     return render_template("event-details.html", event=event)
 
+
 @app.route("/event/signup", methods=["GET", "POST"])
 @require_login
 def event_signup():
@@ -253,12 +252,11 @@ def event_signup():
             sql.session.commit()
             flash("You have successfully signed up for the event!", "success")
             return redirect(url_for("event_info", id=event_id))
-        except Exception as e:
+        except Exception:
             sql.session.rollback()
             flash("Error signing up for the event. Please try again.", "danger")
 
     return render_template("event-signup.html", event=event, user=user)
-
 
 
 from routing.admin import *

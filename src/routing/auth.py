@@ -1,11 +1,9 @@
-from flask import redirect, url_for
+from flask import flash, redirect, session, url_for
 
 from lib import google
+from lib.database import sql
+from lib.models import User
 from main import app
-
-from database import sql
-from models import User
-from flask import flash, redirect, render_template, request, session, url_for
 
 
 @app.route("/login/google")
@@ -25,7 +23,7 @@ def login_authorize():
     existing_user = sql.session.query(User).filter_by(email=email).first()
 
     if existing_user:
-        # if user already exists, log in 
+        # if user already exists, log in
         session["user_id"] = existing_user.id
         session["user_email"] = existing_user.email
         flash("Welcome back! Logged in successfully.", "success")
@@ -33,7 +31,7 @@ def login_authorize():
     else:
         new_user = User(
             email=email,
-            username=name,  
+            username=name,
             password="",
         )
 
@@ -44,7 +42,7 @@ def login_authorize():
             session["user_id"] = new_user.id
             session["user_email"] = new_user.email
             flash("Account created successfully via Google. Logged in!", "success")
-        except Exception as e:
+        except Exception:
             sql.session.rollback()
             flash("An error occurred while creating your account. Please try again.", "danger")
             return redirect(url_for("login"))

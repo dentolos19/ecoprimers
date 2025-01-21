@@ -1,15 +1,13 @@
+import os
+
 from flask import flash, redirect, render_template, request, url_for
 from werkzeug.security import generate_password_hash
-
-from database import sql
-from main import app
-from models import Event, Product, Transaction, User
-from utils import require_admin
-
 from werkzeug.utils import secure_filename
-from utils import allowed_file
 
-import os
+from lib.database import sql
+from lib.models import Event, Product, Transaction, User
+from main import app
+from utils import allowed_file, require_admin
 
 
 @app.route("/admin")

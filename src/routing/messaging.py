@@ -1,9 +1,9 @@
 from flask import render_template, request, session
 from flask_socketio import join_room
 
-from database import sql
+from lib.database import sql
+from lib.models import Message, User
 from main import app, socketio
-from models import Message, User
 from utils import require_login
 
 
