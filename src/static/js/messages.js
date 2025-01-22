@@ -81,3 +81,20 @@ function editMessage(form, id) {
 	const message = document.querySelector(`#${id} .message p`).textContent;
 	prompt("Enter the new content of your message.", message);
 }
+
+function join_room(receiver_id) {
+	socket.emit("join", {receiver_id: receiver_id});
+
+	messageSpace.innerHTML = "";
+	fetch(`/api/messages?sender_id=${currentSenderId}&receiver_id=${receiver_id}`)
+	.then((response) => response.json())
+	.then((messages) => {
+		const messageSpace = document.querySelector(".message-space");
+		messageSpace.innerHTML = "";  // Clear any old messages
+		messages.forEach((message) => displayMessage(message));  // Display new messages
+
+		// Update the current recipient to the new one
+		currentRecipientId = receiver_id;
+	});
+
+}

@@ -132,3 +132,10 @@ class Donation(Base):
     username: Mapped[str] = mapped_column(nullable=False)
     amount: Mapped[float] = mapped_column(nullable=False)
     date_time: Mapped[datetime] = mapped_column(nullable=False)
+
+class Rooms(Base):
+    __tablename__ = "rooms"
+
+    room_id: Mapped[str] = mapped_column(nullable=False)
+    user_1: Mapped[int] = mapped_column(nullable=False) 
+    user_2: Mapped[int] = mapped_column(nullable=False) 
