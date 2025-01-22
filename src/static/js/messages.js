@@ -1,5 +1,7 @@
 // messages.js
-const socket = io();
+const socket = io({
+	transports: ["polling"],	
+});
 
 // Store current chat state
 let currentRecipientId = null;
@@ -98,3 +100,27 @@ function join_room(receiver_id) {
 	});
 
 }
+
+function sendMessage() {
+	console.log("running sendMessage()");
+	const inputElement = document.querySelector("input#message");
+	const content = inputElement.value;
+	inputElement.value = "";
+	console.log(content)
+    socket.emit("send_message", {
+        sender_id: currentSenderId,
+        receiver_id: currentRecipientId,
+        message: content
+    });
+	
+};
+
+// Listen for 'receive_message' event
+socket.on("receive_message", (message) => {
+    console.log("New message received:", message);
+
+    // Ensure it's for the current chat
+    if (message.sender_id === currentRecipientId || message.receiver_id === currentRecipientId) {
+        displayMessage(message);
+    }
+});
