@@ -116,11 +116,19 @@ function sendMessage() {
 };
 
 // Listen for 'receive_message' event
+// In messages.js, replace your socket.on("receive_message") event with this:
 socket.on("receive_message", (message) => {
-    console.log("New message received:", message);
-
-    // Ensure it's for the current chat
-    if (message.sender_id === currentRecipientId || message.receiver_id === currentRecipientId) {
+    // Check if this message belongs to current chat
+    if (message.sender_id === currentRecipientId || 
+        (message.sender_id === currentSenderId && message.receiver_id === currentRecipientId)) {
         displayMessage(message);
+    }
+});
+
+// Add this to your existing socket event listeners
+socket.on("message_deleted", (data) => {
+    const messageElement = document.getElementById(data.message_id);
+    if (messageElement) {
+        messageElement.remove();
     }
 });
