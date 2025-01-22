@@ -4,9 +4,9 @@ import stripe
 from flask import flash, redirect, render_template, request, session, url_for
 from werkzeug.security import check_password_hash, generate_password_hash
 
-from database import sql
+from lib.database import sql
+from lib.models import Event, EventAttendee, User
 from main import app
-from models import Event, User
 from utils import check_admin_status, check_logged_in, require_login
 
 
@@ -148,6 +148,7 @@ def events():
     from_date = request.args.get("fromDate")
     to_date = request.args.get("toDate")
     location = request.args.get("location")
+    search_query = request.args.get("search", "")  # Get the search query if provided
 
     # Query the database for events based on filter values
     query = sql.session.query(Event)
@@ -159,9 +160,13 @@ def events():
     if location:
         query = query.filter(Event.location == location)
 
-    events = query.all()
+    if search_query:
+        query = query.filter(Event.title.ilike(f"%{search_query}%") | Event.description.ilike(f"%{search_query}%"))
 
-    return render_template("events.html", events=events)
+    events = query.all()
+    all_events = sql.session.query(Event).all()
+
+    return render_template("events.html", events=events, all_events=all_events)
 
 
 @app.route("/donation", methods=["GET", "POST"])
@@ -220,7 +225,42 @@ def event_info():
     return render_template("event-details.html", event=event)
 
 
+@app.route("/event/signup", methods=["GET", "POST"])
+@require_login
+def event_signup():
+    event_id = request.args.get("id")  # Get event ID from the query parameter
+    user_id = session.get("user_id")  # Get the logged-in user's ID from the session
+
+    # Fetch event details from the database
+    event = sql.session.query(Event).filter_by(id=event_id).first()
+    if not event:
+        flash("Event not found", "danger")
+
+    existing_attendee = sql.session.query(EventAttendee).filter_by(event_id=event_id, user_id=user_id).first()
+    if existing_attendee:
+        flash("You are already signed up for this event.", "info")
+        return redirect(url_for("event_info", id=event_id))
+
+    user = sql.session.query(User).filter_by(id=user_id).first()
+    if not user:
+        flash("User not found", "danger")
+
+    if request.method == "POST":
+        try:
+            attendee = EventAttendee(event_id=event_id, user_id=user_id)
+            sql.session.add(attendee)
+            sql.session.commit()
+            flash("You have successfully signed up for the event!", "success")
+            return redirect(url_for("event_info", id=event_id))
+        except Exception:
+            sql.session.rollback()
+            flash("Error signing up for the event. Please try again.", "danger")
+
+    return render_template("event-signup.html", event=event, user=user)
+
+
 from routing.admin import *
+from routing.auth import *
 from routing.community import *
 from routing.engagement import *
 from routing.messaging import *

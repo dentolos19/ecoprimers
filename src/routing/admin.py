@@ -1,10 +1,13 @@
+import os
+
 from flask import flash, redirect, render_template, request, url_for
 from werkzeug.security import generate_password_hash
+from werkzeug.utils import secure_filename
 
-from database import sql
+from lib.database import sql
+from lib.models import Event, Product, Transaction, User
 from main import app
-from models import Event, Product, Transaction, User
-from utils import require_admin
+from utils import allowed_file, require_admin
 
 
 @app.route("/admin")
@@ -48,6 +51,14 @@ def admin_events_new():
         event_description = request.form["description"]
         event_location = request.form["location"]
         event_date = request.form["date"]
+        image = request.files["image"]
+
+        image_filename = None
+        if image and allowed_file(image.filename):
+            # Secure the filename and save it
+            image_filename = secure_filename(image.filename)
+            image.save(os.path.join(app.config["UPLOAD_FOLDER"], image_filename))
+
 
         # Create an Event object and save it to the database
         new_event = Event(
@@ -55,6 +66,7 @@ def admin_events_new():
             description=event_description,
             location=event_location,
             date=event_date,
+            image_filename=image_filename,
         )
 
         try:
@@ -82,12 +94,20 @@ def admin_events_edit(id):
         event_description = request.form["description"]
         event_location = request.form["location"]
         event_date = request.form["date"]
+        image = request.files["image"]
+
+        image_filename = None
+        if image and allowed_file(image.filename):
+            # Secure the filename and save it
+            image_filename = secure_filename(image.filename)
+            image.save(os.path.join(app.config["UPLOAD_FOLDER"], image_filename))
 
         # Update the event object with the new data
         event.title = event_title
         event.description = event_description
         event.location = event_location
         event.date = event_date
+        event.image_filename = image_filename
 
         try:
             # Commit the changes to the database
@@ -220,6 +240,7 @@ def admin_users_delete(id):
 
         try:
             sql.session.delete(user)
+            sql.session.commit()
         except Exception as e:
             sql.session.rollback()
             flash(f"An error occurred while deleting the user: {str(e)}", "danger")

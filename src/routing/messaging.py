@@ -3,9 +3,9 @@ import uuid
 from flask import render_template, request, session, redirect, url_for
 from flask_socketio import join_room
 
-from database import sql
+from lib.database import sql
+from lib.models import Message, User, Rooms
 from main import app, socket
-from models import Message, User, Rooms
 from utils import require_login
 from sqlalchemy import and_, or_ 
 

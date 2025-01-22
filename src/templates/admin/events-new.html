@@ -3,7 +3,7 @@
 {% block abody %}
 <div class="h-100 d-flex justify-content-center align-items-center">
   <div class="card" style="width: 500px;">
-    <form class="card-body" method="POST" action="{{ url_for('admin_events_new') }}">
+    <form class="card-body" method="POST" action="{{ url_for('admin_events_new') }}" enctype="multipart/form-data">
       <div>
         <h5 class="card-title text-center">New Event</h5>
       </div>
@@ -23,6 +23,10 @@
         <div>
           <label class="form-label" for="date">Date</label>
           <input class="form-control" type="date" id="date" name="date" min="{{ current_date }}" value="{{ current_date }}" required />
+        </div>
+        <div>
+          <label class="form-label" for="image">Event Image</label>
+          <input class="form-control" type="file" id="image" name="image" />
         </div>
       </div>
       <div class="mt-4 d-flex justify-content-end gap-2">

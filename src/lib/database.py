@@ -6,7 +6,7 @@ from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy.orm import Session
 from werkzeug.security import generate_password_hash
 
-from models import Base
+from lib.models import Base
 
 initialized: bool = False
 sql: SQLAlchemy = None

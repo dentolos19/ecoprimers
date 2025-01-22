@@ -1,10 +1,10 @@
 from flask import request
 from sqlalchemy import and_, or_
 
-from ai import agent
-from database import sql
+from lib.ai import agent
+from lib.database import sql
+from lib.models import Message
 from main import app
-from models import Message
 
 
 @app.route("/api/chat", methods=["POST"])

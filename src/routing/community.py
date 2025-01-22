@@ -3,9 +3,9 @@ import os
 from flask import redirect, render_template, request, session, url_for
 from werkzeug.utils import secure_filename
 
-from database import sql
+from lib.database import sql
+from lib.models import Post
 from main import app
-from models import Post
 from utils import allowed_file, require_login
 
 
