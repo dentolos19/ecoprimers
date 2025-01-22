@@ -154,3 +154,10 @@ class Donation(Base):
     username: Mapped[str]  # TODO: Change to user relationship
     amount: Mapped[float]
     date_time: Mapped[datetime]  # NOTE: Don't need use, have "created_at" in base class
+
+
+class Room(Base):
+    tablename = "rooms"
+
+    user_1: Mapped[str] = mapped_column(ForeignKey("users.id"))
+    user_2: Mapped[str] = mapped_column(ForeignKey("users.id"))
