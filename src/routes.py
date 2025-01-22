@@ -212,12 +212,6 @@ def donation_success():
     return redirect(url_for("donation"))
 
 
-@app.route("/chat")
-@require_login
-def chat():
-    return render_template("chat.html")
-
-
 @app.route("/event/details")
 def event_info():
     event_id = request.args.get("id")
@@ -262,6 +256,7 @@ def event_signup():
 
 from routing.admin import *
 from routing.auth import *
+from routing.chat import *
 from routing.community import *
 from routing.engagement import *
 from routing.messaging import *

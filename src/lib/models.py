@@ -147,9 +147,10 @@ class Message(Base):
         return base_dict
 
 
+# NOTE: I think maybe better to move to "Transactions" for all types of transactions (e.g., points, donations, etc.)
 class Donation(Base):
     __tablename__ = "donations"
 
-    username: Mapped[str]
+    username: Mapped[str]  # TODO: Change to user relationship
     amount: Mapped[float]
-    date_time: Mapped[datetime]
+    date_time: Mapped[datetime]  # NOTE: Don't need use, have "created_at" in base class
