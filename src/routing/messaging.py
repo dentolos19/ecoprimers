@@ -31,7 +31,7 @@ def on_join(data):
         print(f"joined room between {room.user_1} and {room.user_2}")
 
 @app.route("/community/messages")
-@app.route("/community/messages/<int:receiver_id>", methods=["GET", "POST"])
+@app.route("/community/messages/<receiver_id>", methods=["GET", "POST"])
 @require_login
 def messaging(receiver_id=None):
     user_list = sql.session.query(User).all()
