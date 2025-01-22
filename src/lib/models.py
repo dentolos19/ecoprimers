@@ -150,13 +150,13 @@ class Message(Base):
 class Donation(Base):
     __tablename__ = "donations"
 
-    username: Mapped[str] = mapped_column(nullable=False)
-    amount: Mapped[float] = mapped_column(nullable=False)
-    date_time: Mapped[datetime] = mapped_column(nullable=False)
+    username: Mapped[str]  # TODO: Change to user relationship
+    amount: Mapped[float]
+    date_time: Mapped[datetime]  # NOTE: Don't need use, have "created_at" in base class
 
-class Rooms(Base):
-    __tablename__ = "rooms"
 
-    room_id: Mapped[str] = mapped_column(nullable=False)
-    user_1: Mapped[int] = mapped_column(nullable=False) 
-    user_2: Mapped[int] = mapped_column(nullable=False) 
+class Room(Base):
+    tablename = "rooms"
+
+    user_1: Mapped[str] = mapped_column(ForeignKey("users.id"))
+    user_2: Mapped[str] = mapped_column(ForeignKey("users.id"))
