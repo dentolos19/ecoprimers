@@ -1,3 +1,4 @@
+{# messaging.html #}
 {% extends "base.html" %}
 
 {% block stylesheets %}
@@ -5,12 +6,20 @@
 {% endblock %}
 
 {% block scripts %}
+<script>
+    if ( window.history.replaceState ) {
+        window.history.replaceState( null, null, window.location.href );
+    }
+</script>
 <script src="https://cdn.socket.io/4.0.0/socket.io.min.js"></script>
 <script src="{{ url_for('static', filename='js/messages.js') }}"></script>
 {% endblock %}
 
 {% block body %}
 <div id="users">
+    <form method = "get" action = "{{ url_for('search_messages') }}">
+        <input type = "text" name = "search_query" id = "search-query" required placeholder = "Search for a message">
+    </form>
     {% for user in users %}
         {% if sender_id != user.id %}
             <a class="user" href="{{ url_for('messaging', receiver_id=user.id) }}">
@@ -27,18 +36,15 @@
         {% endif %}
    {% endfor %}
 </div>
-
 {% if receiver_id %}
 <div id = "chat-scape">
     <div class="message-space">
     </div>
     <div class = "input space">
-        <form method="POST" action="{{ url_for('messaging', receiver_id=receiver_id) }}">
-            <input type="hidden" name="receiver-id" id="receiver-id" value="{{ receiver_id }}">
-            <input type="hidden" name="sender-id" id="sender-id" value="{{ sender_id }}">
-            <input type="text" name="message" id="message" placeholder="Enter message here" required>
-            <button type="submit" id="send-message">Send</button>
-        </form>
+        <input type="hidden" name="receiver-id" id="receiver-id" value="{{ receiver_id }}">
+        <input type="hidden" name="sender-id" id="sender-id" value="{{ sender_id }}">
+        <input type="text" name="message" id="message" placeholder="Enter message here" required>
+        <button type="submit" id="send-message" onclick="sendMessage()">Send</button>
     </div>
 </div>
 {% else %}
