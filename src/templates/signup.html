@@ -24,16 +24,19 @@
                     <input type="password" id="password" name="password" placeholder="Password" required class="form-control mb-3"
                            title="Password must be at least 8 characters long, contain at least one uppercase letter, one lowercase letter, and one special character.">
                 </div>
-                <!-- New fields for bio and birthday -->
                 <div class="form-group">
                     <label for="bio" class="sr-only">Bio</label>
                     <textarea id="bio" name="bio" placeholder="Tell us about yourself" required class="form-control mb-3"></textarea>
                 </div>
                 <div class="form-group">
                     <label for="birthday" class="sr-only">Birthday</label>
-                    <input type="date" id="birthday" name="birthday" required class="form-control mb-3">
+                    <input type="date" id="birthday" name="birthday" max="{{ current_date }}" required class="form-control mb-3">
                 </div>
-                <button type="submit" class="w-100 rounded-lg mb-3">Sign Up</button>
+                <button type="submit" class="w-100 rounded-lg mb-3 btn btn-success">Sign Up</button>
+                <a href="{{ url_for('login_google') }}" class="btn btn-white btn-outline-dark d-flex align-items-center justify-content-center mb-3 w-100">
+                    <i class="fab fa-google" style="font-size: 20px; margin-right: 10px;"></i>
+                    <span>Sign Up With Google</span>
+                </a>
                 <p>Already have an account? <a href="/login">Log in here!</a></p>
             </form>
         </div>
@@ -47,7 +50,7 @@ function validateForm() {
     const password = document.getElementById("password").value;
     const bio = document.getElementById("bio").value;
     const birthday = document.getElementById("birthday").value;
-    
+
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\W).{8,}$/;
 

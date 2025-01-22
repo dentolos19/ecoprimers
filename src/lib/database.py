@@ -4,8 +4,9 @@ from flask import Flask
 from flask_migrate import Migrate
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy.orm import Session
+from werkzeug.security import generate_password_hash
 
-from models import Base
+from lib.models import Base, Event, Product, User
 
 initialized: bool = False
 sql: SQLAlchemy = None
@@ -23,6 +24,8 @@ def init(app: Flask, local: bool = True):
     if initialized:
         return
 
+    first_setup = False
+
     # Load environment variables
     app.config["TURSO_DATABASE_URL"] = os.environ.get("TURSO_DATABASE_URL")
     app.config["TURSO_AUTH_TOKEN"] = os.environ.get("TURSO_AUTH_TOKEN")
@@ -35,6 +38,11 @@ def init(app: Flask, local: bool = True):
         # Ensure that the directory for the database exists
         if not os.path.exists(database_dir):
             os.makedirs(database_dir)
+
+        # Check if the database file exists
+        if not os.path.exists(database_file):
+            first_setup = True
+
         url = "sqlite:///" + database_file
     else:
         url = f"sqlite+{app.config['TURSO_DATABASE_URL']}/?authToken={app.config['TURSO_AUTH_TOKEN']}&secure=true"
@@ -53,10 +61,36 @@ def init(app: Flask, local: bool = True):
         # Uses local database if the remote database is not available
         init(app, local=True)
     else:
-        # Automatically update the database schema to match the models
+        # Create all the tables of the database; does not update existing tables
         with app.app_context():
             sql.create_all()
 
+        # Initializes migration support; use migration script to update the database
         migrate = Migrate(app, sql)
 
         initialized = True
+
+        # Setup the database with initial data
+        if first_setup:
+            setup(app, sql)
+
+
+def setup(app: Flask, sql: SQLAlchemy):
+    with app.app_context():
+        sql.session.add(
+            User(
+                username="Administrator",
+                email="admin@ecoprimers.app",
+                password=generate_password_hash("admin", method="pbkdf2:sha1"),
+            )
+        )
+        sql.session.add(
+            User(
+                username="Dennise Duck",
+                email="dennise@duck.com",
+                password=generate_password_hash("Dennise!123", method="pbkdf2:sha1"),
+            )
+        )
+        sql.session.add(Event(title="Cleaning Day", description="Todo", location="Chinatown", date="2025-03-01"))
+        sql.session.add(Product(name="Reusable Cup", points=200, stock=50))
+        sql.session.commit()

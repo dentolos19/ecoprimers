@@ -1,9 +1,9 @@
 from flask import render_template, request, session
 from flask_socketio import join_room
 
-from database import sql
+from lib.database import sql
+from lib.models import Message, User
 from main import app, socketio
-from models import Message, User
 from utils import require_login
 
 
@@ -20,7 +20,7 @@ def on_disconnect():
 
 
 @app.route("/community/messages")
-@app.route("/community/messages/<int:receiver_id>", methods=["GET", "POST"])
+@app.route("/community/messages/<receiver_id>", methods=["GET", "POST"])
 @require_login
 def messaging(receiver_id=None):
     user_list = sql.session.query(User).all()
