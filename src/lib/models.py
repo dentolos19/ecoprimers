@@ -1,11 +1,13 @@
+import uuid
 from datetime import datetime
+from typing import List, Optional
 
-from sqlalchemy import DateTime, func
-from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column
+from sqlalchemy import DateTime, ForeignKey, func
+from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column, relationship
 
 
 class Base(DeclarativeBase):
-    id: Mapped[int] = mapped_column(primary_key=True)
+    id: Mapped[str] = mapped_column(primary_key=True, default=lambda: str(uuid.uuid4()))
     updated_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=func.now(), onupdate=func.now())
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=func.now())
 
@@ -20,88 +22,104 @@ class Base(DeclarativeBase):
 class User(Base):
     __tablename__ = "users"
 
-    username: Mapped[str] = mapped_column(unique=True, nullable=False)
-    email: Mapped[str] = mapped_column(unique=True, nullable=False)
-    password: Mapped[str] = mapped_column(nullable=False)
-    bio: Mapped[str] = mapped_column(nullable=True)
-    birthday: Mapped[str] = mapped_column(nullable=True)
-    points: Mapped[int] = mapped_column(nullable=False, default=0)
+    email: Mapped[str] = mapped_column(unique=True)
+    password: Mapped[str]
+    username: Mapped[str]  # TODO: Rename to "name"
+    points: Mapped[int] = mapped_column(default=0)
+    bio: Mapped[Optional[str]]
+    birthday: Mapped[Optional[str]]  # TODO: Use datetime
+
+    posts: Mapped[List["Post"]] = relationship()
+    transactions: Mapped[List["Transaction"]] = relationship()
 
 
 class Event(Base):
     __tablename__ = "events"
 
-    title: Mapped[str] = mapped_column(nullable=False)
-    description: Mapped[str] = mapped_column(nullable=False)
-    location: Mapped[str] = mapped_column(nullable=False)
-    date: Mapped[str] = mapped_column(nullable=False)
-    image_filename: Mapped[str] = mapped_column(nullable=True)
+    title: Mapped[str]
+    description: Mapped[str]
+    location: Mapped[str]
+    date: Mapped[str]
+    image_filename: Mapped[Optional[str]]
 
+    attendees: Mapped[List["EventAttendee"]] = relationship()
 
 
 class EventAttendee(Base):
     __tablename__ = "event_attendees"
 
-    event_id: Mapped[int] = mapped_column(nullable=False)
-    user_id: Mapped[int] = mapped_column(nullable=False)
+    event_id: Mapped[str] = mapped_column(ForeignKey("events.id"))
+    user_id: Mapped[str] = mapped_column(ForeignKey("users.id"))
+    status: Mapped[str]  # e: "interested" or "withdrawn"
+
+    event = relationship("Event", back_populates="attendees")
 
 
 class Post(Base):
     __tablename__ = "posts"
 
-    user_id: Mapped[int] = mapped_column(nullable=False)
-    title: Mapped[str] = mapped_column(nullable=False)
-    description: Mapped[str] = mapped_column(nullable=False)
-    image_filename: Mapped[str] = mapped_column(nullable=False)
+    user_id: Mapped[str] = mapped_column(ForeignKey("users.id"))
+    title: Mapped[str]
+    description: Mapped[str]
+    image_filename: Mapped[Optional[str]]
+
+    user = relationship("User", back_populates="posts")
+    likes: Mapped[List["PostLike"]] = relationship()
+    comments: Mapped[List["PostComment"]] = relationship()
 
 
 class PostLike(Base):
     __tablename__ = "post_likes"
 
-    post_id: Mapped[int] = mapped_column(nullable=False)
-    user_id: Mapped[int] = mapped_column(nullable=False)
+    post_id: Mapped[str] = mapped_column(ForeignKey("posts.id"))
+    user_id: Mapped[str] = mapped_column(ForeignKey("users.id"))
+
+    post = relationship("Post", back_populates="likes")
 
 
 class PostComment(Base):
     __tablename__ = "post_comments"
 
-    post_id: Mapped[int] = mapped_column(nullable=False)
-    user_id: Mapped[int] = mapped_column(nullable=False)
-    message: Mapped[str] = mapped_column(nullable=False)
+    post_id: Mapped[str] = mapped_column(ForeignKey("posts.id"))
+    user_id: Mapped[str] = mapped_column(ForeignKey("users.id"))
+    message: Mapped[str]
+
+    post = relationship("Post", back_populates="comments")
 
 
 class Task(Base):
     __tablename__ = "tasks"
 
-    id: Mapped[int] = mapped_column(primary_key=True)
-    title: Mapped[str] = mapped_column(nullable=False)
-    description: Mapped[datetime] = mapped_column(nullable=False)
-    task_points: Mapped[int] = mapped_column(nullable=False)
+    title: Mapped[str]
+    description: Mapped[datetime]  # TODO: Why datetime?
+    task_points: Mapped[int]
 
 
 class TaskStatus(Base):
     __tablename__ = "task_status"
 
-    task_id: Mapped[int] = mapped_column(nullable=False)
-    user_id: Mapped[int] = mapped_column(nullable=False)
-    status: Mapped[str] = mapped_column(nullable=False)
+    task_id: Mapped[str] = mapped_column(ForeignKey("tasks.id"))
+    user_id: Mapped[str] = mapped_column(ForeignKey("users.id"))
+    status: Mapped[str]  # e: "completed" or "pending"
 
 
 class Product(Base):
     __tablename__ = "products"
 
-    name: Mapped[str] = mapped_column(nullable=False)
-    points: Mapped[int] = mapped_column(nullable=False)
-    stock: Mapped[int] = mapped_column(nullable=False)
+    name: Mapped[str]
+    points: Mapped[int]
+    stock: Mapped[int]
 
 
 class Transaction(Base):
     __tablename__ = "transactions"
 
-    user_id: Mapped[int] = mapped_column(nullable=False)  # Foreign key
-    type: Mapped[str] = mapped_column(nullable=False)  # "earned" or "redeemed"
-    points: Mapped[int] = mapped_column(nullable=False)
-    description: Mapped[str] = mapped_column(nullable=False)
+    user_id: Mapped[str] = mapped_column(ForeignKey("users.id"))
+    type: Mapped[str]  # e: "earned" or "redeemed"
+    points: Mapped[int]
+    description: Mapped[str]
+
+    user: Mapped[User] = relationship("User", back_populates="transactions")
 
     def to_dict(self):
         base_dict = super().to_dict()
@@ -115,10 +133,10 @@ class Transaction(Base):
 class Message(Base):
     __tablename__ = "messages"
 
-    sender_id: Mapped[int] = mapped_column(nullable=False)
-    receiver_id: Mapped[int] = mapped_column(nullable=False)
-    message: Mapped[str] = mapped_column(nullable=False)
-    is_read: Mapped[bool] = mapped_column(nullable=False, default=False)
+    sender_id: Mapped[str] = mapped_column(ForeignKey("users.id"))
+    receiver_id: Mapped[str] = mapped_column(ForeignKey("users.id"))
+    message: Mapped[str]
+    is_read: Mapped[bool] = mapped_column(default=False)
 
     def to_dict(self):
         base_dict = super().to_dict()
@@ -132,6 +150,6 @@ class Message(Base):
 class Donation(Base):
     __tablename__ = "donations"
 
-    username: Mapped[str] = mapped_column(nullable=False)
-    amount: Mapped[float] = mapped_column(nullable=False)
-    date_time: Mapped[datetime] = mapped_column(nullable=False)
+    username: Mapped[str]
+    amount: Mapped[float]
+    date_time: Mapped[datetime]

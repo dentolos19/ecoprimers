@@ -1,4 +1,5 @@
 from datetime import date
+from importlib import import_module
 
 import stripe
 from flask import flash, redirect, render_template, request, session, url_for
@@ -12,7 +13,7 @@ from utils import check_admin_status, check_logged_in, require_login
 
 @app.context_processor
 def init():
-    utils = __import__("utils")
+    utils = import_module("utils")
     current_date = date.today().isoformat()
     is_logged_in = check_logged_in()
     is_admin_user = check_admin_status()

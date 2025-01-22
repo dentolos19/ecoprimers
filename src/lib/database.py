@@ -6,7 +6,7 @@ from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy.orm import Session
 from werkzeug.security import generate_password_hash
 
-from lib.models import Base
+from lib.models import Base, Event, Product, User
 
 initialized: bool = False
 sql: SQLAlchemy = None
@@ -76,19 +76,17 @@ def init(app: Flask, local: bool = True):
 
 
 def setup(app: Flask, sql: SQLAlchemy):
-    from models import Event, Product, User
-
     with app.app_context():
         sql.session.add(
             User(
-                username="admin",
-                email="admin@appdev.proj",
+                username="Administrator",
+                email="admin@ecoprimers.app",
                 password=generate_password_hash("admin", method="pbkdf2:sha1"),
             )
         )
         sql.session.add(
             User(
-                username="dennise",
+                username="Dennise Duck",
                 email="dennise@duck.com",
                 password=generate_password_hash("Dennise!123", method="pbkdf2:sha1"),
             )
