@@ -130,5 +130,6 @@ socket.on("message_deleted", (data) => {
     const messageElement = document.getElementById(data.message_id);
     if (messageElement) {
         messageElement.remove();
+		editMessage
     }
 });
