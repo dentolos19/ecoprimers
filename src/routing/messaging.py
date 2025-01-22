@@ -20,7 +20,7 @@ def on_disconnect():
 
 
 @app.route("/community/messages")
-@app.route("/community/messages/<int:receiver_id>", methods=["GET", "POST"])
+@app.route("/community/messages/<receiver_id>", methods=["GET", "POST"])
 @require_login
 def messaging(receiver_id=None):
     user_list = sql.session.query(User).all()
