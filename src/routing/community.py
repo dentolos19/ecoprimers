@@ -4,10 +4,15 @@ from flask import redirect, render_template, request, session, url_for
 from werkzeug.utils import secure_filename
 
 from lib.database import sql
-from lib.models import Post
+from lib.models import Post, PostLike
 from main import app
 from utils import allowed_file, require_login
 
+@app.context_processor
+def init_community():
+    def is_liked(likes, user_id):
+        return any(like.user_id == user_id for like in likes)
+    return dict(is_liked=is_liked)
 
 @app.route("/community/post", methods=["GET", "POST"])
 @require_login
@@ -45,9 +50,10 @@ def community_post():
 @require_login
 def community():
     posts = sql.session.query(Post).all()
-    return render_template("community.html", posts=posts)
+    user_id = session.get("user_id")
+    return render_template("community.html", posts=posts, user_id=user_id)
 
-@app.route("/delete_post/<int:post_id>", methods=["POST"])
+@app.route("/delete_post/<post_id>", methods=["POST"])
 @require_login
 def delete_post(post_id):
     # post = Post.query.get(post_id)
@@ -66,7 +72,7 @@ def delete_post(post_id):
         return "Post not found", 404
 
 
-@app.route("/update_post/<int:post_id>", methods=["GET", "POST"])
+@app.route("/update_post/<post_id>", methods=["GET", "POST"])
 def update_post(post_id):
     #post = Post.query.get(post_id)
     post = sql.session.query(Post).filter_by(id=post_id).first()
@@ -101,25 +107,20 @@ def update_post(post_id):
     return render_template("update_post.html", post=post)
 
 
-
-def toggle_like():
+@app.route("/toggle_like/<post_id>", methods=["GET", "POST"])
+def toggle_like(post_id):
     user_id = session.get("user_id")
-    if not user_id:
-        return redirect("/login")
+    like = sql.session.query(PostLike).filter_by(post_id=post_id, user_id=user_id).first()
 
-    # Query the user from the database
-    user = sql.session.query(User).filter(User.id == user_id).first()
+    if not like:
+        like = PostLike(
+            post_id=post_id,
+            user_id=user_id
+        )
+        sql.session.add(like)
+    else:
+        sql.session.delete(like)
 
-    if not user:
-        return "User not found", 404
+    sql.session.commit()
 
-    # Toggle the num value (increment if even, decrement if odd)
-    postlike = sql.session.query(PostLike).filter_by(user_id=user.id)
-    postlike.num += 1 if user.num % 2 == 0 else user.num - 1
-
-    try:
-        sql.session.commit()
-        return render_template("community.html", num=postlike.num)  # Render the page with updated num value
-    except Exception as e:
-        sql.session.rollback()
-        return "An error occurred: " + str(e), 400
+    return redirect(url_for("community"))

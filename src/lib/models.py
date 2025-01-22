@@ -157,7 +157,7 @@ class Donation(Base):
 
 
 class Room(Base):
-    tablename = "rooms"
+    __tablename__ = "rooms"
 
     user_1: Mapped[str] = mapped_column(ForeignKey("users.id"))
     user_2: Mapped[str] = mapped_column(ForeignKey("users.id"))
