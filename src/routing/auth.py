@@ -42,7 +42,8 @@ def login_authorize():
             session["user_id"] = new_user.id
             session["user_email"] = new_user.email
             flash("Account created successfully via Google. Logged in!", "success")
-        except Exception:
+        except Exception as e:
+            print(e)
             sql.session.rollback()
             flash("An error occurred while creating your account. Please try again.", "danger")
             return redirect(url_for("login"))

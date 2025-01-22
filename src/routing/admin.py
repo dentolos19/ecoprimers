@@ -83,7 +83,7 @@ def admin_events_new():
     return render_template("admin/events-new.html")
 
 
-@app.route("/admin/events/<int:id>", methods=["GET", "POST"])
+@app.route("/admin/events/<id>", methods=["GET", "POST"])
 def admin_events_edit(id):
     # Query the event from the database
     event = sql.session.query(Event).filter_by(id=id).first()
@@ -122,7 +122,7 @@ def admin_events_edit(id):
     return render_template("admin/events-edit.html", event=event)
 
 
-@app.route("/admin/events/<int:id>/delete", methods=["GET", "POST"])
+@app.route("/admin/events/<id>/delete", methods=["GET", "POST"])
 def admin_events_delete(id):
     # Query the event from the database
     event = sql.session.query(Event).filter_by(id=id).first()
@@ -192,7 +192,7 @@ def admin_users_new():
     return render_template("admin/users-new.html")
 
 
-@app.route("/admin/users/<int:id>", methods=["GET", "POST"])
+@app.route("/admin/users/<id>", methods=["GET", "POST"])
 @require_admin
 def admin_users_edit(id):
     # Query the user from the database
@@ -224,7 +224,7 @@ def admin_users_edit(id):
     return render_template("admin/users-edit.html", user=user)
 
 
-@app.route("/admin/users/<int:id>/delete", methods=["GET", "POST"])
+@app.route("/admin/users/<id>/delete", methods=["GET", "POST"])
 @require_admin
 def admin_users_delete(id):
     # Query the user from the database
@@ -289,7 +289,7 @@ def admin_products_new():
     return render_template("admin/products-new.html")
 
 
-@app.route("/admin/products/<int:id>", methods=["GET", "POST"])
+@app.route("/admin/products/<id>", methods=["GET", "POST"])
 @require_admin
 def admin_products_edit(id):
     # Query the product from the database
@@ -319,7 +319,7 @@ def admin_products_edit(id):
     return render_template("admin/products-edit.html", product=product)
 
 
-@app.route("/admin/products/<int:id>/delete", methods=["GET", "POST"])
+@app.route("/admin/products/<id>/delete", methods=["GET", "POST"])
 @require_admin
 def admin_products_delete(id):
     # Query the product from the database
@@ -355,7 +355,7 @@ def admin_transactions():
     return render_template("admin/transactions.html", transactions=transactions)
 
 
-@app.route("/admin/transactions/<int:id>")
+@app.route("/admin/transactions/<id>")
 @require_admin
 def admin_transactions_view(id):
     # Query the transaction and user from the database
@@ -365,7 +365,7 @@ def admin_transactions_view(id):
     return render_template("admin/transactions-view.html", transaction=transaction, user=user)
 
 
-@app.route("/admin/transactions/<int:id>/delete", methods=["GET", "POST"])
+@app.route("/admin/transactions/<id>/delete", methods=["GET", "POST"])
 @require_admin
 def admin_transactions_delete(id):
     # Query the transaction from the database
