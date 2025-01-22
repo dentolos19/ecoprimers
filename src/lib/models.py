@@ -23,7 +23,7 @@ class User(Base):
 
     email: Mapped[str] = mapped_column(unique=True)
     password: Mapped[str]
-    name: Mapped[str]  # TODO: Rename to "name"
+    name: Mapped[str]
     points: Mapped[int] = mapped_column(default=0)
     bio: Mapped[Optional[str]]
     birthday: Mapped[Optional[str]]  # TODO: Use datetime

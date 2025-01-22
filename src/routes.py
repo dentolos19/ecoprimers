@@ -237,14 +237,14 @@ def event_signup():
 
     if request.method == "POST":
         try:
-            attendee = EventAttendee(event_id=event_id, user_id=user_id)
+            attendee = EventAttendee(event_id=event_id, user_id=user_id, status="interested")
             sql.session.add(attendee)
             sql.session.commit()
             flash("You have successfully signed up for the event!", "success")
             return redirect(url_for("event_info", id=event_id))
-        except Exception:
+        except Exception as e:
             sql.session.rollback()
-            flash("Error signing up for the event. Please try again.", "danger")
+            flash(f"Error signing up for the event. Error: {e}", "danger")
 
     return render_template("event-signup.html", event=event, user=user)
 
