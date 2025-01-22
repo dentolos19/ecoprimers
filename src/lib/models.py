@@ -23,7 +23,7 @@ class User(Base):
 
     email: Mapped[str] = mapped_column(unique=True)
     password: Mapped[str]
-    username: Mapped[str]  # TODO: Rename to "name"
+    name: Mapped[str]  # TODO: Rename to "name"
     points: Mapped[int] = mapped_column(default=0)
     bio: Mapped[Optional[str]]
     birthday: Mapped[Optional[str]]  # TODO: Use datetime
@@ -150,7 +150,7 @@ class Message(Base):
 class Donation(Base):
     __tablename__ = "donations"
 
-    username: Mapped[str]  # TODO: Change to user relationship
+    name: Mapped[str]  # TODO: Change to user relationship
     amount: Mapped[float]
     date_time: Mapped[datetime]  # NOTE: Don't need use, have "created_at" in base class
 

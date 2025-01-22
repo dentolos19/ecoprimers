@@ -32,7 +32,6 @@ def profile():
     if not user_id:
         return redirect("/login")
 
-    # Query the user from the database
     user = sql.session.query(User).filter(User.id == user_id).first()
 
     if not user:
@@ -51,7 +50,7 @@ def edit_profile():
 
     if request.method == "POST":
         user.email = request.form["email"]
-        user.username = request.form["username"]
+        user.name = request.form["username"]
         user.bio = request.form["bio"]
         user.birthday = request.form["birthday"]
 
@@ -69,7 +68,6 @@ def edit_profile():
 
 @app.route("/login", methods=["GET", "POST"])
 def login():
-    # Check if the user is already logged in
     if "user_id" in session:
         flash("You're already logged in!", "danger")
         return redirect(url_for("home"))
@@ -78,14 +76,11 @@ def login():
         email = request.form["email"]
         password = request.form["password"]
 
-        # Get the user from the database
         user = sql.session.query(User).filter_by(email=email).first()
 
-        # Check if user exists and password matches
         if user and check_password_hash(user.password, password):
-            # Store user ID in session to keep the user logged in
             session["user_id"] = user.id
-            session["user_email"] = user.email  # Store the email in the session
+            session["user_email"] = user.email  
 
             # Check the email domain
             if user.email.endswith("@mymail.nyp.edu.sg"):
@@ -116,7 +111,7 @@ def signup():
         # Create a new user
         new_user = User(
             email=email,
-            username=username,
+            name=username,
             password=hashed_password,
             bio=bio,
             birthday=birthday,
