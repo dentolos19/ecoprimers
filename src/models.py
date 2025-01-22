@@ -58,6 +58,7 @@ class PostLike(Base):
 
     post_id: Mapped[int] = mapped_column(nullable=False)
     user_id: Mapped[int] = mapped_column(nullable=False)
+    num : Mapped[int] = mapped_column(nullable=False)
 
 
 class PostComment(Base):

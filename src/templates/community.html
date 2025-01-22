@@ -4,41 +4,83 @@
 <link rel="stylesheet" href="../static/css/social-media.css" />
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" />
 {% endblock %}
-
 {% block body %}
-<h1>Welcome to the Social Media App</h1>
-<a href="{{ url_for('community_post') }}">Add a Post</a>
-
-{% for post in posts %}
-<div class="container">
-    <div class="post">
-        <div class="align">
-            <p>
-                <span class="username">{{ post.user_id }}
-                    <button class="follow-btn">follow</button>
-                </span>
-            </p>
-            {% if post.image_filename %}
-        </div>
-        <img src="{{ url_for('static', filename='uploads/' + post.image_filename) }}" alt="Post Image"
-            style="width: 1000px; height: 600px" />
-        <div class="action-buttons">
-            <button class="like-btn"><i class="fas fa-heart"></i> Like</button>
-            <button class="comment-btn">
-                <i class="fas fa-comment"></i> Comment
-            </button>
-            <button class="share-btn"><i class="fas fa-share"></i> Share</button>
-            <button class="save-btn"><i class="fas fa-bookmark"></i> Save</button>
-        </div>
-        <div class="align">
-            <p>
-                <span class="username">{{ post.user_id }}</span> {{ post.content }}
-            </p>
-        </div>
-        <hr />
-        {% endif %}
-        <br /><br />
+<div class="container mt-5" style="max-width: 550px;">
+    <h1 class="text-center text-secondary mb-4">Welcome to the Social Media App</h1>
+    <div class="text-center mb-4">
+        <a href="{{ url_for('community_post') }}" class="btn btn-success btn-lg">Add a Post</a>
     </div>
+
+    {% for post in posts %}
+    <div class="card mb-4 shadow-sm" style="min-height: 200px;">
+        <div class="card-body">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <h5 class="card-title text-primary">{{ post.user_id }}</h5>
+                <div class="btn-group position-relative">
+                    <button class="btn btn-sm btn-primary">Follow</button>
+                    <button class="btn btn-sm btn-outline-secondary dots-btn">&#x22EE;</button>
+                    <div class="dropdown-menu dropdown-menu-right position-absolute" style="display: none;">
+                        <a href="{{ url_for('update_post', post_id=post.id) }}" class="dropdown-item">Update</a>
+                        <form action="{{ url_for('delete_post', post_id=post.id) }}" method="POST" class="m-0">
+                            <button type="submit" class="dropdown-item text-danger">Delete</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+
+            {% if post.image_filename %}
+            <img src="{{ url_for('static', filename='uploads/' + post.image_filename) }}" class="img-fluid rounded mb-3" alt="Post Image">
+<div class="d-flex justify-content-around">
+    <!-- Like Icon -->
+    <form action="/toggle_like" method="POST">
+<i class="fa-solid fa-heart"></i>
+      h
+    </form>
+
+    <!-- Comment Icon -->
+    <div class="">
+<i class="fa-solid fa-comment"></i>
+hello
 </div>
-{% endfor %}
+
+    <!-- Share Icon -->
+    <div class="">
+<i class="fa-solid fa-share"></i>
+hello
+</div>
+
+    <!-- Save Icon -->
+    <div class="">
+<i class="fa-solid fa-floppy-disk"></i>
+hello
+</div>
+</div>
+            {% endif %}
+
+            <p class="mt-3 text-start">
+                <strong class="text-dark">{{ post.description }}</strong>
+            </p>
+        </div>
+    </div>
+    {% endfor %}
+</div>
+
+<script>
+    // JavaScript to toggle the dropdown menu and hide it when clicking outside
+    document.addEventListener('click', function(event) {
+        document.querySelectorAll('.dots-btn').forEach(button => {
+            const dropdown = button.nextElementSibling;
+            if (button.contains(event.target)) {
+                dropdown.style.display = dropdown.style.display === 'block' ? 'none' : 'block';
+            } else {
+                dropdown.style.display = 'none';
+            }
+        });
+    });
+    function toggleLike(button) {
+  // Toggle the "clicked" class on the button
+  button.classList.toggle('clicked');
+}
+
+</script>
 {% endblock %}

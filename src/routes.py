@@ -221,7 +221,6 @@ def event_info():
 
     return render_template("event-details.html", event=event)
 
-
 from routing.admin import *
 from routing.community import *
 from routing.engagement import *
