@@ -1,34 +1,100 @@
 {% extends "base.html" %}
 
+{% block stylesheets %}
+<link rel="stylesheet" href="../static/css/social-media.css" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" />
+{% endblock %}
 {% block body %}
-<div class="container my-5">
-    <h1 class="text-center mb-4">Welcome to the Social Media App</h1>
+<div class="container mt-5" style="max-width: 550px;">
+    <h1 class="text-center text-secondary mb-4">Welcome to the Social Media App</h1>
     <div class="text-center mb-4">
-        <a href="{{ url_for('community_post') }}" class="btn btn-success">Add a Post</a>
+        <a href="{{ url_for('community_post') }}" class="btn btn-success btn-lg">Add a Post</a>
     </div>
 
     {% for post in posts %}
-    <div class="card mb-4 shadow-sm">
+    <div class="card mb-4 shadow-sm" style="min-height: 200px;">
         <div class="card-body">
-            <div class="d-flex justify-content-between">
-                <p class="font-weight-bold">{{ post.user_id }}</p>
-                <button class="btn btn-outline-primary btn-sm follow-btn">Follow</button>
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <h5 class="card-title text-primary">{{ post.user.username }}</h5>
+                <div class="btn-group position-relative">
+                    <button class="btn btn-sm btn-primary">Follow</button>
+                    <button class="btn btn-sm btn-outline-secondary dots-btn">&#x22EE;</button>
+                    {% if post.user_id == user_id %}
+                    <div class="dropdown-menu dropdown-menu-right position-absolute" style="display: none;">
+                        <a href="{{ url_for('update_post', post_id=post.id) }}" class="dropdown-item">Update</a>
+                        <form action="{{ url_for('delete_post', post_id=post.id) }}" method="POST" class="m-0">
+                            <button type="submit" class="dropdown-item text-danger">Delete</button>
+                        </form>
+                    </div>
+                    {% endif %}
+                </div>
             </div>
+
             {% if post.image_filename %}
-            <img src="{{ url_for('static', filename='uploads/' + post.image_filename) }}" class="img-fluid mb-3" alt="Post Image" />
-            <div class="action-buttons d-flex justify-content-between">
-                <button class="btn btn-outline-danger btn-sm"><i class="fas fa-heart"></i> Like</button>
-                <button class="btn btn-outline-info btn-sm"><i class="fas fa-comment"></i> Comment</button>
-                <button class="btn btn-outline-secondary btn-sm"><i class="fas fa-share"></i> Share</button>
-                <button class="btn btn-outline-warning btn-sm"><i class="fas fa-bookmark"></i> Save</button>
-            </div>
+            <img src="{{ url_for('static', filename='uploads/' + post.image_filename) }}" class="img-fluid rounded mb-4 w-100" alt="Post Image">
+            
+    <div class="d-flex justify-content-between">
+    <!-- Like Icon -->
+<form action="{{ url_for('toggle_like', post_id=post.id) }}" method="POST" id="like-form-{{ post.id }}">
+    
+    <div>{{ liked }}</div>
+    <button class="btn {{ 'btn-success' if is_liked(post.likes, user_id) else 'btn-danger' }}" type="submit" onclick="() => toggleLike(event, {{ post.id }})">
+        <i id="like-icon-{{ post.id }}" class="fa-solid fa-heart {{ 'text-danger' if post.is_liked else '' }}"></i>
+        {{ len(post.likes) }}
+    </button>
+</form>
+
+    <!-- Comment Icon -->
+    <div class="">
+<i class="fa-solid fa-comment"></i>
+hello
+</div>
+
+    <!-- Share Icon -->
+    <div class="">
+<i class="fa-solid fa-share"></i>
+hello
+</div>
+
+    <!-- Save Icon -->
+    <div class="">
+<i class="fa-solid fa-floppy-disk"></i>
+hello
+</div>
+</div>
             {% endif %}
-            <hr />
-            <div class="align">
-                <p>{{ post.content }}</p>
-            </div>
+
+            <p class="mt-3 text-start">
+                <strong class="text-dark">{{ post.description }}</strong>
+            </p>
         </div>
     </div>
     {% endfor %}
 </div>
+
+<script>
+    // JavaScript to toggle the dropdown menu and hide it when clicking outside
+    document.addEventListener('click', function(event) {
+        document.querySelectorAll('.dots-btn').forEach(button => {
+            const dropdown = button.nextElementSibling;
+            if (button.contains(event.target)) {
+                dropdown.style.display = dropdown.style.display === 'block' ? 'none' : 'block';
+            } else {
+                dropdown.style.display = 'none';
+            }
+        });
+    });
+    function toggleLike(event, postId) {
+        event.preventDefault(); // Prevent immediate form submission
+        
+        var icon = document.getElementById('like-icon-' + postId);
+        
+        // Toggle the 'text-danger' class for the heart icon (red color for like)
+        icon.classList.toggle('text-danger');
+        
+        // After toggling the icon, submit the form to update the server
+        var form = document.getElementById('like-form-' + postId);
+        form.submit();
+    }
+</script>
 {% endblock %}
