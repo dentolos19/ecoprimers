@@ -4,8 +4,7 @@ import stripe
 from flask import Flask
 from flask_socketio import SocketIO
 
-import ai
-import database
+from lib import ai, database, google
 
 # Initialize Flask app
 app = Flask(__name__)
@@ -19,8 +18,9 @@ app_debug = bool(app.config["DEBUG"])
 # Initialize internal systems
 ai.init(app)
 database.init(app, local=app_debug)
+google.init(app)
 
-socketio = SocketIO(app, cors_allowed_origins="*")
+socket = SocketIO(app, cors_allowed_origins="*", logger=True, engineio_logger=True)
 stripe.api_key = app.config["STRIPE_SECRET_KEY"]
 
 if not os.path.exists(app.config["UPLOAD_FOLDER"]):
@@ -31,4 +31,4 @@ from api import *
 from routes import *
 
 if __name__ == "__main__":
-    app.run()
+    socket.run(app, host = "127.0.0.1", port = 5000, debug=True)

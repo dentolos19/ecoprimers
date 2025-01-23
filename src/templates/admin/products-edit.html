@@ -1,0 +1,32 @@
+{% extends "admin/base.html" %}
+
+{% block abody %}
+<div class="h-100 d-flex justify-content-center align-items-center">
+  <div class="card" style="width: 500px;">
+    <form class="card-body" method="POST" action="{{ url_for('admin_products_edit', id=product.id) }}">
+      <div>
+        <h5 class="card-title text-center">New Product</h5>
+      </div>
+      <div class="vstack gap-2">
+        <div>
+          <label class="form-label" for="name">Name</label>
+          <input class="form-control" type="text" id="name" name="name" value="{{ product.name }}" required />
+        </div>
+        <div>
+          <label class="form-label" for="points">Points</label>
+          <input class="form-control" type="number" id="points" name="points" min="0" value="{{ product.points }}" required />
+        </div>
+        <div>
+          <label class="form-label" for="stock">Stock</label>
+          <input class="form-control" type="number" id="stock" name="stock" min="0" value="{{ product.stock }}" required />
+        </div>
+      </div>
+      <div class="mt-4 d-flex justify-content-end gap-2">
+        <a class="btn btn-light" href="{{ url_for('admin_products') }}">Cancel</a>
+        <button class="btn btn-primary" type="submit">Save</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+{% endblock %}
