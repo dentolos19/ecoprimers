@@ -32,6 +32,10 @@
                     <label for="birthday" class="sr-only">Birthday</label>
                     <input type="date" id="birthday" name="birthday" max="{{ current_date }}" class="form-control mb-3">
                 </div>
+                <div class="form-group">
+                    <label for="security" class="sr-only">Security Question</label>
+                    <input type="text" id="security" name="security" placeholder="Enter security code" required class="form-control mb-3">
+                </div>
                 <button type="submit" class="w-100 rounded-lg mb-3 btn btn-success">Sign Up</button>
                 <a href="{{ url_for('login_google') }}" class="btn btn-white btn-outline-dark d-flex align-items-center justify-content-center mb-3 w-100">
                     <i class="fab fa-google" style="font-size: 20px; margin-right: 10px;"></i>
@@ -50,6 +54,7 @@ function validateForm() {
     const password = document.getElementById("password").value;
     const bio = document.getElementById("bio").value;
     const birthday = document.getElementById("birthday").value;
+    const security = document.getElementById("security").value;
 
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\W).{8,}$/;

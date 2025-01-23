@@ -27,6 +27,7 @@ class User(Base):
     points: Mapped[int] = mapped_column(default=0)
     bio: Mapped[Optional[str]]
     birthday: Mapped[Optional[str]]  # TODO: Use datetime
+    security: Mapped[Optional[str]]
 
     posts: Mapped[List["Post"]] = relationship()
     transactions: Mapped[List["Transaction"]] = relationship()
@@ -49,7 +50,6 @@ class EventAttendee(Base):
 
     event_id: Mapped[str] = mapped_column(ForeignKey("events.id"))
     user_id: Mapped[str] = mapped_column(ForeignKey("users.id"))
-    status: Mapped[str]  # e: "interested" or "withdrawn"
 
     event = relationship("Event", back_populates="attendees")
 

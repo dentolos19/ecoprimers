@@ -53,6 +53,7 @@ def edit_profile():
         user.name = request.form["username"]
         user.bio = request.form["bio"]
         user.birthday = request.form["birthday"]
+        user.security = request.form["security"]  # Update security question
 
         try:
             sql.session.commit()
@@ -101,24 +102,22 @@ def signup():
         email = request.form["email"]
         username = request.form["username"]
         password = request.form["password"]
-
         bio = request.form["bio"]
         birthday = request.form["birthday"]
+        security = request.form["security"]  # New security field
 
-        # Hash the password
         hashed_password = generate_password_hash(password, method="pbkdf2:sha1")
 
-        # Create a new user
         new_user = User(
             email=email,
             name=username,
             password=hashed_password,
             bio=bio,
             birthday=birthday,
+            security=security,  # Save security question
         )
 
         try:
-            # Add the new user to the database
             sql.session.add(new_user)
             sql.session.commit()
             flash("Sign up successful! You can now log in.", "success")
@@ -126,7 +125,7 @@ def signup():
         except Exception as e:
             if "unique constraint" in str(e).lower():
                 flash("Error! Username or email already exists.", "danger")
-            sql.session.rollback()  # Rollback if there's an error
+            sql.session.rollback()
     return render_template("signup.html")
 
 
@@ -135,6 +134,37 @@ def logout():
     session.clear()  # Clear all session data
     flash("You've been logged out successfully.", "success")
     return redirect(url_for("home"))
+
+from werkzeug.security import generate_password_hash, check_password_hash
+
+@app.route("/reset_password", methods=["GET", "POST"])
+def reset_password():
+    if request.method == "POST":
+        email = request.form["email"]
+        security = request.form["security"]
+        new_password = request.form["new_password"]
+
+        # Fetch the user from the database
+        user = sql.session.query(User).filter_by(email=email).first()
+
+        if user and user.security == security:
+            # Check if the new password is the same as the current one
+            if check_password_hash(user.password, new_password):
+                flash("New password cannot be the same as the current password.", "danger")
+            else:
+                # Update the user's password
+                user.password = generate_password_hash(new_password, method="pbkdf2:sha1")
+                try:
+                    sql.session.commit()
+                    flash("Password reset successfully. You can now log in.", "success")
+                    return redirect("/login")
+                except Exception:
+                    sql.session.rollback()
+                    flash("Error resetting password. Please try again.", "danger")
+        else:
+            flash("Incorrect email or security answer.", "danger")
+
+    return render_template("reset-password.html")
 
 
 @app.route("/events")
@@ -237,7 +267,7 @@ def event_signup():
 
     if request.method == "POST":
         try:
-            attendee = EventAttendee(event_id=event_id, user_id=user_id, status="interested")
+            attendee = EventAttendee(event_id=event_id, user_id=user_id)
             sql.session.add(attendee)
             sql.session.commit()
             flash("You have successfully signed up for the event!", "success")
