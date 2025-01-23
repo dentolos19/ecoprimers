@@ -1,5 +1,10 @@
 {% extends "admin/base.html" %}
 
+{% block scripts %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js"></script>
+<script type="module" src="{{ url_for('static', filename='js/dashboard.js') }}"></script>
+{% endblock %}
+
 {% block abody %}
 <div class="container">
   <!-- Title Bar -->
@@ -15,7 +20,7 @@
           <div class="w-100 h-100 bg-success" style="border-radius: 100%;"></div>
         </div>
         <div class="flex-fill text-end">
-          <h5 class="m-0">
+          <h5 id="activeUsers" class="m-0">
             1,000
           </h5>
           <p class="m-0">Active Users</p>
@@ -28,10 +33,10 @@
           <div class="w-100 h-100 bg-success" style="border-radius: 100%;"></div>
         </div>
         <div class="flex-fill text-end">
-          <h5 class="m-0">
+          <h5 id="platformEvents" class="m-0">
             1,000
           </h5>
-          <p class="m-0">Ongoing Events</p>
+          <p class="m-0">Platform Events</p>
         </div>
       </div>
     </div>
@@ -41,12 +46,22 @@
           <div class="w-100 h-100 bg-success" style="border-radius: 100%;"></div>
         </div>
         <div class="flex-fill text-end">
-          <h5 class="m-0">
+          <h5 id="communityPosts" class="m-0">
             1,000
           </h5>
-          <p class="m-0">Events Signups</p>
+          <p class="m-0">Community Posts</p>
         </div>
       </div>
+    </div>
+  </div>
+
+  <!-- Chart Statistics -->
+  <div class="mt-4">
+    <div style="width: 300px;">
+      <canvas id="monthlySignups"></canvas>
+    </div>
+    <div style="width: 300px;">
+      <canvas id="monthlyTransactions"></canvas>
     </div>
   </div>
 </div>
