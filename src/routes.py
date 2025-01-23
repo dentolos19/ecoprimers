@@ -81,7 +81,7 @@ def login():
 
         if user and check_password_hash(user.password, password):
             session["user_id"] = user.id
-            session["user_email"] = user.email  
+            session["user_email"] = user.email
 
             # Check the email domain
             if user.email.endswith("@mymail.nyp.edu.sg"):
@@ -135,7 +135,6 @@ def logout():
     flash("You've been logged out successfully.", "success")
     return redirect(url_for("home"))
 
-from werkzeug.security import generate_password_hash, check_password_hash
 
 @app.route("/reset_password", methods=["GET", "POST"])
 def reset_password():
@@ -280,8 +279,10 @@ def event_signup():
 
 
 from routing.admin import *
+from routing.admin_api import *
 from routing.auth import *
 from routing.chat import *
+from routing.chat_api import *
 from routing.community import *
 from routing.engagement import *
 from routing.messaging import *
