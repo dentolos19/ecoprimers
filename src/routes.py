@@ -32,7 +32,6 @@ def profile():
     if not user_id:
         return redirect("/login")
 
-    # Query the user from the database
     user = sql.session.query(User).filter(User.id == user_id).first()
 
     if not user:
@@ -51,9 +50,10 @@ def edit_profile():
 
     if request.method == "POST":
         user.email = request.form["email"]
-        user.username = request.form["username"]
+        user.name = request.form["username"]
         user.bio = request.form["bio"]
         user.birthday = request.form["birthday"]
+        user.security = request.form["security"]  # Update security question
 
         try:
             sql.session.commit()
@@ -69,7 +69,6 @@ def edit_profile():
 
 @app.route("/login", methods=["GET", "POST"])
 def login():
-    # Check if the user is already logged in
     if "user_id" in session:
         flash("You're already logged in!", "danger")
         return redirect(url_for("home"))
@@ -78,14 +77,11 @@ def login():
         email = request.form["email"]
         password = request.form["password"]
 
-        # Get the user from the database
         user = sql.session.query(User).filter_by(email=email).first()
 
-        # Check if user exists and password matches
         if user and check_password_hash(user.password, password):
-            # Store user ID in session to keep the user logged in
             session["user_id"] = user.id
-            session["user_email"] = user.email  # Store the email in the session
+            session["user_email"] = user.email  
 
             # Check the email domain
             if user.email.endswith("@mymail.nyp.edu.sg"):
@@ -106,24 +102,22 @@ def signup():
         email = request.form["email"]
         username = request.form["username"]
         password = request.form["password"]
-
         bio = request.form["bio"]
         birthday = request.form["birthday"]
+        security = request.form["security"]  # New security field
 
-        # Hash the password
         hashed_password = generate_password_hash(password, method="pbkdf2:sha1")
 
-        # Create a new user
         new_user = User(
             email=email,
-            username=username,
+            name=username,
             password=hashed_password,
             bio=bio,
             birthday=birthday,
+            security=security,  # Save security question
         )
 
         try:
-            # Add the new user to the database
             sql.session.add(new_user)
             sql.session.commit()
             flash("Sign up successful! You can now log in.", "success")
@@ -131,7 +125,7 @@ def signup():
         except Exception as e:
             if "unique constraint" in str(e).lower():
                 flash("Error! Username or email already exists.", "danger")
-            sql.session.rollback()  # Rollback if there's an error
+            sql.session.rollback()
     return render_template("signup.html")
 
 
@@ -140,6 +134,37 @@ def logout():
     session.clear()  # Clear all session data
     flash("You've been logged out successfully.", "success")
     return redirect(url_for("home"))
+
+from werkzeug.security import generate_password_hash, check_password_hash
+
+@app.route("/reset_password", methods=["GET", "POST"])
+def reset_password():
+    if request.method == "POST":
+        email = request.form["email"]
+        security = request.form["security"]
+        new_password = request.form["new_password"]
+
+        # Fetch the user from the database
+        user = sql.session.query(User).filter_by(email=email).first()
+
+        if user and user.security == security:
+            # Check if the new password is the same as the current one
+            if check_password_hash(user.password, new_password):
+                flash("New password cannot be the same as the current password.", "danger")
+            else:
+                # Update the user's password
+                user.password = generate_password_hash(new_password, method="pbkdf2:sha1")
+                try:
+                    sql.session.commit()
+                    flash("Password reset successfully. You can now log in.", "success")
+                    return redirect("/login")
+                except Exception:
+                    sql.session.rollback()
+                    flash("Error resetting password. Please try again.", "danger")
+        else:
+            flash("Incorrect email or security answer.", "danger")
+
+    return render_template("reset-password.html")
 
 
 @app.route("/events")
@@ -247,9 +272,9 @@ def event_signup():
             sql.session.commit()
             flash("You have successfully signed up for the event!", "success")
             return redirect(url_for("event_info", id=event_id))
-        except Exception:
+        except Exception as e:
             sql.session.rollback()
-            flash("Error signing up for the event. Please try again.", "danger")
+            flash(f"Error signing up for the event. Error: {e}", "danger")
 
     return render_template("event-signup.html", event=event, user=user)
 

@@ -23,10 +23,11 @@ class User(Base):
 
     email: Mapped[str] = mapped_column(unique=True)
     password: Mapped[str]
-    username: Mapped[str]  # TODO: Rename to "name"
+    name: Mapped[str]
     points: Mapped[int] = mapped_column(default=0)
     bio: Mapped[Optional[str]]
     birthday: Mapped[Optional[str]]  # TODO: Use datetime
+    security: Mapped[Optional[str]]
 
     posts: Mapped[List["Post"]] = relationship()
     transactions: Mapped[List["Transaction"]] = relationship()
@@ -49,7 +50,6 @@ class EventAttendee(Base):
 
     event_id: Mapped[str] = mapped_column(ForeignKey("events.id"))
     user_id: Mapped[str] = mapped_column(ForeignKey("users.id"))
-    status: Mapped[str]  # e: "interested" or "withdrawn"
 
     event = relationship("Event", back_populates="attendees")
 
@@ -150,7 +150,7 @@ class Message(Base):
 class Donation(Base):
     __tablename__ = "donations"
 
-    username: Mapped[str]  # TODO: Change to user relationship
+    name: Mapped[str]  # TODO: Change to user relationship
     amount: Mapped[float]
     date_time: Mapped[datetime]  # NOTE: Don't need use, have "created_at" in base class
 

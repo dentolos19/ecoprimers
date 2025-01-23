@@ -79,14 +79,14 @@ def setup(app: Flask, sql: SQLAlchemy):
     with app.app_context():
         sql.session.add(
             User(
-                username="Administrator",
+                name="Administrator",
                 email="admin@ecoprimers.app",
                 password=generate_password_hash("admin", method="pbkdf2:sha1"),
             )
         )
         sql.session.add(
             User(
-                username="Dennise Duck",
+                name="Dennise Duck",
                 email="dennise@duck.com",
                 password=generate_password_hash("Dennise!123", method="pbkdf2:sha1"),
             )

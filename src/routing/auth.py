@@ -31,7 +31,7 @@ def login_authorize():
     else:
         new_user = User(
             email=email,
-            username=name,
+            name=name,
             password="",
         )
 
