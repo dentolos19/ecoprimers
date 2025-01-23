@@ -50,7 +50,7 @@ def edit_profile():
 
     if request.method == "POST":
         user.email = request.form["email"]
-        user.name = request.form["username"]
+        user.name = request.form["name"]
         user.bio = request.form["bio"]
         user.birthday = request.form["birthday"]
         user.security = request.form["security"]  # Update security question
@@ -61,7 +61,7 @@ def edit_profile():
             return redirect("/profile")
         except Exception as e:
             if "unique constraint" in str(e).lower():
-                flash("Error! Username or email already exists.", "danger")
+                flash("Error! Email already exists.", "danger")
             sql.session.rollback()
 
     return render_template("edit-profile.html", user=user)
@@ -100,7 +100,7 @@ def login():
 def signup():
     if request.method == "POST":
         email = request.form["email"]
-        username = request.form["username"]
+        name = request.form["name"]
         password = request.form["password"]
         bio = request.form["bio"]
         birthday = request.form["birthday"]
@@ -110,7 +110,7 @@ def signup():
 
         new_user = User(
             email=email,
-            name=username,
+            name=name,
             password=hashed_password,
             bio=bio,
             birthday=birthday,
@@ -124,7 +124,7 @@ def signup():
             return redirect("/login")
         except Exception as e:
             if "unique constraint" in str(e).lower():
-                flash("Error! Username or email already exists.", "danger")
+                flash("Error! Email already exists.", "danger")
             sql.session.rollback()
     return render_template("signup.html")
 

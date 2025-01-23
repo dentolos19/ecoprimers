@@ -161,7 +161,7 @@ def admin_users():
 def admin_users_new():
     if request.method == "POST":
         # Collect data from the form
-        user_username = request.form["username"]
+        user_name = request.form["name"]
         user_email = request.form["email"]
         user_password = request.form["password"]
         user_bio = request.form["bio"]
@@ -171,7 +171,7 @@ def admin_users_new():
 
         # Update the user object with the new data
         new_user = User(
-            username=user_username,
+            name=user_name,
             email=user_email,
             password=user_hashed_password,
             bio=user_bio,
@@ -200,14 +200,14 @@ def admin_users_edit(id):
 
     if request.method == "POST":
         # Collect data from the form
-        user_username = request.form["username"]
+        user_name = request.form["name"]
         user_email = request.form["email"]
         user_bio = request.form["bio"]
         user_birthday = request.form["birthday"]
 
         # Update the user object with the new data
         user.email = user_email
-        user.username = user_username
+        user.name = user_name
         user.bio = user_bio
         user.birthday = user_birthday
 
@@ -232,10 +232,10 @@ def admin_users_delete(id):
 
     if request.method == "POST":
         # Collect data from the form
-        user_username = request.form["username"]
+        user_name = request.form["name"]
 
-        if user.username != user_username:
-            flash("The username does not match. Please try again.", "danger")
+        if user.name != user_name:
+            flash("The name does not match. Please try again.", "danger")
             return redirect(url_for("admin_users_delete", id=id))
 
         try:
