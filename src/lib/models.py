@@ -18,6 +18,7 @@ class Base(DeclarativeBase):
             "updated_at": self.updated_at.isoformat(),
         }
 
+
 class User(Base):
     __tablename__ = "users"
 
@@ -29,8 +30,8 @@ class User(Base):
     birthday: Mapped[Optional[str]]  # TODO: Use datetime
     security: Mapped[Optional[str]]
 
-    posts: Mapped[List["Post"]] = relationship()
-    transactions: Mapped[List["Transaction"]] = relationship()
+    posts: Mapped[List["Post"]] = relationship(cascade="all, delete")
+    transactions: Mapped[List["Transaction"]] = relationship(cascade="all, delete")
 
 
 class Event(Base):
@@ -42,7 +43,7 @@ class Event(Base):
     date: Mapped[str]
     image_filename: Mapped[Optional[str]]
 
-    attendees: Mapped[List["EventAttendee"]] = relationship()
+    attendees: Mapped[List["EventAttendee"]] = relationship(cascade="all, delete")
 
 
 class EventAttendee(Base):
@@ -62,9 +63,9 @@ class Post(Base):
     description: Mapped[str]
     image_filename: Mapped[Optional[str]]
 
-    user = relationship("User", back_populates="posts")
-    likes: Mapped[List["PostLike"]] = relationship()
-    comments: Mapped[List["PostComment"]] = relationship()
+    user: Mapped[User] = relationship("User", back_populates="posts")
+    likes: Mapped[List["PostLike"]] = relationship(cascade="all, delete")
+    comments: Mapped[List["PostComment"]] = relationship(cascade="all, delete")
 
 
 class PostLike(Base):

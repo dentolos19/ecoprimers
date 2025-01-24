@@ -350,7 +350,7 @@ def admin_products_delete(id):
 @require_admin
 def admin_transactions():
     # Query all transactions from the database
-    transactions = sql.session.query(Transaction).all()
+    transactions = sql.session.query(Transaction).order_by(Transaction.created_at.desc()).all()
 
     return render_template("admin/transactions.html", transactions=transactions)
 
