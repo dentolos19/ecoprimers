@@ -277,6 +277,27 @@ def event_signup():
 
     return render_template("event-signup.html", event=event, user=user)
 
+@app.route("/event/withdraw", methods=["POST"])
+@require_login
+def event_withdraw():
+    event_id = request.form.get("event_id")  
+    user_id = session.get("user_id")  
+
+    attendee = sql.session.query(EventAttendee).filter_by(event_id=event_id, user_id=user_id).first()
+    if not attendee:
+        flash("You are not signed up for this event.", "info")
+        return redirect(url_for("event_info", id=event_id))
+
+    try:
+        sql.session.delete(attendee)
+        sql.session.commit()
+        flash("You have successfully withdrawn from the event.", "success")
+    except Exception as e:
+        sql.session.rollback()
+        flash(f"Error withdrawing from the event. Error: {e}", "danger")
+
+    return redirect(url_for("event_info", id=event_id))
+
 
 from routing.admin import *
 from routing.admin_api import *
