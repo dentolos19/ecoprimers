@@ -22,11 +22,11 @@
         </div>
         <div>
           <label class="form-label" for="bio">Bio</label>
-          <textarea class="form-control" id="bio" name="bio" rows="4" required>{{ user.bio }}</textarea>
+          <textarea class="form-control" id="bio" name="bio" rows="4">{{ user.bio }}</textarea>
         </div>
         <div>
           <label class="form-label" for="birthday">Birthday</label>
-          <input class="form-control" type="date" id="birthday" name="birthday" max="{{ current_date }}" value="{{ user.birthday }}" required />
+          <input class="form-control" type="date" id="birthday" name="birthday" max="{{ current_date }}" value="{{ user.birthday }}" />
         </div>
       </div>
       <div class="mt-4 d-flex justify-content-end gap-2">
