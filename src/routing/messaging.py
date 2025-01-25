@@ -1,5 +1,3 @@
-import uuid
-
 from flask import render_template, request, session, redirect, url_for
 from flask_socketio import join_room
 

@@ -8,13 +8,11 @@
       "module": "flask",
       "args": ["run", "--no-debugger", "--no-reload"],
       "env": {
-        "FLASK_APP": "src/main.py",
-        "PATH": "${workspaceFolder}/venv/bin:${env:PATH}"
+        "FLASK_APP": "src/main.py"
       },
       "windows": {
         "env": {
-          "FLASK_APP": "src/main.py",
-          "PATH": "${workspaceFolder}\\venv\\Scripts;${env:PATH}"
+          "FLASK_APP": "src/main.py"
         }
       },
       "autoStartBrowser": true,

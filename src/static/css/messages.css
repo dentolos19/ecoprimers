@@ -9,6 +9,7 @@
 }
 
 .user {
+  margin-top: -1em; 
   display: flex;
   align-items: center;
   gap: 15px;
