@@ -16,7 +16,7 @@
 
 {% block body %}
 <div id="users" class="list-group">
-    <form class="mb-3" method="get" action="{{ url_for('search_messages') }}">
+    <form method="get" action="{{ url_for('search_messages') }}">
         <input type="text" class="form-control" name="search_query" id="search-query" required placeholder="Search for a message">
     </form>
     {% for user in users %}
@@ -37,7 +37,7 @@
 {% if receiver_id %}
 <div id="chat-scape" class="card">
     <div class="card-body">
-        <div class="message-space" style="height: 400px; overflow-y: auto;">
+        <div class="message-space">
         </div>
         <div class="input-group mt-3">
             <input type="hidden" name="receiver-id" id="receiver-id" value="{{ receiver_id }}">
