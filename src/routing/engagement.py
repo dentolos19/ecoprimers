@@ -1,8 +1,8 @@
 from flask import flash, redirect, render_template, request, session, url_for
 
-from database import sql
+from lib.database import sql
+from lib.models import Transaction, User
 from main import app
-from models import Transaction, User
 from utils import require_login
 
 

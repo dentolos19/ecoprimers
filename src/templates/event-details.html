@@ -19,9 +19,9 @@
             </div>
 
             <div class="col-md-6">
-                <img src="https://via.placeholder.com/600x300" class="img-fluid mb-3" alt="Event Image">
+                <img src="{{ url_for('static', filename='uploads/' + event.image_filename) if event.image_filename else 'https://via.placeholder.com/300x200' }}"  class="img-fluid mb-3" alt="Event Image" style="height: 400px; width: 100%; object-fit: cover;">
                 <hr>
-                <a href="#" class="btn btn-primary">Sign Up for Event</a>
+                <a href="{{ url_for('event_signup', id=event.id) }}" class="btn btn-success">Sign Up for Event</a>
             </div>
         </div>
     </div>
