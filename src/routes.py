@@ -50,7 +50,7 @@ def edit_profile():
 
     if request.method == "POST":
         user.email = request.form["email"]
-        user.name = request.form["username"]
+        user.name = request.form["name"]
         user.bio = request.form["bio"]
         user.birthday = request.form["birthday"]
         user.security = request.form["security"]  # Update security question
@@ -61,7 +61,7 @@ def edit_profile():
             return redirect("/profile")
         except Exception as e:
             if "unique constraint" in str(e).lower():
-                flash("Error! Username or email already exists.", "danger")
+                flash("Error! Email already exists.", "danger")
             sql.session.rollback()
 
     return render_template("edit-profile.html", user=user)
@@ -81,7 +81,7 @@ def login():
 
         if user and check_password_hash(user.password, password):
             session["user_id"] = user.id
-            session["user_email"] = user.email  
+            session["user_email"] = user.email
 
             # Check the email domain
             if user.email.endswith("@mymail.nyp.edu.sg"):
@@ -100,7 +100,7 @@ def login():
 def signup():
     if request.method == "POST":
         email = request.form["email"]
-        username = request.form["username"]
+        name = request.form["name"]
         password = request.form["password"]
         bio = request.form["bio"]
         birthday = request.form["birthday"]
@@ -110,7 +110,7 @@ def signup():
 
         new_user = User(
             email=email,
-            name=username,
+            name=name,
             password=hashed_password,
             bio=bio,
             birthday=birthday,
@@ -124,7 +124,7 @@ def signup():
             return redirect("/login")
         except Exception as e:
             if "unique constraint" in str(e).lower():
-                flash("Error! Username or email already exists.", "danger")
+                flash("Error! Email already exists.", "danger")
             sql.session.rollback()
     return render_template("signup.html")
 
@@ -135,7 +135,6 @@ def logout():
     flash("You've been logged out successfully.", "success")
     return redirect(url_for("home"))
 
-from werkzeug.security import generate_password_hash, check_password_hash
 
 @app.route("/reset_password", methods=["GET", "POST"])
 def reset_password():
@@ -278,10 +277,33 @@ def event_signup():
 
     return render_template("event-signup.html", event=event, user=user)
 
+@app.route("/event/withdraw", methods=["POST"])
+@require_login
+def event_withdraw():
+    event_id = request.form.get("event_id")  
+    user_id = session.get("user_id")  
+
+    attendee = sql.session.query(EventAttendee).filter_by(event_id=event_id, user_id=user_id).first()
+    if not attendee:
+        flash("You are not signed up for this event.", "info")
+        return redirect(url_for("event_info", id=event_id))
+
+    try:
+        sql.session.delete(attendee)
+        sql.session.commit()
+        flash("You have successfully withdrawn from the event.", "success")
+    except Exception as e:
+        sql.session.rollback()
+        flash(f"Error withdrawing from the event. Error: {e}", "danger")
+
+    return redirect(url_for("event_info", id=event_id))
+
 
 from routing.admin import *
+from routing.admin_api import *
 from routing.auth import *
 from routing.chat import *
+from routing.chat_api import *
 from routing.community import *
 from routing.engagement import *
 from routing.messaging import *
