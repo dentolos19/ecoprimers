@@ -105,3 +105,37 @@
   border: none !important
 }
 
+.message{
+  max-width: 100px;
+  height: auto;
+}
+
+#chat-scape {
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  height: 100%;
+}
+
+.card-body {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  justify-content: flex-end;
+}
+
+.input-group {
+  position: sticky;
+  bottom: 0;
+  background-color: white;
+  padding: 10px;
+}
+
+.message-space {
+  display: flex;
+  flex-direction: column-reverse;
+  overflow-y: auto;
+  flex-grow: 1;
+  padding-bottom: 10px; /* Avoid overlap with the input field */
+}
+

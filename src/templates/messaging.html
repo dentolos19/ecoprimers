@@ -21,7 +21,7 @@
     </form>
     {% for user in users %}
         {% if sender_id != user.id %}
-            <a class="list-group-item list-group-item-action d-flex gap-3 py-3" href="{{ url_for('messaging', receiver_id=user.id) }}">
+        <a class="list-group-item list-group-item-action d-flex gap-3 py-3 {{user.id}}" href="{{ url_for('messaging', receiver_id=user.id) }}">
                 <div class="initials">
                     <img class="ratio ratio-1x1 rounded-circle flex-shrink-0" src="https://github.com/shadcn.png" alt="Profile Picture" width="32" height="32" />
                 </div>
