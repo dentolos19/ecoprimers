@@ -30,7 +30,20 @@ class User(Base):
     birthday: Mapped[Optional[str]]  # TODO: Use datetime
 
     posts: Mapped[List["Post"]] = relationship()
+    saved_posts: Mapped[List["PostSaved"]] = relationship()
     transactions: Mapped[List["Transaction"]] = relationship()
+    
+    followings: Mapped[List["UserFollow"]] = relationship("UserFollow", foreign_keys="UserFollow.user_id")
+    followers: Mapped[List["UserFollow"]] = relationship("UserFollow", foreign_keys="UserFollow.follower_id")
+    
+class UserFollow(Base):
+    __tablename__ = "user_follows"
+
+    user_id: Mapped[str] = mapped_column(ForeignKey("users.id"))
+    follower_id: Mapped[str] = mapped_column(ForeignKey("users.id"))
+    
+    user = relationship("User", foreign_keys=[user_id])
+    follower = relationship("User", foreign_keys=[follower_id])
 
 
 class Event(Base):
@@ -64,8 +77,9 @@ class Post(Base):
     image_filename: Mapped[Optional[str]]
 
     user = relationship("User", back_populates="posts")
-    likes: Mapped[List["PostLike"]] = relationship()
-    comments: Mapped[List["PostComment"]] = relationship()
+    likes: Mapped[List["PostLike"]] = relationship(cascade="all, delete")   
+    messages: Mapped[List["PostComment"]] = relationship(cascade="all, delete")
+    saves: Mapped[List["PostSaved"]] = relationship(cascade="all, delete")
 
 
 class PostLike(Base):
@@ -80,11 +94,21 @@ class PostLike(Base):
 class PostComment(Base):
     __tablename__ = "post_comments"
 
-    post_id: Mapped[str] = mapped_column(ForeignKey("posts.id"))
-    user_id: Mapped[str] = mapped_column(ForeignKey("users.id"))
     message: Mapped[str]
 
-    post = relationship("Post", back_populates="comments")
+    post_id: Mapped[str] = mapped_column(ForeignKey("posts.id"))
+    user_id: Mapped[str] = mapped_column(ForeignKey("users.id")) 
+
+    post = relationship("Post", back_populates="messages")
+
+class PostSaved(Base):
+    __tablename__ = "post_save"
+
+    post_id: Mapped[str] = mapped_column(ForeignKey("posts.id"))
+    user_id: Mapped[str] = mapped_column(ForeignKey("users.id"))
+
+    post = relationship("Post", back_populates="saves")
+    user = relationship("User", back_populates="saved_posts")
 
 
 class Task(Base):
