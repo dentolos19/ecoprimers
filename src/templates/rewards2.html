@@ -109,15 +109,6 @@
 {% endblock %}
 
 {% block body %}
-{% with messages = get_flashed_messages(with_categories=true) %}
-    {% if messages %}
-        <div>
-            {% for category, message in messages %}
-                <div class="flash-message {{ category }}">{{ message }}</div>
-            {% endfor %}
-        </div>
-    {% endif %}
-{% endwith %}
 
 <div class="points-box">Points: {{ user.points }}</div>
 <h1 class="rewards-header">Rewards</h1>
