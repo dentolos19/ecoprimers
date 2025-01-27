@@ -23,7 +23,10 @@ def rewards():
 @app.route("/engagement/points")
 @require_login
 def points():
-    return render_template("points.html")
+    user_id = session.get("user_id")
+    user = sql.session.query(User).filter_by(id=user_id).first()
+    return render_template("points.html", user=user)
+    
 
 
 @app.route("/add_points", methods=["POST"])
