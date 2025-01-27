@@ -1,12 +1,27 @@
 {% extends "base.html" %}
 
+{% block styles %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/messages.css') }}">
+{% endblock %}
+
 {% block title %}
 Search results
 {% endblock %}
 
 {% block body %}
 
-{% for message in messages %}
-<p> {{ message.message }} </p>
-{% endfor %}
+  {% if messages %}
+    <div class="list-group">
+      {% for message in messages %}
+      <div class="message card bg-light text-dark rounded-3">
+        <div class="card-body">
+          <p class="card-text">{{message.message}}</p>
+        </div>
+      </div>
+         {% endfor %}
+    </div>
+  {% else %}
+    <p class="text-muted">No messages found matching your search query.</p>
+  {% endif %}
+</div>
 {% endblock %}
