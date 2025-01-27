@@ -53,14 +53,15 @@ def admin_events_new():
         event_date = request.form["date"]
         image = request.files["image"]
 
+        if image and not allowed_file(image.filename):
+            flash("Invalid file type! Only images with extensions .png, .jpg, .jpeg, and .gif are allowed.", "danger")
+            return redirect(request.url)
+
         image_filename = None
         if image and allowed_file(image.filename):
-            # Secure the filename and save it
             image_filename = secure_filename(image.filename)
             image.save(os.path.join(app.config["UPLOAD_FOLDER"], image_filename))
 
-
-        # Create an Event object and save it to the database
         new_event = Event(
             title=event_title,
             description=event_description,
@@ -70,7 +71,6 @@ def admin_events_new():
         )
 
         try:
-            # Add the event to the session and commit it to the database
             sql.session.add(new_event)
             sql.session.commit()
             flash("Event added successfully!", "success")
@@ -96,13 +96,15 @@ def admin_events_edit(id):
         event_date = request.form["date"]
         image = request.files["image"]
 
+        if image and not allowed_file(image.filename):
+            flash("Invalid file type! Only images with extensions .png, .jpg, .jpeg, and .gif are allowed.", "danger")
+            return redirect(request.url)
+
         image_filename = None
         if image and allowed_file(image.filename):
-            # Secure the filename and save it
             image_filename = secure_filename(image.filename)
             image.save(os.path.join(app.config["UPLOAD_FOLDER"], image_filename))
 
-        # Update the event object with the new data
         event.title = event_title
         event.description = event_description
         event.location = event_location
@@ -110,7 +112,6 @@ def admin_events_edit(id):
         event.image_filename = image_filename
 
         try:
-            # Commit the changes to the database
             sql.session.commit()
             flash("Event updated successfully!", "success")
         except Exception as e:
@@ -128,7 +129,6 @@ def admin_events_delete(id):
     event = sql.session.query(Event).filter_by(id=id).first()
 
     if request.method == "POST":
-        # Collect data from the form
         event_title = request.form["title"]
 
         if event.title != event_title:
