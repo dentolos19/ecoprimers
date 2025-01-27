@@ -27,7 +27,6 @@ if not os.path.exists(app.config["UPLOAD_FOLDER"]):
     os.makedirs(app.config["UPLOAD_FOLDER"])
 
 # Import routes into the main module
-from api import *
 from routes import *
 
 if __name__ == "__main__":

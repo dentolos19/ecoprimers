@@ -1,6 +1,6 @@
 // messages.js
 const socket = io({
-	transports: ["polling"],	
+	transports: ["polling"],
 });
 
 // Store current chat state
@@ -66,7 +66,6 @@ document.addEventListener("DOMContentLoaded", function () {
 	});
 
 	socket.on("receive_message", (messages) => {
-		// TODO: Fix socket updates
 		const messageSpace = document.querySelector(".message-space");
 		messageSpace.innerHTML = "";
 		fetch(`/api/messages?sender_id=${currentSenderId}&receiver_id=${currentRecipientId}`)
@@ -113,12 +112,12 @@ function sendMessage() {
         receiver_id: currentRecipientId,
         message: content
     });
-	
+
 };
 
 socket.on("receive_message", (message) => {
     // Check if this message belongs to current chat
-    if (message.sender_id === currentRecipientId || 
+    if (message.sender_id === currentRecipientId ||
         (message.sender_id === currentSenderId && message.receiver_id === currentRecipientId)) {
         displayMessage(message);
     }
@@ -141,4 +140,3 @@ document.addEventListener("DOMContentLoaded", function () {
     }
   });
 });
-

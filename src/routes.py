@@ -280,8 +280,8 @@ def event_signup():
 @app.route("/event/withdraw", methods=["POST"])
 @require_login
 def event_withdraw():
-    event_id = request.form.get("event_id")  
-    user_id = session.get("user_id")  
+    event_id = request.form.get("event_id")
+    user_id = session.get("user_id")
 
     attendee = sql.session.query(EventAttendee).filter_by(event_id=event_id, user_id=user_id).first()
     if not attendee:
@@ -307,3 +307,4 @@ from routing.chat_api import *
 from routing.community import *
 from routing.engagement import *
 from routing.messaging import *
+from routing.messaging_api import *

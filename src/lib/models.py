@@ -138,6 +138,9 @@ class Message(Base):
     message: Mapped[str]
     is_read: Mapped[bool] = mapped_column(default=False)
 
+    sender = relationship("User", foreign_keys=[sender_id])
+    receiver = relationship("User", foreign_keys=[receiver_id])
+
     def to_dict(self):
         base_dict = super().to_dict()
         base_dict["sender_id"] = self.sender_id

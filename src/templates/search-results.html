@@ -15,6 +15,7 @@ Search results
       {% for message in messages %}
       <div class="message card bg-light text-dark rounded-3">
         <div class="card-body">
+          <h5 class="card-title">{{ message.sender.name }}</h5>
           <p class="card-text">{{message.message}}</p>
         </div>
       </div>

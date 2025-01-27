@@ -1,11 +1,11 @@
-from flask import render_template, request, session, redirect, url_for
+from flask import redirect, render_template, request, session, url_for
 from flask_socketio import join_room
+from sqlalchemy import and_, or_
 
 from lib.database import sql
-from lib.models import Message, User, Rooms
+from lib.models import Message, Rooms, User
 from main import app, socket
 from utils import require_login
-from sqlalchemy import and_, or_ 
 
 
 @socket.on("join")
@@ -16,7 +16,7 @@ def on_join(data):
             and_(Rooms.user_1 == data.get("receiver_id"), Rooms.user_2 == session["user_id"])
         )
         ).first()
-        
+
         if not room:
             room = Rooms(user_1 = session["user_id"], user_2 = data.get("receiver_id"))
 
@@ -76,10 +76,10 @@ def handle_send_message(data):
 @app.route("/community/search-results")
 @app.route("/community/messages/<receiver_id>", methods=["GET", "POST"])
 def search_messages():
-    search_query = request.args.get("search_query") 
+    search_query = request.args.get("search_query")
     valid_messages = (sql.session.query(Message).filter(and_(Message.message.like(f"%{search_query}%"), or_(Message.receiver_id == session["user_id"], Message.sender_id == session["user_id"]))).order_by(Message.created_at).limit(50).all())
     users = sql.session.query(User).all()
-    return render_template("search-results.html", messages=[message.to_dict() for message in valid_messages], users = users)
+    return render_template("search-results.html", messages=valid_messages, users = users)
 
 @app.route("/community/messages", methods=["GET"])
 def edit_message(id):
@@ -88,9 +88,9 @@ def edit_message(id):
 @app.route("/community/messages/<receiver_id>/<message_id>", methods=["POST"])
 def delete_message(receiver_id, message_id):
     print(receiver_id, message_id)
-    
+
     message = sql.session.query(Message).filter(and_(Message.receiver_id == receiver_id, Message.id == message_id)).first()
-    
+
     # Get the room before deleting the message
     room = sql.session.query(Rooms).filter(
         or_(
@@ -98,12 +98,12 @@ def delete_message(receiver_id, message_id):
             and_(Rooms.user_1 == message.receiver_id, Rooms.user_2 == message.sender_id)
         )
     ).first()
-    
+
     sql.session.delete(message)
     sql.session.commit()
-    
+
     # Emit delete event to the room if found
     if room:
         socket.emit("message_deleted", {"message_id": message_id}, room=room.id)
-    
+
     return redirect(url_for("messaging", receiver_id=receiver_id if receiver_id != session["user_id"] else message.sender_id))
