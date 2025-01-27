@@ -68,7 +68,7 @@ def add_points():
 def redeem_reward():
     user_id = session.get("user_id")
     reward_name = request.form.get("reward_name")  # Reward name from the form
-    reward_cost = int(request.form.get("reward_cost"))  # Reward cost from the form
+    reward_cost = int(request.form.get("reward_cost"))  # Reward cost from the form input label 
 
     # Fetch the user
     user = sql.session.query(User).filter_by(id=user_id).first()
