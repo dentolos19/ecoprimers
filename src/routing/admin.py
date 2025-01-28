@@ -1,9 +1,12 @@
+import json
 import os
+from datetime import datetime
 
 from flask import flash, redirect, render_template, request, url_for
 from werkzeug.security import generate_password_hash
 from werkzeug.utils import secure_filename
 
+from lib.ai import agent
 from lib.database import sql
 from lib.models import Event, Product, Transaction, User
 from main import app
@@ -390,3 +393,43 @@ def admin_transactions_delete(id):
         return redirect(url_for("admin_transactions"))
 
     return render_template("admin/transactions-delete.html", transaction=transaction)
+
+
+@app.route("/admin/advanced")
+def admin_advanced():
+    return render_template("admin/advanced.html")
+
+
+@app.route("/admin/advanced/generate/users", methods=["POST"])
+def admin_advanced_generate_users():
+    # Collect data from the form
+    count = int(request.form["count"])
+
+    # Get prompt
+    with open("src/static/generateusers.txt", "r") as file:
+        prompt = file.read().format(count=count, today=datetime.now().strftime("%Y-%m-%d"))
+
+    # Generate response
+    response = agent.generate_content(prompt, generation_config={"response_mime_type": "application/json"})
+    data = json.loads(response.candidates[0].content.parts[0].text.strip())
+
+    # Parse response
+    users = data["users"]
+    for user in users:
+        user["created_at"] = datetime.strptime(user["created_at"], "%Y-%m-%dT%H:%M:%S")
+
+    try:
+        # Add the users to the database
+        sql.session.bulk_insert_mappings(User, users)
+        sql.session.commit()
+        flash("Users generated successfully!", "success")
+    except Exception as e:
+        sql.session.rollback()
+        flash(f"An error occurred while generating users! {str(e)}", "danger")
+
+    return redirect(url_for("admin_advanced"))
+
+
+@app.route("/admin/advanced/generate/transactions", methods=["POST"])
+def admin_advanced_generate_transactions():
+    pass
