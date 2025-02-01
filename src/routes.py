@@ -13,11 +13,16 @@ from utils import check_admin_status, check_logged_in, require_login
 
 @app.context_processor
 def init():
-    utils = import_module("utils")
-    current_date = date.today().isoformat()
-    is_logged_in = check_logged_in()
-    is_admin_user = check_admin_status()
-    return dict(any=any, len=len, utils=utils, current_date=current_date, is_logged_in=is_logged_in, is_admin_user=is_admin_user)
+    return {
+        "any": any,
+        "len": len,
+        "range": range,
+        "enumerate": enumerate,
+        "utils": import_module("utils"),
+        "current_date": date.today().isoformat(),
+        "is_logged_in": check_logged_in(),
+        "is_admin_user": check_admin_status(),
+    }
 
 
 @app.route("/")
@@ -27,11 +32,9 @@ def home():
 
 
 @app.route("/profile")
+@require_login
 def profile():
     user_id = session.get("user_id")
-    if not user_id:
-        return redirect("/login")
-
     user = sql.session.query(User).filter(User.id == user_id).first()
 
     if not user:
@@ -41,11 +44,9 @@ def profile():
 
 
 @app.route("/edit_profile", methods=["GET", "POST"])
+@require_login
 def edit_profile():
     user_id = session.get("user_id")
-    if not user_id:
-        return redirect("/login")
-
     user = sql.session.query(User).filter(User.id == user_id).first()
 
     if request.method == "POST":
@@ -276,6 +277,7 @@ def event_signup():
             flash(f"Error signing up for the event. Error: {e}", "danger")
 
     return render_template("event-signup.html", event=event, user=user)
+
 
 @app.route("/event/withdraw", methods=["POST"])
 @require_login
