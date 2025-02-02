@@ -1,11 +1,10 @@
 import json
-import os
 from datetime import datetime
 
 from flask import flash, redirect, render_template, request, url_for
 from werkzeug.security import generate_password_hash
-from werkzeug.utils import secure_filename
 
+from lib import storage
 from lib.ai import agent
 from lib.database import sql
 from lib.models import Event, Product, Transaction, User
@@ -54,23 +53,20 @@ def admin_events_new():
         event_description = request.form["description"]
         event_location = request.form["location"]
         event_date = request.form["date"]
-        image = request.files["image"]
+        event_image = request.files["image"]
 
-        if image and not allowed_file(image.filename):
+        if event_image and not allowed_file(event_image.filename):
             flash("Invalid file type! Only images with extensions .png, .jpg, .jpeg, and .gif are allowed.", "danger")
             return redirect(request.url)
 
-        image_filename = None
-        if image and allowed_file(image.filename):
-            image_filename = secure_filename(image.filename)
-            image.save(os.path.join(app.config["UPLOAD_FOLDER"], image_filename))
+        image_url = storage.upload(event_image)
 
         new_event = Event(
             title=event_title,
             description=event_description,
             location=event_location,
             date=event_date,
-            image_filename=image_filename,
+            image_filename=image_url,
         )
 
         try:
@@ -97,22 +93,19 @@ def admin_events_edit(id):
         event_description = request.form["description"]
         event_location = request.form["location"]
         event_date = request.form["date"]
-        image = request.files["image"]
+        event_image = request.files["image"]
 
-        if image and not allowed_file(image.filename):
+        if event_image and not allowed_file(event_image.filename):
             flash("Invalid file type! Only images with extensions .png, .jpg, .jpeg, and .gif are allowed.", "danger")
             return redirect(request.url)
 
-        image_filename = None
-        if image and allowed_file(image.filename):
-            image_filename = secure_filename(image.filename)
-            image.save(os.path.join(app.config["UPLOAD_FOLDER"], image_filename))
+        image_url = storage.upload(event_image)
 
         event.title = event_title
         event.description = event_description
         event.location = event_location
         event.date = event_date
-        event.image_filename = image_filename
+        event.image_filename = image_url
 
         try:
             sql.session.commit()

@@ -1,4 +1,4 @@
-.fa-solid {
+*[class^="fa-"] {
   color: white;
 }
 
