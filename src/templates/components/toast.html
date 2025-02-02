@@ -1,6 +1,5 @@
 <div id="toaster" class="d-flex flex-column gap-2 toast-container position-fixed bottom-0 end-0 p-3">
-  {# TODO: Remove the commented code to enable flashing with toast #}
-  {# {% with messages = get_flashed_messages(with_categories=true) %}
+  {% with messages = get_flashed_messages(with_categories=true) %}
   {% if messages %}
   {% for category, message in messages %}
   <div class="m-0 toast border-{{ category }} show">
@@ -13,5 +12,5 @@
   </div>
   {% endfor %}
   {% endif %}
-  {% endwith %} #}
+  {% endwith %}
 </div>
