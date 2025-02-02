@@ -71,16 +71,26 @@
   }
 
   .btn-cancel {
-    background-color: #ff6f61;
-    color: white;
+    background-color: #white;
+    color: rgb(0, 0, 0);
     border: none;
     padding: 10px 20px;
     border-radius: 5px;
     cursor: pointer;
+    font size: 1.2em;
   }
 
   .btn-redeem {
-    background-color: #e65c50;
+    background-color: #107A52;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 5px;
+    cursor: not-allowed;
+  }
+
+  .no-btn-redeem {
+    background-color: #ff6f61;
     color: white;
     border: none;
     padding: 10px 20px;
@@ -105,6 +115,14 @@
     border-radius: 5px;
 }
 
+.recaptcha-container {
+    display: flex;
+    justify-content: center;
+    margin-top: 10px;
+    margin-bottom: 15px;
+}
+
+
 </style>
 {% endblock %}
 
@@ -112,10 +130,18 @@
 
 <div class="points-box">Points: {{ user.points }}</div>
 <h1 class="rewards-header">Rewards</h1>
+<!-- recapthca
+<form action="{{ url_for('redeem_reward') }}" method="post">
+      <div class="g-recaptcha" data-sitekey="6Ldk8skqAAAAADv8tINcjejBa3JllvFUrNKkxa30"></div>
+      <br/>
+      
+  </form>
+  <script src="https://www.google.com/recaptcha/api.js" async defer></script>
+ -->
 <div class="rewards-container">
   <!-- Reward Item 1 -->
   <div class="card" style="cursor: pointer;" data-bs-toggle="modal" data-bs-target="#rewardModal1">
-    <img class="card-img-top" src="../static/img/reusable-cup.png" alt="Reusable Cup" />
+    <img class="card-img-top" style='height: 257px' src="../static/img/reusable-cup.png" alt="Reusable Cup" />
     <div class="card-body">
       <h5 class="card-title">Reusable Cup</h5>
       <p class="card-text">200 pts</p>
@@ -123,7 +149,7 @@
   </div>
   <!-- Reward Item 2 -->
 <div class="card" style="cursor: pointer;" data-bs-toggle="modal" data-bs-target="#rewardModal2">
-  <img class="card-img-top" src="../static/img/iron_on.png" alt="Iron on Badge" />
+  <img class="card-img-top" style='height: 257px' src="../static/img/iron_on.png" alt="Iron on Badge" />
   <div class="card-body">
     <h5 class="card-title">Iron on Badge</h5>
     <p class="card-text">100 pts</p>
@@ -132,7 +158,7 @@
 
 <!-- Reward Item 3 -->
 <div class="card" style="cursor: pointer;" data-bs-toggle="modal" data-bs-target="#rewardModal3">
-  <img class="card-img-top" src="../static/img/reusable-utensil.png" alt="Reusable Utensil" />
+  <img class="card-img-top" style='height: 257px' src="../static/img/reusable-utensil.png" alt="Reusable Utensil" />
   <div class="card-body">
     <h5 class="card-title">Reusable Utensil</h5>
     <p class="card-text">1000 pts</p>
@@ -183,12 +209,17 @@
           <form action="{{ url_for('redeem_reward') }}" method="post" style="display: inline;">
             <input type="hidden" name="reward_name" value="Reusable Cup">
             <input type="hidden" name="reward_cost" value="200">
+            
             {% if user.points >= 200 %}
+            <div class="recaptcha-container">
+              <div class="g-recaptcha" data-sitekey="6Ldk8skqAAAAADv8tINcjejBa3JllvFUrNKkxa30"></div>
+            </div>
             <button type="submit" class="btn-redeem">Redeem (200 pts)</button>
             {% else %}
-            <button class="btn-redeem" disabled>Redeem (Not enough points)</button>
+            <button class="no-btn-redeem" disabled>(Not enough points)</button>
             {% endif %}
           </form>
+          <script src="https://www.google.com/recaptcha/api.js" async defer></script>
         </div>
       </div>
     </div>
@@ -211,12 +242,17 @@
           <form action="{{ url_for('redeem_reward') }}" method="post" style="display: inline;">
             <input type="hidden" name="reward_name" value="Iron on Badge">
             <input type="hidden" name="reward_cost" value="100">
+            
             {% if user.points >= 100 %}
+            <div class="recaptcha-container">
+              <div class="g-recaptcha" data-sitekey="6Ldk8skqAAAAADv8tINcjejBa3JllvFUrNKkxa30"></div>
+            </div>
             <button type="submit" class="btn-redeem">Redeem (100 pts)</button>
             {% else %}
-            <button class="btn-redeem" disabled>Redeem (Not enough points)</button>
+            <button class="no-btn-redeem" disabled>(Not enough points)</button>
             {% endif %}
           </form>
+          <script src="https://www.google.com/recaptcha/api.js" async defer></script>
         </div>
       </div>
     </div>
@@ -241,11 +277,15 @@
             <input type="hidden" name="reward_name" value="Reusable Utensil">
             <input type="hidden" name="reward_cost" value="1000">
             {% if user.points >= 1000 %}
+            <div class="recaptcha-container">
+              <div class="g-recaptcha" data-sitekey="6Ldk8skqAAAAADv8tINcjejBa3JllvFUrNKkxa30"></div>
+            </div>
             <button type="submit" class="btn-redeem">Redeem (1000 pts)</button>
             {% else %}
-            <button class="btn-redeem" disabled>Redeem (Not enough points)</button>
+            <button class="no-btn-redeem" disabled>Not enough points</button>
             {% endif %}
           </form>
+          <script src="https://www.google.com/recaptcha/api.js" async defer></script>
         </div>
       </div>
     </div>
@@ -270,11 +310,15 @@
             <input type="hidden" name="reward_name" value="ZipLog Bag">
             <input type="hidden" name="reward_cost" value="500">
             {% if user.points >= 500 %}
+            <div class="recaptcha-container">
+              <div class="g-recaptcha" data-sitekey="6Ldk8skqAAAAADv8tINcjejBa3JllvFUrNKkxa30"></div>
+            </div>
             <button type="submit" class="btn-redeem">Redeem (500 pts)</button>
             {% else %}
-            <button class="btn-redeem" disabled>Redeem (Not enough points)</button>
+            <button class="no-btn-redeem" disabled>(Not enough points)</button>
             {% endif %}
           </form>
+          <script src="https://www.google.com/recaptcha/api.js" async defer></script>
         </div>
       </div>
     </div>
@@ -299,11 +343,15 @@
             <input type="hidden" name="reward_name" value="Notebook">
             <input type="hidden" name="reward_cost" value="1500">
             {% if user.points >= 1500 %}
+            <div class="recaptcha-container">
+              <div class="g-recaptcha" data-sitekey="6Ldk8skqAAAAADv8tINcjejBa3JllvFUrNKkxa30"></div>
+            </div>
             <button type="submit" class="btn-redeem">Redeem (1500 pts)</button>
             {% else %}
-            <button class="btn-redeem" disabled>Redeem (Not enough points)</button>
+            <button class="no-btn-redeem" disabled>(Not enough points)</button>
             {% endif %}
           </form>
+          <script src="https://www.google.com/recaptcha/api.js" async defer></script>
         </div>
       </div>
     </div>
@@ -328,11 +376,15 @@
             <input type="hidden" name="reward_name" value="Tote Bag">
             <input type="hidden" name="reward_cost" value="2000">
             {% if user.points >= 2000 %}
+            <div class="recaptcha-container">
+              <div class="g-recaptcha" data-sitekey="6Ldk8skqAAAAADv8tINcjejBa3JllvFUrNKkxa30"></div>
+            </div>
             <button type="submit" class="btn-redeem">Redeem (2000 pts)</button>
             {% else %}
-            <button class="btn-redeem" disabled>Redeem (Not enough points)</button>
+            <button class="no-btn-redeem" disabled>(Not enough points)</button>
             {% endif %}
           </form>
+          <script src="https://www.google.com/recaptcha/api.js" async defer></script>
         </div>
       </div>
     </div>
