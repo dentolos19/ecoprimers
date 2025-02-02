@@ -6,6 +6,34 @@ from lib.database import sql
 from lib.models import User
 from main import app
 
+from sendgrid import SendGridAPIClient
+from sendgrid.helpers.mail import Mail
+import os
+
+app.config['MAIL_SERVER'] = 'smtp.sendgrid.net'
+app.config['MAIL_PORT'] = 587
+app.config['MAIL_USE_TLS'] = True
+app.config['MAIL_USERNAME'] = 'apikey'
+app.config['MAIL_PASSWORD'] = os.environ.get('SENDGRID_API_KEY')
+app.config['MAIL_DEFAULT_SENDER'] = os.environ.get('MAIL_DEFAULT_SENDER')
+mail = Mail(app)
+
+def send_welcome_email(user_email):
+    message = Mail(
+        from_email= os.environ.get('MAIL_DEFAULT_SENDER'),  
+        to_emails=user_email,
+        subject='Welcome to Eco Primers!',
+        html_content='<strong>Thank you for signing up for Eco Primers. We are excited to have you on board!</strong>'
+    )
+
+    try:
+        sg = SendGridAPIClient(os.environ.get('SENDGRID_API_KEY'))
+        response = sg.send(message)
+        print(f"Email sent with status code: {response.status_code}")
+    except Exception as e:
+        print(f"Error sending email: {str(e)}")
+
+
 
 @app.route("/login", methods=["GET", "POST"])
 def login():
@@ -72,6 +100,9 @@ def login_authorize():
             session["user_id"] = new_user.id
             session["user_email"] = new_user.email
             flash("Account created successfully via Google. Logged in!", "success")
+
+            send_welcome_email(new_user.email)
+
         except Exception as e:
             print(e)
             sql.session.rollback()
@@ -106,7 +137,11 @@ def signup():
             sql.session.add(new_user)
             sql.session.commit()
             flash("Sign up successful! You can now log in.", "success")
+
+            send_welcome_email(new_user.email)
+
             return redirect("/login")
+        
         except Exception as e:
             if "unique constraint" in str(e).lower():
                 flash("Error! Email already exists.", "danger")
