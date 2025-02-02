@@ -21,7 +21,15 @@ def init():
         "current_date": date.today().isoformat(),
         "is_logged_in": check_logged_in(),
         "is_admin_user": check_admin_status(),
+        "dark_mode_enabled": session.get("dark_mode", False),
     }
+
+
+@app.route("/toggle_dark_mode")
+def toggle_dark_mode():
+    session["dark_mode"] = not session.get("dark_mode", False)
+    print(session["dark_mode"])
+    return redirect(request.referrer)
 
 
 @app.route("/")
