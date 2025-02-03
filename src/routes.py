@@ -4,6 +4,7 @@ from importlib import import_module
 import stripe
 from flask import flash, redirect, render_template, request, session, url_for
 
+from lib import database
 from lib.database import sql
 from lib.models import Event, EventAttendee, User
 from main import app
@@ -25,7 +26,24 @@ def init():
     }
 
 
-@app.route("/toggle_dark_mode")
+@app.errorhandler(404)
+def error_notfound(ex):
+    return render_template("notfound.html", ex=ex)
+
+
+@app.errorhandler(Exception)
+def error_exception(ex):
+    return render_template("error.html", ex=ex)
+
+
+@app.route("/error/reset", methods=["POST"])
+def error_reset():
+    database.reset()
+    flash("Database reset successfully!", "success")
+    return redirect("/")
+
+
+@app.route("/functions/darkmode")
 def toggle_dark_mode():
     session["dark_mode"] = not session.get("dark_mode", True)
     print(session["dark_mode"])

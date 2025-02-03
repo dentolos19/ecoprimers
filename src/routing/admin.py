@@ -399,6 +399,7 @@ def admin_advanced():
 def admin_advanced_reset_database():
     try:
         database.reset()
+        flash("Resetted the database successfully!", "success")
     except Exception as e:
         flash(f"An error occurred while resetting the database! {str(e)}", "danger")
 
@@ -409,6 +410,7 @@ def admin_advanced_reset_database():
 def admin_advanced_setup_database():
     try:
         database.setup()
+        flash("Set up the database successfully!", "success")
     except Exception as e:
         flash(f"An error occurred while setting up the database! {str(e)}", "danger")
 
@@ -448,3 +450,8 @@ def admin_advanced_generate_users():
 @app.route("/admin/advanced/generate/transactions", methods=["POST"])
 def admin_advanced_generate_transactions():
     pass
+
+
+@app.route("/admin/advanced/error")
+def admin_advanced_error():
+    raise Exception("An error occurred while generating transactions! Please try again.")
