@@ -1,8 +1,6 @@
-{% extends "base.html" %} {% block stylesheets %}
-<link rel="stylesheet" href="../static/css/social-media.css" />
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" />
-{% endblock %} {% block body %}
+{% extends "base.html" %}
 
+{% block body %}
 <div class="container mt-5" style="max-width: 550px">
   <h1 class="text-center text-secondary mb-4">Welcome to the Community site</h1>
   <div class="position-fixed bottom-0 end-0 p-3">
@@ -16,16 +14,17 @@
         <h5 class="card-title text-primary">{{ post.user.username }}</h5>
         <div class="btn-group position-relative">
           <!-- follow button still doing -->
-          <form action="{{ url_for('toggle_follow', user_id=post.user_id) }}" method="POST"
-            id="follow-form-{{ post.user_id }}">
-            <button
-              class="btn {{ 'btn-success' if is_followed(post.user.followings, post.user_id, user_id) else 'btn-danger' }}"
-              type="submit">
-              {{ 'Followed' if is_followed(post.user.followings, post.user_id, user_id) else 'Follow' }}
-              <i id="follow-icon-{{ post.user_id }}"
-                class="{{ 'text-danger' if is_followed(post.user.followings, post.user_id, user_id) else '' }}"></i>
-            </button>
-          </form>
+<form action="{{ url_for('toggle_follow', user_id=post.user_id) }}" method="POST" 
+      id="follow-form-{{ post.user_id }}">
+    <button
+        class="follow-btn btn {{ 'btn-success' if is_followed(post.user.followings, post.user_id, user_id) else 'btn-danger' }}"
+        type="button"
+        >
+        {{ 'Followed' if is_followed(post.user.followings, post.user_id, user_id) else 'Follow' }}
+        <i id="follow-icon-{{ post.user_id }}"
+           class="{{ 'text-danger' if is_followed(post.user.followings, post.user_id, user_id) else '' }}"></i>
+    </button>
+</form>
 
           <button class="btn btn-sm btn-outline-secondary dots-btn">
             &#x22EE;
@@ -61,11 +60,11 @@
 
         <!-- Comment Icon still doing -->
         <form action="{{ url_for('post_comment', post_id=post.id) }}" method="POST" id="like-form-{{ post.id }}">
-          <button type="button" class="btn {{ 'btn-success'}}" type="submit"
+          <button type="button" class=" btn {{ 'btn-success'}}" type="submit"
             onclick="() => toggleLike(event, {{ post.id }})" data-bs-toggle="modal" data-bs-target="#exampleModal">
             <i id="like-icon-{{ post.id }}"
               class="fa-solid fa-comment {{ 'text-danger' if post.is_liked else '' }}"></i>
-            {{ len(post.comment) }}
+            {{ len(post.messages) }}
           </button>
 
           <!-- Modal -->
@@ -94,9 +93,12 @@
                     <div class="col-md-5">
                       <h6>Comments</h6>
                       <div class="comments-list" style="max-height: 300px; overflow-y: auto;">
-                        <!-- Empty Comments Section -->
-                        <p class="text-muted">No comments yet. Be the first to comment!</p>
-                        {{post.messages}}{{len(post.likes)}}
+                        <!-- Empty Comments Section -->         
+                        {% for message in post.messages %}
+                        <div>
+                          <strong>{{ message.user.username }}</strong>: {{ message.message }}
+                        </div>
+                        {% endfor %}
                       </div>
                     </div>
                   </div>
@@ -106,7 +108,7 @@
                   <form class="w-100 d-flex" action="{{ url_for('post_comment', post_id=post.id) }}" method="POST"
                     id="like-form-{{ post.id }}">
                     <input type="text" class="form-control me-2" placeholder="Write a comment..." name="comment_text" />
-                    <button type="submit" class="btn btn-primary">
+                    <button type="submit" class="comment-btn btn btn-primary">
                       Post
                     </button>
                   </form>
@@ -146,6 +148,33 @@
 </div>
 
 <script>
+  const followButtons = document.querySelectorAll("button.follow-btn");
+  followButtons.forEach(element => {
+    element.addEventListener("click", () => {
+      console.log("Hello");
+      confirm("Are you sure you want to toggle follow status?");
+      const followForm = element.closest("form");
+      followForm.submit();
+      // const userId = element.dataset.userId;
+      // const followIcon = document.getElementById(`follow-icon-${userId}`);
+      // const followForm = document.getElementById(`follow-form-${userId}`);
+      // const isFollowed = followIcon.classList.contains("text-danger");
+
+      // followIcon.classList.toggle("text-danger");
+      // followForm.submit();
+    });
+  });
+
+  const CommentButtons = document.querySelectorAll("button.comment-btn");
+  CommentButtons.forEach(element => {
+    element.addEventListener("click", () => {
+      console.log("Hello");
+      confirm("Are you sure you want to comment?");
+      const CommentForm = element.closest("form");
+      CommentForm.submit();
+    });
+  });
+
   // JavaScript to toggle the dropdown menu and hide it when clicking outside
   document.addEventListener("click", function (event) {
     document.querySelectorAll(".dots-btn").forEach((button) => {
@@ -158,17 +187,6 @@
       }
     });
   });
-  // function toggleLike(event, postId) {
-  //     event.preventDefault(); // Prevent immediate form submission
-
-  //     var icon = document.getElementById('like-icon-' + postId);
-
-  //     // Toggle the 'text-danger' class for the heart icon (red color for like)
-  //     icon.classList.toggle('text-danger');
-
-  //     // After toggling the icon, submit the form to update the server
-  //     var form = document.getElementById('like-form-' + postId);
-  //     form.submit();
-  // }
 </script>
+
 {% endblock %}

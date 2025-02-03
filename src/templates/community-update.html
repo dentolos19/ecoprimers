@@ -40,7 +40,7 @@
                 class="form-control"
                 rows="4"
               >
-{{ post.content }}</textarea
+{{ post.description }}</textarea
               >
             </div>
 
@@ -54,7 +54,7 @@
 
             <!-- Submit Button -->
             <div class="text-center">
-              <button type="submit" class="btn btn-primary">Update Post</button>
+              <button type="submit" class="update-btn btn btn-primary">Update Post</button>
             </div>
           </form>
         </div>
@@ -65,16 +65,26 @@
 
 <script>
   // JavaScript to toggle the dropdown menu and hide it when clicking outside
-  document.addEventListener("click", function (event) {
-    document.querySelectorAll(".dots-btn").forEach((button) => {
-      const dropdown = button.nextElementSibling;
-      if (button.contains(event.target)) {
-        dropdown.style.display =
-          dropdown.style.display === "block" ? "none" : "block";
-      } else {
-        dropdown.style.display = "none";
-      }
+  //document.addEventListener("click", function (event) {
+  //  document.querySelectorAll(".dots-btn").forEach((button) => {
+  //    const dropdown = button.nextElementSibling;
+  //    if (button.contains(event.target)) {
+  //      dropdown.style.display =
+  //        dropdown.style.display === "block" ? "none" : "block";
+  //    } else {
+  //      dropdown.style.display = "none";
+  //    }
+  //  });
+  //});
+  
+  const UpdateButtons = document.querySelectorAll("button.update-btn");
+  UpdateButtons.forEach(element => {
+    element.addEventListener("click", () => {
+      console.log("Hello");
+      confirm("Are you sure you want to Update?");
+      const UpdateForm = element.closest("form");
+      UpdateForm.submit();
     });
   });
-</script>
+  </script>
 {% endblock %}
