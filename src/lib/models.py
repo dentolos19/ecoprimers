@@ -38,6 +38,7 @@ class User(Base):
     followings: Mapped[List["UserFollow"]] = relationship("UserFollow", foreign_keys="UserFollow.user_id")
     followers: Mapped[List["UserFollow"]] = relationship("UserFollow", foreign_keys="UserFollow.follower_id")
 
+
 class UserFollow(Base):
     __tablename__ = "user_follows"
 
@@ -73,14 +74,23 @@ class Post(Base):
     __tablename__ = "posts"
 
     user_id: Mapped[str] = mapped_column(ForeignKey("users.id"))
-    title: Mapped[str]
-    description: Mapped[str]
-    image_filename: Mapped[Optional[str]]
+    content: Mapped[str]
+    image_url: Mapped[Optional[str]]
 
     user = relationship("User", back_populates="posts")
     likes: Mapped[List["PostLike"]] = relationship(cascade="all, delete")
     messages: Mapped[List["PostComment"]] = relationship(cascade="all, delete")
     saves: Mapped[List["PostSaved"]] = relationship(cascade="all, delete")
+
+    def to_dict(self):
+        return super().to_dict() | {
+            "user_id": self.user_id,
+            "content": self.content,
+            "image_url": self.image_url,
+            "likes": [like.to_dict() for like in self.likes],
+            "messages": [message.to_dict() for message in self.messages],
+            "saves": [save.to_dict() for save in self.saves],
+        }
 
 
 class PostLike(Base):
@@ -90,6 +100,12 @@ class PostLike(Base):
     user_id: Mapped[str] = mapped_column(ForeignKey("users.id"))
 
     post = relationship("Post", back_populates="likes")
+
+    def to_dict(self):
+        return super().to_dict() | {
+            "post_id": self.post_id,
+            "user_id": self.user_id,
+        }
 
 
 class PostComment(Base):
@@ -103,6 +119,14 @@ class PostComment(Base):
     post = relationship("Post", back_populates="messages")
     user = relationship("User", back_populates="comments")
 
+    def to_dict(self):
+        return super().to_dict() | {
+            "message": self.message,
+            "post_id": self.post_id,
+            "user_id": self.user_id,
+        }
+
+
 class PostSaved(Base):
     __tablename__ = "post_save"
 
@@ -111,6 +135,12 @@ class PostSaved(Base):
 
     post = relationship("Post", back_populates="saves")
     user = relationship("User", back_populates="saved_posts")
+
+    def to_dict(self):
+        return super().to_dict() | {
+            "post_id": self.post_id,
+            "user_id": self.user_id,
+        }
 
 
 class Task(Base):

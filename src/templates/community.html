@@ -1,146 +1,112 @@
 {% extends "base.html" %}
 
 {% block body %}
-<div class="container mt-4" style="max-width: 550px">
-  <h1 class="text-center text-secondary mb-4">Welcome to the Community site</h1>
-  <div class="position-fixed bottom-0 end-0 p-3">
-    <a href="{{ url_for('community_post') }}" class="btn btn-success btn-lg">Add a Post</a>
-  </div>
+<div class="container my-4 d-flex flex-column align-items-center gap-3">
+
+  <a class="btn btn-primary position-absolute bottom-0 end-0 mb-4 me-4" href="{{ url_for('community_post') }}">
+    <i class="fa-solid fa-plus"></i>
+    <span>New Post</span>
+  </a>
 
   {% for post in posts %}
-  <div class="card mb-4 shadow-sm" style="min-height: 200px">
-    <div class="card-body">
-      <div class="d-flex justify-content-between align-items-center mb-3">
-        <h5 class="card-title text-primary">{{ post.user.name }}</h5>
-        <div class="btn-group position-relative">
-          <!-- follow button still doing -->
-          <form action="{{ url_for('toggle_follow', user_id=post.user_id) }}" method="POST"
-            id="follow-form-{{ post.user_id }}">
-            <button
-              class="follow-btn btn {{ 'btn-success' if is_followed(post.user.followings, post.user_id, user_id) else 'btn-danger' }}"
-              type="button">
-              {{ 'Followed' if is_followed(post.user.followings, post.user_id, user_id) else 'Follow' }}
-              <i id="follow-icon-{{ post.user_id }}"
-                class="{{ 'text-danger' if is_followed(post.user.followings, post.user_id, user_id) else '' }}"></i>
-            </button>
-          </form>
-
-          <button class="btn btn-sm btn-outline-secondary dots-btn">
-            &#x22EE;
-          </button>
-          <div class="dropdown-menu dropdown-menu-right position-absolute" style="display: none">
-            {% if post.user_id == user_id %}
-            <a href="{{ url_for('update_post', post_id=post.id) }}" class="dropdown-item">Update</a>
-            <form action="{{ url_for('delete_post', post_id=post.id) }}" method="POST" class="m-0">
-              <button type="submit" class="dropdown-item text-danger">
-                Delete
-              </button>
-            </form>
-            {% endif %}
-            <a href="{{ url_for('community_saved') }}" class="dropdown-item">View saved</a>
-          </div>
-        </div>
+  <div class="card shadow" style="width: 600px;">
+    <!-- Header -->
+    <div class="card-body d-flex justify-content-between align-items-center">
+      <h5 class="card-title m-0">{{ post.user.name }}</h5>
+      {% if post.user_id == user_id %}
+      <div class="btn-group">
+        <a class="btn btn-warning" href="{{ url_for('community_edit', id=post.id) }}">
+          Edit
+        </a>
+        <a class="btn btn-danger" href="{{ url_for('community_delete', post_id=post.id) }}">
+          Delete
+        </a>
       </div>
+      {% else %}
+      <form method="post" action="{{ url_for('toggle_follow', user_id=post.user_id) }}">
+        <button class="follow-btn btn {{ 'btn-primary' if is_followed(post.user.followings, post.user_id, user_id) else 'btn-secondary' }}" type="button">
+          {{ 'Followed' if is_followed(post.user.followings, post.user_id, user_id) else 'Follow' }}
+        </button>
+      </form>
+      {% endif %}
+    </div>
 
-      {% if post.image_filename %}
-      <img src="{{ url_for('static', filename='uploads/' + post.image_filename) }}" class="img-fluid rounded mb-4 w-100"
-        alt="Post Image" />
+    <!-- Body -->
+    <div>
+      {% if post.image_url %}
+      <img class="img-fluid" src="{{ post.image_url }}" alt="Image" />
+      {% endif %}
+    </div>
 
-      <div class="d-flex justify-content-between">
-        <!-- Like Icon done  -->
-        <form action="{{ url_for('toggle_like', post_id=post.id) }}" method="POST" id="like-form-{{ post.id }}">
-          <div>{{ liked }}</div>
-          <button class="btn {{ 'btn-success' if is_liked(post.likes, user_id) else 'btn-danger' }}" type="submit"
-            onclick="() => toggleLike(event, {{ post.id }})">
-            <i id="like-icon-{{ post.id }}" class="fa-solid fa-heart {{ 'text-danger' if post.is_liked else '' }}"></i>
-            {{ len(post.likes) }}
-          </button>
-        </form>
+    <!-- Caption -->
+    <div class="card-body">
+      {{ post.content }}
+    </div>
 
-        <!-- Comment Icon still doing -->
-        <form action="{{ url_for('post_comment', post_id=post.id) }}" method="POST" id="like-form-{{ post.id }}">
-          <button type="button" class=" btn {{ 'btn-success'}}" type="submit"
-            onclick="() => toggleLike(event, {{ post.id }})" data-bs-toggle="modal" data-bs-target="#exampleModal">
-            <i id="like-icon-{{ post.id }}"
-              class="fa-solid fa-comment {{ 'text-danger' if post.is_liked else '' }}"></i>
-            {{ len(post.messages) }}
-          </button>
+    <!-- Actions -->
+    <div class="card-body d-flex justify-content-between">
+      <!-- Like  -->
+      <form method="post" action="{{ url_for('toggle_like', post_id=post.id) }}">
+        <button class="btn {{ 'btn-primary' if is_liked(post.likes, user_id) else 'btn-secondary' }}" type="submit" onclick="() => toggleLike(event, {{ post.id }})">
+          <i class="fa-solid fa-heart"></i>
+          <span>{{ len(post.likes) }}</span>
+        </button>
+      </form>
 
-          <!-- Modal -->
-          <div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel"
-            aria-hidden="true">
-            <div class="modal-dialog modal-lg">
-              <div class="modal-content">
-                <div class="modal-header">
-                  <h1 class="modal-title fs-5" id="exampleModalLabel">
-                    <p><strong>{{post.user.username}}</strong>: {{post.description}}</p>
-                  </h1>
-                  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                </div>
-                <div class="modal-body">
-                  <!-- Bootstrap Grid -->
-                  <div class="row">
-                    <!-- Post Content (Left Column) -->
-                    <div class="col-md-7 border-end pe-4">
-                      <div class="post-content">
-                        <img src="{{ url_for('static', filename='uploads/' + post.image_filename) }}"
-                          class="img-fluid rounded mb-4 w-100" alt="Post Image" />
-                      </div>
-                    </div>
+      <!-- Comment -->
+      <form action="{{ url_for('post_comment', post_id=post.id) }}" method="post">
+        <button class="btn btn-primary" type="button" data-bs-toggle="modal" data-bs-target="#commentModal">
+          <i class="fa-solid fa-comment"></i>
+          <span>{{ len(post.messages) }}</span>
+        </button>
 
-                    <!-- Comments Section (Right Column) -->
-                    <div class="col-md-5">
-                      <h6>Comments</h6>
-                      <div class="comments-list" style="max-height: 300px; overflow-y: auto;">
-                        <!-- Empty Comments Section -->
-                        {% for message in post.messages %}
-                        <div>
-                          <strong>{{ message.user.username }}</strong>: {{ message.message }}
-                        </div>
-                        {% endfor %}
-                      </div>
-                    </div>
+        <!-- Comment Modal -->
+        <div id="commentModal" class="modal fade" tabindex="-1">
+          <div class="modal-dialog">
+            <div class="modal-content">
+              <div class="modal-header">
+                <h5 class="modal-title">
+                  Comments
+                </h5>
+                <button class="btn-close" type="button" data-bs-dismiss="modal"></button>
+              </div>
+              <div class="modal-body">
+                <div class="d-flex flex-column gap-2">
+                  {% for message in post.messages %}
+                  <div>
+                    <strong>{{ message.user.name }}</strong>: {{ message.message }}
                   </div>
+                  {% endfor %}
                 </div>
-                <div class="modal-footer">
-                  <!-- Comment Form -->
-                  <form class="w-100 d-flex" action="{{ url_for('post_comment', post_id=post.id) }}" method="POST"
-                    id="like-form-{{ post.id }}">
-                    <input type="text" class="form-control me-2" placeholder="Write a comment..." name="comment_text" />
-                    <button type="submit" class="comment-btn btn btn-primary">
-                      Post
-                    </button>
-                  </form>
-                </div>
+              </div>
+              <div class="modal-footer">
+                <form class="d-flex" method="post" action="{{ url_for('post_comment', post_id=post.id) }}">
+                  <input class="w-auto form-control flex-fill" type="text" name="comment_text" placeholder="Write a comment..." />
+                  <button class="comment-btn btn btn-primary" type="submit">
+                    Post
+                  </button>
+                </form>
               </div>
             </div>
           </div>
+        </div>
+      </form>
 
+      <!-- Share -->
+      <form>
+        <button class="btn btn-primary" type="submit">
+          <i class="fa-solid fa-share"></i>
+          <span>{{ len(post.shares) }}</span>
+        </button>
+      </form>
 
-        </form>
-
-        <!-- Share Icon still doing  -->
-        <form action="{{ url_for('toggle_like', post_id=post.id) }}" method="POST" id="like-form-{{ post.id }}">
-          <div>{{ liked }}</div>
-          <button class="btn {{ 'btn-success'}}" type="submit" onclick="() => toggleLike(event, {{ post.id }})">
-            <i id="like-icon-{{ post.id }}" class="fa-solid fa-share {{ 'text-danger' if post.is_liked else '' }}"></i>
-            {{ len(post.likes) }}
-          </button>
-        </form>
-
-        <!-- Save Icon still doing -->
-        <form action="{{ url_for('toggle_save', post_id=post.id) }}" method="POST" id="like-form-{{ post.id }}">
-          <button class="btn {{ 'btn-success' if is_saved(post.saves, user_id) else 'btn-danger'}}" type="submit"
-            onclick="()">
-            <i class="fa-solid fa-floppy-disk"></i>
-            {{ len(post.saves) }}
-          </button>
-        </form>
-      </div>
-      {% endif %}
-      <p class="mt-3 text-start">
-        <strong class="text-dark">{{ post.user.username }}: {{ post.description }}</strong>
-      </p>
+      <!-- Save -->
+      <form method="post" action="{{ url_for('toggle_save', post_id=post.id) }}">
+        <button class="btn {{ 'btn-primary' if is_saved(post.saves, user_id) else 'btn-secondary'}}">
+          <i class="fa-solid fa-floppy-disk"></i>
+          <span>{{ len(post.saves) }}</span>
+        </button>
+      </form>
     </div>
   </div>
   {% endfor %}
