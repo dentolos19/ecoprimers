@@ -2,8 +2,10 @@ import uuid
 from datetime import datetime
 from typing import List, Optional
 
-from sqlalchemy import DateTime, ForeignKey, func
+from sqlalchemy import DateTime, Enum, ForeignKey, func
 from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column, relationship
+
+from lib.enums import TransactionType
 
 
 class Base(DeclarativeBase):
@@ -30,13 +32,8 @@ class User(Base):
     birthday: Mapped[Optional[str]]  # TODO: Use datetime
     security: Mapped[Optional[str]]
 
-    posts: Mapped[List["Post"]] = relationship()
-    saved_posts: Mapped[List["PostSaved"]] = relationship()
-    comments: Mapped[List["PostComment"]] = relationship()
-    transactions: Mapped[List["Transaction"]] = relationship()
-
-    followings: Mapped[List["UserFollow"]] = relationship("UserFollow", foreign_keys="UserFollow.user_id")
-    followers: Mapped[List["UserFollow"]] = relationship("UserFollow", foreign_keys="UserFollow.follower_id")
+    followings: Mapped[List["UserFollow"]] = relationship(back_populates="user", foreign_keys="UserFollow.user_id")
+    followers: Mapped[List["UserFollow"]] = relationship(back_populates="follower", foreign_keys="UserFollow.follower_id")
 
 
 class UserFollow(Base):
@@ -45,8 +42,8 @@ class UserFollow(Base):
     user_id: Mapped[str] = mapped_column(ForeignKey("users.id"))
     follower_id: Mapped[str] = mapped_column(ForeignKey("users.id"))
 
-    user = relationship("User", foreign_keys=[user_id], overlaps="followings")
-    follower = relationship("User", foreign_keys=[follower_id], overlaps="followers")
+    user = relationship("User", foreign_keys=[user_id], back_populates="followings")
+    follower = relationship("User", foreign_keys=[follower_id], back_populates="followers")
 
 
 class Event(Base):
@@ -58,7 +55,7 @@ class Event(Base):
     date: Mapped[str]
     image_filename: Mapped[Optional[str]]
 
-    attendees: Mapped[List["EventAttendee"]] = relationship(cascade="all, delete")
+    attendees: Mapped[List["EventAttendee"]] = relationship(back_populates="event", cascade="all, delete")
 
 
 class EventAttendee(Base):
@@ -67,7 +64,8 @@ class EventAttendee(Base):
     event_id: Mapped[str] = mapped_column(ForeignKey("events.id"))
     user_id: Mapped[str] = mapped_column(ForeignKey("users.id"))
 
-    event = relationship("Event", back_populates="attendees")
+    event: Mapped["Event"] = relationship(back_populates="attendees")
+    user: Mapped["User"] = relationship()
 
 
 class Post(Base):
@@ -77,20 +75,10 @@ class Post(Base):
     content: Mapped[str]
     image_url: Mapped[Optional[str]]
 
-    user = relationship("User", back_populates="posts")
-    likes: Mapped[List["PostLike"]] = relationship(cascade="all, delete")
-    messages: Mapped[List["PostComment"]] = relationship(cascade="all, delete")
-    saves: Mapped[List["PostSaved"]] = relationship(cascade="all, delete")
-
-    def to_dict(self):
-        return super().to_dict() | {
-            "user_id": self.user_id,
-            "content": self.content,
-            "image_url": self.image_url,
-            "likes": [like.to_dict() for like in self.likes],
-            "messages": [message.to_dict() for message in self.messages],
-            "saves": [save.to_dict() for save in self.saves],
-        }
+    user: Mapped["User"] = relationship()
+    likes: Mapped[List["PostLike"]] = relationship(back_populates="post", cascade="all, delete")
+    messages: Mapped[List["PostComment"]] = relationship(back_populates="post", cascade="all, delete")
+    saves: Mapped[List["PostSaved"]] = relationship(back_populates="post", cascade="all, delete")
 
 
 class PostLike(Base):
@@ -99,13 +87,8 @@ class PostLike(Base):
     post_id: Mapped[str] = mapped_column(ForeignKey("posts.id"))
     user_id: Mapped[str] = mapped_column(ForeignKey("users.id"))
 
-    post = relationship("Post", back_populates="likes")
-
-    def to_dict(self):
-        return super().to_dict() | {
-            "post_id": self.post_id,
-            "user_id": self.user_id,
-        }
+    post: Mapped["Post"] = relationship(back_populates="likes")
+    user: Mapped["User"] = relationship()
 
 
 class PostComment(Base):
@@ -116,15 +99,8 @@ class PostComment(Base):
     post_id: Mapped[str] = mapped_column(ForeignKey("posts.id"))
     user_id: Mapped[str] = mapped_column(ForeignKey("users.id"))
 
-    post = relationship("Post", back_populates="messages")
-    user = relationship("User", back_populates="comments")
-
-    def to_dict(self):
-        return super().to_dict() | {
-            "message": self.message,
-            "post_id": self.post_id,
-            "user_id": self.user_id,
-        }
+    post: Mapped["Post"] = relationship(back_populates="messages")
+    user: Mapped["User"] = relationship()
 
 
 class PostSaved(Base):
@@ -133,14 +109,8 @@ class PostSaved(Base):
     post_id: Mapped[str] = mapped_column(ForeignKey("posts.id"))
     user_id: Mapped[str] = mapped_column(ForeignKey("users.id"))
 
-    post = relationship("Post", back_populates="saves")
-    user = relationship("User", back_populates="saved_posts")
-
-    def to_dict(self):
-        return super().to_dict() | {
-            "post_id": self.post_id,
-            "user_id": self.user_id,
-        }
+    post: Mapped["Post"] = relationship(back_populates="saves")
+    user: Mapped["User"] = relationship()
 
 
 class Task(Base):
@@ -171,19 +141,11 @@ class Transaction(Base):
     __tablename__ = "transactions"
 
     user_id: Mapped[str] = mapped_column(ForeignKey("users.id"))
-    type: Mapped[str]  # e: "earned" or "redeemed"
-    points: Mapped[int]
-    description: Mapped[str]
+    type: Mapped[TransactionType] = mapped_column(Enum(TransactionType))
+    amount: Mapped[int]
+    description: Mapped[Optional[str]]
 
-    user: Mapped[User] = relationship("User", back_populates="transactions")
-
-    def to_dict(self):
-        base_dict = super().to_dict()
-        base_dict["user_id"] = self.user_id
-        base_dict["type"] = self.type
-        base_dict["points"] = self.points
-        base_dict["description"] = self.description
-        return base_dict
+    user: Mapped[User] = relationship()
 
 
 class Message(Base):
@@ -194,25 +156,16 @@ class Message(Base):
     message: Mapped[str]
     is_read: Mapped[bool] = mapped_column(default=False)
 
-    sender = relationship("User", foreign_keys=[sender_id])
-    receiver = relationship("User", foreign_keys=[receiver_id])
+    sender: Mapped["User"] = relationship(foreign_keys=[sender_id])
+    receiver: Mapped["User"] = relationship(foreign_keys=[receiver_id])
 
     def to_dict(self):
-        base_dict = super().to_dict()
-        base_dict["sender_id"] = self.sender_id
-        base_dict["receiver_id"] = self.receiver_id
-        base_dict["message"] = self.message
-        base_dict["is_read"] = self.is_read
-        return base_dict
-
-
-# NOTE: I think maybe better to move to "Transactions" for all types of transactions (e.g., points, donations, etc.)
-class Donation(Base):
-    __tablename__ = "donations"
-
-    name: Mapped[str]  # TODO: Change to user relationship
-    amount: Mapped[float]
-    date_time: Mapped[datetime]  # NOTE: Don't need use, have "created_at" in base class
+        return super().to_dict() | {
+            "sender": self.sender.to_dict(),
+            "receiver": self.receiver.to_dict(),
+            "message": self.message,
+            "is_read": self.is_read,
+        }
 
 
 class Rooms(Base):

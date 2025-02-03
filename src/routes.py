@@ -33,6 +33,7 @@ def error_notfound(error: Exception):
 
 @app.errorhandler(Exception)
 def error_exception(error: Exception):
+    print(error)
     return render_template("error.html", error=error)
 
 
