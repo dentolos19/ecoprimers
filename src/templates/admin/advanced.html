@@ -11,6 +11,24 @@
 
 {% block abody %}
 <div class="container py-4 gap-2">
+  <form class="card" method="post" action="{{ url_for('admin_advanced_reset_database') }}">
+    <div class="card-body d-flex flex-column">
+      <h5 class="card-title">Reset Database</h5>
+      <p class="card-text flex-fill">Reset the database by dropping all tables and recreating them.</p>
+      <div class="mt-3">
+        <button class="btn btn-primary" type="submit">Reset</button>
+      </div>
+    </div>
+  </form>
+  <form class="card" method="post" action="{{ url_for('admin_advanced_setup_database') }}">
+    <div class="card-body d-flex flex-column">
+      <h5 class="card-title">Setup Database</h5>
+      <p class="card-text flex-fill">Preload database with curated data. Warning, you can only run this once!</p>
+      <div class="mt-3">
+        <button class="btn btn-primary" type="submit">Setup</button>
+      </div>
+    </div>
+  </form>
   <form class="card" method="post" action="{{ url_for('admin_advanced_generate_users') }}">
     <div class="card-body d-flex flex-column">
       <h5 class="card-title">Generate Users</h5>
