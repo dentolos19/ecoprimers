@@ -31,6 +31,7 @@ class User(Base):
 
     posts: Mapped[List["Post"]] = relationship()
     saved_posts: Mapped[List["PostSaved"]] = relationship()
+    comments: Mapped[List["PostComment"]] = relationship()
     transactions: Mapped[List["Transaction"]] = relationship()
     
     followings: Mapped[List["UserFollow"]] = relationship("UserFollow", foreign_keys="UserFollow.user_id")
@@ -100,6 +101,7 @@ class PostComment(Base):
     user_id: Mapped[str] = mapped_column(ForeignKey("users.id")) 
 
     post = relationship("Post", back_populates="messages")
+    user = relationship("User", back_populates="comments")
 
 class PostSaved(Base):
     __tablename__ = "post_save"

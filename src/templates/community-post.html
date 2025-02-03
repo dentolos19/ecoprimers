@@ -40,13 +40,13 @@
 
             <!-- Submit Button -->
             <div class="text-center">
-              <button type="submit" class="btn btn-primary w-100">Post</button>
+              <button type="submit" class="post-btn btn btn-primary w-100">Post</button>
             </div>
           </form>
 
           <!-- Go to Home Link -->
           <div class="text-center mt-3">
-            <a href="{{ url_for('community') }}" class="btn btn-link"
+            <a href="{{ url_for('community') }}" class=" btn btn-link"
               >Go to Home</a
             >
           </div>
@@ -56,4 +56,15 @@
   </div>
 </div>
 
+<script>
+  const PostButtons = document.querySelectorAll("button.post-btn");
+  PostButtons.forEach(element => {
+    element.addEventListener("click", () => {
+      console.log("Hello");
+      confirm("Are you sure you want to Post?");
+      const PostForm = element.closest("form");
+      PostForm.submit();
+    });
+  });
+  </script>
 {% endblock %}

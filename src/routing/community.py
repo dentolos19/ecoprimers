@@ -95,7 +95,7 @@ def update_post(post_id):
 
     if request.method == "POST":
         # Update post content
-        post.content = request.form["content"]
+        post.description = request.form["content"]
 
         # Handle optional image update
         image = request.files.get("image")
