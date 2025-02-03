@@ -33,4 +33,4 @@ def upload(file: FileStorage) -> str:
         generated_name += name[name.rindex(".") :]
 
     file.save(os.path.join(app.config["UPLOAD_FOLDER"], generated_name))
-    return generated_name
+    return "/static/uploads/" + generated_name

@@ -95,11 +95,13 @@ def admin_events_edit(id):
         event_date = request.form["date"]
         event_image = request.files["image"]
 
+        image_url = event.image_filename
+
         if event_image and not allowed_file(event_image.filename):
             flash("Invalid file type! Only images with extensions .png, .jpg, .jpeg, and .gif are allowed.", "danger")
             return redirect(request.url)
-
-        image_url = storage.upload(event_image)
+        elif event_image:
+            image_url = storage.upload(event_image)
 
         event.title = event_title
         event.description = event_description
