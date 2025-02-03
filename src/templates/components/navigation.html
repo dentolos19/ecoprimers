@@ -1,7 +1,10 @@
-<nav class="navbar navbar-expand-md {{ 'bg-secondary-subtle' if admin else 'bg-success-subtle' }}">
+<nav class="navbar navbar-expand-md shadow-sm {{ 'bg-secondary-subtle' if admin else 'bg-body-tertiary' }}">
   <div class="container-fluid">
     <!-- Navigation Brand -->
-    <a class="navbar-brand" href="/">Eco Primers</a>
+    <a class="navbar-brand" href="/">
+      <img class="d-inline-block align-text-top" src="{{ url_for('static', filename='/icon.png') }}" alt="Logo" width="30" height="24">
+      <span class="ms-1">Eco Primers</span>
+    </a>
 
     <!-- Mobile Menu -->
     <button class="navbar-toggler" data-bs-toggle="collapse" data-bs-target="#navigation">
@@ -28,7 +31,6 @@
             Community
           </a>
           <ul class="dropdown-menu">
-            <!-- TODO: Add href to pages -->
             <li><a class="dropdown-item" href="{{ url_for('community') }}">Explore</a></li>
             <li><a class="dropdown-item" href="{{ url_for('messaging') }}">Messaging</a></li>
           </ul>
@@ -50,12 +52,28 @@
           <img class="ratio ratio-1x1" src="https://github.com/shadcn.png" alt="Profile Picture" style="height: 35px; border-radius: 100%;" />
         </a>
         <ul class="dropdown-menu dropdown-menu-end">
-          <li><a class="dropdown-item" href="{{url_for('profile')}}">View Profile</a></li>
+          <li>
+            <a class="dropdown-item" href="{{url_for('profile')}}">View Profile</a>
+          </li>
           {% if is_admin_user %}
-          <li><a class="dropdown-item" href="{{ url_for('admin') }}">Manage Platform</a></li>
+          <li>
+            <a class="dropdown-item" href="{{ url_for('admin') }}">Manage Platform</a>
+          </li>
           {% endif %}
-          <li><hr class="dropdown-divider" /></li>
-          <li><a class="dropdown-item" href="{{ url_for('logout') }}">Logout</a></li>
+          <li>
+            <hr class="dropdown-divider" />
+          </li>
+          <li>
+            <a class="dropdown-item" href="{{ url_for('toggle_dark_mode') }}">
+              {{ 'Disable Dark Mode' if dark_mode_enabled else 'Enable Dark Mode' }}
+            </a>
+          </li>
+          <li>
+            <hr class="dropdown-divider" />
+          </li>
+          <li>
+            <a class="dropdown-item" href="{{ url_for('logout') }}">Logout</a>
+          </li>
         </ul>
         {% else %}
         <!-- Display Login and Sign Up Buttons if user is not logged in -->

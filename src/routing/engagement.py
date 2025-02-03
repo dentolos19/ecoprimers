@@ -1,5 +1,5 @@
 from flask import flash, redirect, render_template, request, session, url_for
-
+import requests
 from lib.database import sql
 from lib.models import Transaction, User
 from main import app
@@ -23,7 +23,10 @@ def rewards():
 @app.route("/engagement/points")
 @require_login
 def points():
-    return render_template("points.html")
+    user_id = session.get("user_id")
+    user = sql.session.query(User).filter_by(id=user_id).first()
+    return render_template("points.html", user=user)
+    
 
 
 @app.route("/add_points", methods=["POST"])
@@ -62,13 +65,30 @@ def add_points():
 
     return redirect(url_for("rewards"))
 
+RECAPTCHA_SECRET_KEY = "6Ldk8skqAAAAAPZgQrYfsfwoOGHQJ5z0q5ZNC4l5"
 
 @app.route("/redeem_reward", methods=["POST"])
 @require_login
 def redeem_reward():
     user_id = session.get("user_id")
-    reward_name = request.form.get("reward_name")  # Reward name from the form
-    reward_cost = int(request.form.get("reward_cost"))  # Reward cost from the form
+    reward_name = request.form.get("reward_name")
+    reward_cost = int(request.form.get("reward_cost"))
+
+    # Verify reCAPTCHA
+    recaptcha_response = request.form.get("g-recaptcha-response")  # Get response from form
+    recaptcha_verify_url = "https://www.google.com/recaptcha/api/siteverify"
+    
+    payload = {
+        "secret": RECAPTCHA_SECRET_KEY,  # Your Google reCAPTCHA secret key
+        "response": recaptcha_response
+    }
+    
+    response = requests.post(recaptcha_verify_url, data=payload)
+    result = response.json()
+
+    if not result.get("success"):
+        flash("reCAPTCHA verification failed. Please try again.", "danger")
+        return redirect(url_for("rewards"))
 
     # Fetch the user
     user = sql.session.query(User).filter_by(id=user_id).first()
@@ -96,6 +116,43 @@ def redeem_reward():
         flash("You do not have enough points to claim this reward!", "danger")
 
     return redirect(url_for("rewards"))
+''' code without the recapthca requirements in the event it fails to work is not needed anymore in this portion
+@app.route("/redeem_reward", methods=["POST"])
+@require_login
+def redeem_reward():
+    user_id = session.get("user_id")
+    reward_name = request.form.get("reward_name")  # Reward name from the form
+    reward_cost = int(request.form.get("reward_cost"))  # Reward cost from the form input label 
+
+    # Fetch the user
+    user = sql.session.query(User).filter_by(id=user_id).first()
+
+    if user and user.points >= reward_cost:
+        try:
+            # Deduct points from user
+            user.points -= reward_cost
+
+            # Log the transaction
+            new_transaction = Transaction(
+                user_id=user_id,
+                type="redeemed",
+                points=reward_cost,
+                description=f"Redeemed {reward_name}",
+            )
+            sql.session.add(new_transaction)
+            sql.session.commit()
+
+            flash(f"Reward '{reward_name}' claimed successfully!", "success")
+        except Exception as e:
+            sql.session.rollback()
+            flash(f"An error occurred: {str(e)}", "danger")
+    else:
+        flash("You do not have enough points to claim this reward!", "danger")
+
+    return redirect(url_for("rewards"))
+
+this is my existing code for reddem reward portion'''
+
 
 
 @app.route("/transactions")

@@ -1,9 +1,11 @@
-import os
+import json
+from datetime import datetime
 
 from flask import flash, redirect, render_template, request, url_for
 from werkzeug.security import generate_password_hash
-from werkzeug.utils import secure_filename
 
+from lib import database, storage
+from lib.ai import agent
 from lib.database import sql
 from lib.models import Event, Product, Transaction, User
 from main import app
@@ -51,26 +53,23 @@ def admin_events_new():
         event_description = request.form["description"]
         event_location = request.form["location"]
         event_date = request.form["date"]
-        image = request.files["image"]
+        event_image = request.files["image"]
 
-        image_filename = None
-        if image and allowed_file(image.filename):
-            # Secure the filename and save it
-            image_filename = secure_filename(image.filename)
-            image.save(os.path.join(app.config["UPLOAD_FOLDER"], image_filename))
+        if event_image and not allowed_file(event_image.filename):
+            flash("Invalid file type! Only images with extensions .png, .jpg, .jpeg, and .gif are allowed.", "danger")
+            return redirect(request.url)
 
+        image_url = storage.upload(event_image)
 
-        # Create an Event object and save it to the database
         new_event = Event(
             title=event_title,
             description=event_description,
             location=event_location,
             date=event_date,
-            image_filename=image_filename,
+            image_filename=image_url,
         )
 
         try:
-            # Add the event to the session and commit it to the database
             sql.session.add(new_event)
             sql.session.commit()
             flash("Event added successfully!", "success")
@@ -94,23 +93,23 @@ def admin_events_edit(id):
         event_description = request.form["description"]
         event_location = request.form["location"]
         event_date = request.form["date"]
-        image = request.files["image"]
+        event_image = request.files["image"]
 
-        image_filename = None
-        if image and allowed_file(image.filename):
-            # Secure the filename and save it
-            image_filename = secure_filename(image.filename)
-            image.save(os.path.join(app.config["UPLOAD_FOLDER"], image_filename))
+        image_url = event.image_filename
 
-        # Update the event object with the new data
+        if event_image and not allowed_file(event_image.filename):
+            flash("Invalid file type! Only images with extensions .png, .jpg, .jpeg, and .gif are allowed.", "danger")
+            return redirect(request.url)
+        elif event_image:
+            image_url = storage.upload(event_image)
+
         event.title = event_title
         event.description = event_description
         event.location = event_location
         event.date = event_date
-        event.image_filename = image_filename
+        event.image_filename = image_url
 
         try:
-            # Commit the changes to the database
             sql.session.commit()
             flash("Event updated successfully!", "success")
         except Exception as e:
@@ -128,7 +127,6 @@ def admin_events_delete(id):
     event = sql.session.query(Event).filter_by(id=id).first()
 
     if request.method == "POST":
-        # Collect data from the form
         event_title = request.form["title"]
 
         if event.title != event_title:
@@ -161,7 +159,7 @@ def admin_users():
 def admin_users_new():
     if request.method == "POST":
         # Collect data from the form
-        user_username = request.form["username"]
+        user_name = request.form["name"]
         user_email = request.form["email"]
         user_password = request.form["password"]
         user_bio = request.form["bio"]
@@ -171,7 +169,7 @@ def admin_users_new():
 
         # Update the user object with the new data
         new_user = User(
-            username=user_username,
+            name=user_name,
             email=user_email,
             password=user_hashed_password,
             bio=user_bio,
@@ -200,14 +198,14 @@ def admin_users_edit(id):
 
     if request.method == "POST":
         # Collect data from the form
-        user_username = request.form["username"]
+        user_name = request.form["name"]
         user_email = request.form["email"]
         user_bio = request.form["bio"]
         user_birthday = request.form["birthday"]
 
         # Update the user object with the new data
         user.email = user_email
-        user.username = user_username
+        user.name = user_name
         user.bio = user_bio
         user.birthday = user_birthday
 
@@ -232,10 +230,10 @@ def admin_users_delete(id):
 
     if request.method == "POST":
         # Collect data from the form
-        user_username = request.form["username"]
+        user_name = request.form["name"]
 
-        if user.username != user_username:
-            flash("The username does not match. Please try again.", "danger")
+        if user.name != user_name:
+            flash("The name does not match. Please try again.", "danger")
             return redirect(url_for("admin_users_delete", id=id))
 
         try:
@@ -350,7 +348,7 @@ def admin_products_delete(id):
 @require_admin
 def admin_transactions():
     # Query all transactions from the database
-    transactions = sql.session.query(Transaction).all()
+    transactions = sql.session.query(Transaction).order_by(Transaction.created_at.desc()).all()
 
     return render_template("admin/transactions.html", transactions=transactions)
 
@@ -390,3 +388,70 @@ def admin_transactions_delete(id):
         return redirect(url_for("admin_transactions"))
 
     return render_template("admin/transactions-delete.html", transaction=transaction)
+
+
+@app.route("/admin/advanced")
+def admin_advanced():
+    return render_template("admin/advanced.html")
+
+
+@app.route("/admin/advanced/database/reset", methods=["POST"])
+def admin_advanced_reset_database():
+    try:
+        database.reset()
+        flash("Resetted the database successfully!", "success")
+    except Exception as e:
+        flash(f"An error occurred while resetting the database! {str(e)}", "danger")
+
+    return redirect(url_for("admin_advanced"))
+
+
+@app.route("/admin/advanced/database/setup", methods=["POST"])
+def admin_advanced_setup_database():
+    try:
+        database.setup()
+        flash("Set up the database successfully!", "success")
+    except Exception as e:
+        flash(f"An error occurred while setting up the database! {str(e)}", "danger")
+
+    return redirect(url_for("admin_advanced"))
+
+
+@app.route("/admin/advanced/generate/users", methods=["POST"])
+def admin_advanced_generate_users():
+    # Collect data from the form
+    count = int(request.form["count"])
+
+    # Get prompt
+    with open("src/static/generateusers.txt", "r") as file:
+        prompt = file.read().format(count=count, today=datetime.now().strftime("%Y-%m-%d"))
+
+    # Generate response
+    response = agent.generate_content(prompt, generation_config={"response_mime_type": "application/json"})
+    data = json.loads(response.candidates[0].content.parts[0].text.strip())
+
+    # Parse response
+    users = data["users"]
+    for user in users:
+        user["created_at"] = datetime.strptime(user["created_at"], "%Y-%m-%dT%H:%M:%S")
+
+    try:
+        # Add the users to the database
+        sql.session.bulk_insert_mappings(User, users)
+        sql.session.commit()
+        flash("Users generated successfully!", "success")
+    except Exception as e:
+        sql.session.rollback()
+        flash(f"An error occurred while generating users! {str(e)}", "danger")
+
+    return redirect(url_for("admin_advanced"))
+
+
+@app.route("/admin/advanced/generate/transactions", methods=["POST"])
+def admin_advanced_generate_transactions():
+    pass
+
+
+@app.route("/admin/advanced/error")
+def admin_advanced_error():
+    raise Exception("An error occurred while generating transactions! Please try again.")

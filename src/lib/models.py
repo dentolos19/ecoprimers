@@ -24,27 +24,28 @@ class User(Base):
 
     email: Mapped[str] = mapped_column(unique=True)
     password: Mapped[str]
-    username: Mapped[str]  # TODO: Rename to "name"
+    name: Mapped[str]
     points: Mapped[int] = mapped_column(default=0)
     bio: Mapped[Optional[str]]
     birthday: Mapped[Optional[str]]  # TODO: Use datetime
+    security: Mapped[Optional[str]]
 
     posts: Mapped[List["Post"]] = relationship()
     saved_posts: Mapped[List["PostSaved"]] = relationship()
     comments: Mapped[List["PostComment"]] = relationship()
     transactions: Mapped[List["Transaction"]] = relationship()
-    
+
     followings: Mapped[List["UserFollow"]] = relationship("UserFollow", foreign_keys="UserFollow.user_id")
     followers: Mapped[List["UserFollow"]] = relationship("UserFollow", foreign_keys="UserFollow.follower_id")
-    
+
 class UserFollow(Base):
     __tablename__ = "user_follows"
 
     user_id: Mapped[str] = mapped_column(ForeignKey("users.id"))
     follower_id: Mapped[str] = mapped_column(ForeignKey("users.id"))
-    
-    user = relationship("User", foreign_keys=[user_id])
-    follower = relationship("User", foreign_keys=[follower_id])
+
+    user = relationship("User", foreign_keys=[user_id], overlaps="followings")
+    follower = relationship("User", foreign_keys=[follower_id], overlaps="followers")
 
 
 class Event(Base):
@@ -56,7 +57,7 @@ class Event(Base):
     date: Mapped[str]
     image_filename: Mapped[Optional[str]]
 
-    attendees: Mapped[List["EventAttendee"]] = relationship()
+    attendees: Mapped[List["EventAttendee"]] = relationship(cascade="all, delete")
 
 
 class EventAttendee(Base):
@@ -64,7 +65,6 @@ class EventAttendee(Base):
 
     event_id: Mapped[str] = mapped_column(ForeignKey("events.id"))
     user_id: Mapped[str] = mapped_column(ForeignKey("users.id"))
-    status: Mapped[str]  # e: "interested" or "withdrawn"
 
     event = relationship("Event", back_populates="attendees")
 
@@ -78,7 +78,7 @@ class Post(Base):
     image_filename: Mapped[Optional[str]]
 
     user = relationship("User", back_populates="posts")
-    likes: Mapped[List["PostLike"]] = relationship(cascade="all, delete")   
+    likes: Mapped[List["PostLike"]] = relationship(cascade="all, delete")
     messages: Mapped[List["PostComment"]] = relationship(cascade="all, delete")
     saves: Mapped[List["PostSaved"]] = relationship(cascade="all, delete")
 
@@ -98,7 +98,7 @@ class PostComment(Base):
     message: Mapped[str]
 
     post_id: Mapped[str] = mapped_column(ForeignKey("posts.id"))
-    user_id: Mapped[str] = mapped_column(ForeignKey("users.id")) 
+    user_id: Mapped[str] = mapped_column(ForeignKey("users.id"))
 
     post = relationship("Post", back_populates="messages")
     user = relationship("User", back_populates="comments")
@@ -164,6 +164,9 @@ class Message(Base):
     message: Mapped[str]
     is_read: Mapped[bool] = mapped_column(default=False)
 
+    sender = relationship("User", foreign_keys=[sender_id])
+    receiver = relationship("User", foreign_keys=[receiver_id])
+
     def to_dict(self):
         base_dict = super().to_dict()
         base_dict["sender_id"] = self.sender_id
@@ -177,12 +180,12 @@ class Message(Base):
 class Donation(Base):
     __tablename__ = "donations"
 
-    username: Mapped[str]  # TODO: Change to user relationship
+    name: Mapped[str]  # TODO: Change to user relationship
     amount: Mapped[float]
     date_time: Mapped[datetime]  # NOTE: Don't need use, have "created_at" in base class
 
 
-class Room(Base):
+class Rooms(Base):
     __tablename__ = "rooms"
 
     user_1: Mapped[str] = mapped_column(ForeignKey("users.id"))

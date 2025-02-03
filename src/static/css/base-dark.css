@@ -1,0 +1,7 @@
+*[class^="fa-"] {
+  color: white;
+}
+
+.admin > .navigation .item:hover {
+  background-color: #1a1a1a;
+}

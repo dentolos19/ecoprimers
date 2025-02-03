@@ -1,6 +1,7 @@
 @import url("https://cdnjs.cloudflare.com/ajax/libs/normalize/8.0.1/normalize.min.css");
 
-html, body {
+html,
+body {
   height: 100dvh;
 }
 
@@ -43,11 +44,11 @@ html, body {
   overflow: auto;
 }
 
-.header{
-    background-color: #475841 !important;
+.header {
+  background-color: #475841 !important;
 }
 
 .hover-item:hover {
-  transform: scale(1.02);  
-  transition: transform 0.3s ease-in-out; 
+  transform: scale(1.02);
+  transition: transform 0.3s ease-in-out;
 }

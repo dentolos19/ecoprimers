@@ -1,7 +1,7 @@
 {% extends "base.html" %}
 
 {% block body %}
-<div class="container mt-5" style="max-width: 550px">
+<div class="container mt-4" style="max-width: 550px">
   <h1 class="text-center text-secondary mb-4">Welcome to the Community site</h1>
   <div class="position-fixed bottom-0 end-0 p-3">
     <a href="{{ url_for('community_post') }}" class="btn btn-success btn-lg">Add a Post</a>
@@ -11,20 +11,19 @@
   <div class="card mb-4 shadow-sm" style="min-height: 200px">
     <div class="card-body">
       <div class="d-flex justify-content-between align-items-center mb-3">
-        <h5 class="card-title text-primary">{{ post.user.username }}</h5>
+        <h5 class="card-title text-primary">{{ post.user.name }}</h5>
         <div class="btn-group position-relative">
           <!-- follow button still doing -->
-<form action="{{ url_for('toggle_follow', user_id=post.user_id) }}" method="POST" 
-      id="follow-form-{{ post.user_id }}">
-    <button
-        class="follow-btn btn {{ 'btn-success' if is_followed(post.user.followings, post.user_id, user_id) else 'btn-danger' }}"
-        type="button"
-        >
-        {{ 'Followed' if is_followed(post.user.followings, post.user_id, user_id) else 'Follow' }}
-        <i id="follow-icon-{{ post.user_id }}"
-           class="{{ 'text-danger' if is_followed(post.user.followings, post.user_id, user_id) else '' }}"></i>
-    </button>
-</form>
+          <form action="{{ url_for('toggle_follow', user_id=post.user_id) }}" method="POST"
+            id="follow-form-{{ post.user_id }}">
+            <button
+              class="follow-btn btn {{ 'btn-success' if is_followed(post.user.followings, post.user_id, user_id) else 'btn-danger' }}"
+              type="button">
+              {{ 'Followed' if is_followed(post.user.followings, post.user_id, user_id) else 'Follow' }}
+              <i id="follow-icon-{{ post.user_id }}"
+                class="{{ 'text-danger' if is_followed(post.user.followings, post.user_id, user_id) else '' }}"></i>
+            </button>
+          </form>
 
           <button class="btn btn-sm btn-outline-secondary dots-btn">
             &#x22EE;
@@ -93,7 +92,7 @@
                     <div class="col-md-5">
                       <h6>Comments</h6>
                       <div class="comments-list" style="max-height: 300px; overflow-y: auto;">
-                        <!-- Empty Comments Section -->         
+                        <!-- Empty Comments Section -->
                         {% for message in post.messages %}
                         <div>
                           <strong>{{ message.user.username }}</strong>: {{ message.message }}

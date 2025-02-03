@@ -5,45 +5,53 @@
 {% endblock %}
 
 {% block scripts %}
+<script>
+    if ( window.history.replaceState ) {
+        window.history.replaceState( null, null, window.location.href );
+    }
+</script>
 <script src="https://cdn.socket.io/4.0.0/socket.io.min.js"></script>
 <script src="{{ url_for('static', filename='js/messages.js') }}"></script>
 {% endblock %}
 
 {% block body %}
-<div id="users">
+<div id="users" class="list-group">
+    <form method="get" action="{{ url_for('search_messages') }}">
+        <input type="text" class="form-control" name="search_query" id="search-query" required placeholder="Search for a message">
+    </form>
     {% for user in users %}
         {% if sender_id != user.id %}
-            <a class="user" href="{{ url_for('messaging', receiver_id=user.id) }}">
+        <a class="list-group-item list-group-item-action d-flex gap-3 py-3 {{user.id}}" href="{{ url_for('messaging', receiver_id=user.id) }}">
                 <div class="initials">
-                    <img class="ratio ratio-1x1" src="https://github.com/shadcn.png" alt="Profile Picture" />
+                    <img class="ratio ratio-1x1 rounded-circle flex-shrink-0" src="https://github.com/shadcn.png" alt="Profile Picture" width="32" height="32" />
                 </div>
-                <div class="user-info">
-                    <div class="user-info">
-                        <h2 class="name">{{ user.username }}</h2>
-                        <p class="status">Read sample</p>
-                    </div>
+                <div class="user-info w-100 justify-content-between">
+                    <h5 class="mb-1">{{ user.name }}</h5>
+                    <small>Read sample</small>
                 </div>
             </a>
         {% endif %}
-   {% endfor %}
+    {% endfor %}
 </div>
 
 {% if receiver_id %}
-<div id = "chat-scape">
-    <div class="message-space">
-    </div>
-    <div class = "input space">
-        <form method="POST" action="{{ url_for('messaging', receiver_id=receiver_id) }}">
+<div id="chat-scape" class="card">
+    <div class="card-body">
+        <div class="message-space">
+        </div>
+        <div class="input-group mt-3">
             <input type="hidden" name="receiver-id" id="receiver-id" value="{{ receiver_id }}">
             <input type="hidden" name="sender-id" id="sender-id" value="{{ sender_id }}">
-            <input type="text" name="message" id="message" placeholder="Enter message here" required>
-            <button type="submit" id="send-message">Send</button>
-        </form>
+            <input type="text" class="form-control" name="message" id="message" placeholder="Enter message here" required>
+            <button class="btn btn-primary" type="submit" id="send-message" onclick="sendMessage()">Send</button>
+        </div>
     </div>
 </div>
 {% else %}
-<div>
-    asds
+<div class="card">
+    <div class="card-body">
+        asds
+    </div>
 </div>
 {% endif %}
 {% endblock %}

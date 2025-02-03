@@ -3,8 +3,8 @@ from importlib import import_module
 
 import stripe
 from flask import flash, redirect, render_template, request, session, url_for
-from werkzeug.security import check_password_hash, generate_password_hash
 
+from lib import database
 from lib.database import sql
 from lib.models import Event, EventAttendee, User
 from main import app
@@ -13,11 +13,41 @@ from utils import check_admin_status, check_logged_in, require_login
 
 @app.context_processor
 def init():
-    utils = import_module("utils")
-    current_date = date.today().isoformat()
-    is_logged_in = check_logged_in()
-    is_admin_user = check_admin_status()
-    return dict(any=any, len=len, utils=utils, current_date=current_date, is_logged_in=is_logged_in, is_admin_user=is_admin_user)
+    return {
+        "any": any,
+        "len": len,
+        "range": range,
+        "enumerate": enumerate,
+        "utils": import_module("utils"),
+        "current_date": date.today().isoformat(),
+        "is_logged_in": check_logged_in(),
+        "is_admin_user": check_admin_status(),
+        "dark_mode_enabled": session.get("dark_mode", True),
+    }
+
+
+@app.errorhandler(404)
+def error_notfound(ex):
+    return render_template("notfound.html", ex=ex)
+
+
+@app.errorhandler(Exception)
+def error_exception(ex):
+    return render_template("error.html", ex=ex)
+
+
+@app.route("/error/reset", methods=["POST"])
+def error_reset():
+    database.reset()
+    flash("Database reset successfully!", "success")
+    return redirect("/")
+
+
+@app.route("/functions/darkmode")
+def toggle_dark_mode():
+    session["dark_mode"] = not session.get("dark_mode", True)
+    print(session["dark_mode"])
+    return redirect(request.referrer)
 
 
 @app.route("/")
@@ -27,12 +57,9 @@ def home():
 
 
 @app.route("/profile")
+@require_login
 def profile():
     user_id = session.get("user_id")
-    if not user_id:
-        return redirect("/login")
-
-    # Query the user from the database
     user = sql.session.query(User).filter(User.id == user_id).first()
 
     if not user:
@@ -42,18 +69,17 @@ def profile():
 
 
 @app.route("/edit_profile", methods=["GET", "POST"])
+@require_login
 def edit_profile():
     user_id = session.get("user_id")
-    if not user_id:
-        return redirect("/login")
-
     user = sql.session.query(User).filter(User.id == user_id).first()
 
     if request.method == "POST":
         user.email = request.form["email"]
-        user.username = request.form["username"]
+        user.name = request.form["name"]
         user.bio = request.form["bio"]
         user.birthday = request.form["birthday"]
+        user.security = request.form["security"]  # Update security question
 
         try:
             sql.session.commit()
@@ -61,85 +87,10 @@ def edit_profile():
             return redirect("/profile")
         except Exception as e:
             if "unique constraint" in str(e).lower():
-                flash("Error! Username or email already exists.", "danger")
+                flash("Error! Email already exists.", "danger")
             sql.session.rollback()
 
     return render_template("edit-profile.html", user=user)
-
-
-@app.route("/login", methods=["GET", "POST"])
-def login():
-    # Check if the user is already logged in
-    if "user_id" in session:
-        flash("You're already logged in!", "danger")
-        return redirect(url_for("home"))
-
-    if request.method == "POST":
-        email = request.form["email"]
-        password = request.form["password"]
-
-        # Get the user from the database
-        user = sql.session.query(User).filter_by(email=email).first()
-
-        # Check if user exists and password matches
-        if user and check_password_hash(user.password, password):
-            # Store user ID in session to keep the user logged in
-            session["user_id"] = user.id
-            session["user_email"] = user.email  # Store the email in the session
-
-            # Check the email domain
-            if user.email.endswith("@mymail.nyp.edu.sg"):
-                flash("Admin login successful!", "success")
-                return redirect(url_for("admin"))
-            else:
-                flash("Login successful!", "success")
-                return redirect(url_for("home"))
-        else:
-            flash("Invalid email or password. Please try again.", "danger")
-
-    return render_template("login.html")
-
-
-@app.route("/signup", methods=["GET", "POST"])
-def signup():
-    if request.method == "POST":
-        email = request.form["email"]
-        username = request.form["username"]
-        password = request.form["password"]
-
-        bio = request.form["bio"]
-        birthday = request.form["birthday"]
-
-        # Hash the password
-        hashed_password = generate_password_hash(password, method="pbkdf2:sha1")
-
-        # Create a new user
-        new_user = User(
-            email=email,
-            username=username,
-            password=hashed_password,
-            bio=bio,
-            birthday=birthday,
-        )
-
-        try:
-            # Add the new user to the database
-            sql.session.add(new_user)
-            sql.session.commit()
-            flash("Sign up successful! You can now log in.", "success")
-            return redirect("/login")
-        except Exception as e:
-            if "unique constraint" in str(e).lower():
-                flash("Error! Username or email already exists.", "danger")
-            sql.session.rollback()  # Rollback if there's an error
-    return render_template("signup.html")
-
-
-@app.route("/logout")
-def logout():
-    session.clear()  # Clear all session data
-    flash("You've been logged out successfully.", "success")
-    return redirect(url_for("home"))
 
 
 @app.route("/events")
@@ -247,16 +198,41 @@ def event_signup():
             sql.session.commit()
             flash("You have successfully signed up for the event!", "success")
             return redirect(url_for("event_info", id=event_id))
-        except Exception:
+        except Exception as e:
             sql.session.rollback()
-            flash("Error signing up for the event. Please try again.", "danger")
+            flash(f"Error signing up for the event. Error: {e}", "danger")
 
     return render_template("event-signup.html", event=event, user=user)
 
 
+@app.route("/event/withdraw", methods=["POST"])
+@require_login
+def event_withdraw():
+    event_id = request.form.get("event_id")
+    user_id = session.get("user_id")
+
+    attendee = sql.session.query(EventAttendee).filter_by(event_id=event_id, user_id=user_id).first()
+    if not attendee:
+        flash("You are not signed up for this event.", "info")
+        return redirect(url_for("event_info", id=event_id))
+
+    try:
+        sql.session.delete(attendee)
+        sql.session.commit()
+        flash("You have successfully withdrawn from the event.", "success")
+    except Exception as e:
+        sql.session.rollback()
+        flash(f"Error withdrawing from the event. Error: {e}", "danger")
+
+    return redirect(url_for("event_info", id=event_id))
+
+
 from routing.admin import *
+from routing.admin_api import *
 from routing.auth import *
 from routing.chat import *
+from routing.chat_api import *
 from routing.community import *
 from routing.engagement import *
 from routing.messaging import *
+from routing.messaging_api import *

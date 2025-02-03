@@ -1,7 +1,7 @@
 import os
 
 from flask import Flask
-from flask_migrate import Migrate
+from flask import session as flask_session
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy.orm import Session
 from werkzeug.security import generate_password_hash
@@ -11,14 +11,12 @@ from lib.models import Base, Event, Product, User
 initialized: bool = False
 sql: SQLAlchemy = None
 session: Session = None
-migrate: Migrate = None
 
 
 def init(app: Flask, local: bool = True):
     global initialized
     global sql
     global session
-    global migrate
 
     # Skip if database session is already initialized
     if initialized:
@@ -65,28 +63,29 @@ def init(app: Flask, local: bool = True):
         with app.app_context():
             sql.create_all()
 
-        # Initializes migration support; use migration script to update the database
-        migrate = Migrate(app, sql)
-
         initialized = True
 
         # Setup the database with initial data
         if first_setup:
-            setup(app, sql)
+            setup()
 
 
-def setup(app: Flask, sql: SQLAlchemy):
+def setup():
+    from main import app
+
+    global sql
+
     with app.app_context():
         sql.session.add(
             User(
-                username="Administrator",
+                name="Administrator",
                 email="admin@ecoprimers.app",
                 password=generate_password_hash("admin", method="pbkdf2:sha1"),
             )
         )
         sql.session.add(
             User(
-                username="Dennise Duck",
+                name="Dennise Duck",
                 email="dennise@duck.com",
                 password=generate_password_hash("Dennise!123", method="pbkdf2:sha1"),
             )
@@ -94,3 +93,16 @@ def setup(app: Flask, sql: SQLAlchemy):
         sql.session.add(Event(title="Cleaning Day", description="Todo", location="Chinatown", date="2025-03-01"))
         sql.session.add(Product(name="Reusable Cup", points=200, stock=50))
         sql.session.commit()
+
+
+def reset():
+    from main import app
+
+    global sql
+
+    with app.app_context():
+        sql.drop_all()
+        sql.create_all()
+
+    # Clears the current session; logs out the current user
+    flask_session.clear()
