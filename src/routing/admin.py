@@ -66,7 +66,7 @@ def admin_events_new():
             description=event_description,
             location=event_location,
             date=event_date,
-            image_filename=image_url,
+            image_url=image_url,
         )
 
         try:
@@ -95,7 +95,7 @@ def admin_events_edit(id):
         event_date = request.form["date"]
         event_image = request.files["image"]
 
-        image_url = event.image_filename
+        image_url = event.image_url
 
         if event_image and not allowed_file(event_image.filename):
             flash("Invalid file type! Only images with extensions .png, .jpg, .jpeg, and .gif are allowed.", "danger")
@@ -107,7 +107,7 @@ def admin_events_edit(id):
         event.description = event_description
         event.location = event_location
         event.date = event_date
-        event.image_filename = image_url
+        event.image_url = image_url
 
         try:
             sql.session.commit()
@@ -263,14 +263,23 @@ def admin_products_new():
     if request.method == "POST":
         # Collect data from the form
         product_name = request.form["name"]
+        product_description = request.form["description"]
         product_points = request.form["points"]
         product_stock = request.form["stock"]
+        product_image = request.files["image"]
+
+        image_url = None
+
+        if product_image and allowed_file(product_image.filename):
+            image_url = storage.upload(product_image)
 
         # Create a Product object and save it to the database
         new_product = Product(
             name=product_name,
+            description=product_description,
             points=product_points,
             stock=product_stock,
+            image_url=image_url,
         )
 
         try:
@@ -296,13 +305,22 @@ def admin_products_edit(id):
     if request.method == "POST":
         # Collect data from the form
         product_name = request.form["name"]
+        product_description = request.form["description"]
         product_points = request.form["points"]
         product_stock = request.form["stock"]
+        product_image = request.files["image"]
+
+        image_url = product.image_url
+
+        if product_image and allowed_file(product_image.filename):
+            image_url = storage.upload(product_image)
 
         # Update the product object with the new data
         product.name = product_name
+        product.description = product_description
         product.points = product_points
         product.stock = product_stock
+        product.image_url = image_url
 
         try:
             # Commit the changes to the database
