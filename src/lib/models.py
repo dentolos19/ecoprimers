@@ -161,8 +161,8 @@ class Message(Base):
 
     def to_dict(self):
         return super().to_dict() | {
-            "sender": self.sender.to_dict(),
-            "receiver": self.receiver.to_dict(),
+            "sender_id": self.sender_id,
+            "receiver_id": self.receiver_id,
             "message": self.message,
             "is_read": self.is_read,
         }

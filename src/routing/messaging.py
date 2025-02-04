@@ -10,23 +10,23 @@ from utils import require_login
 
 @socket.on("join")
 def on_join(data):
-        room = sql.session.query(Rooms).filter(
-        or_(
-            and_(Rooms.user_1 == session["user_id"], Rooms.user_2 == data.get("receiver_id")),
-            and_(Rooms.user_1 == data.get("receiver_id"), Rooms.user_2 == session["user_id"])
-        )
-        ).first()
+    room = sql.session.query(Rooms).filter(
+    or_(
+        and_(Rooms.user_1 == session["user_id"], Rooms.user_2 == data.get("receiver_id")),
+        and_(Rooms.user_1 == data.get("receiver_id"), Rooms.user_2 == session["user_id"])
+    )
+    ).first()
 
-        if not room:
-            room = Rooms(user_1 = session["user_id"], user_2 = data.get("receiver_id"))
+    if not room:
+        room = Rooms(user_1 = session["user_id"], user_2 = data.get("receiver_id"))
 
-            sql.session.add(room)
-            sql.session.commit()
-            print(f"created room between {room.user_1} and {room.user_2}")
+        sql.session.add(room)
+        sql.session.commit()
+        print(f"created room between {room.user_1} and {room.user_2}")
 
-        join_room(room.id)
+    join_room(room.id)
 
-        print(f"joined room between {room.user_1} and {room.user_2}")
+    print(f"joined room between {room.user_1} and {room.user_2}")
 
 @app.route("/community/messages")
 @app.route("/community/messages/<receiver_id>", methods=["GET", "POST"])
@@ -48,6 +48,19 @@ def handle_send_message(data):
     sender_id = session["user_id"]
     receiver_id = data.get("receiver_id")
     message_content = data.get("message")
+
+    if len(message_content) == 0:
+        return
+
+    empty = True
+
+    for char in message_content:
+        if char != " ":
+            empty = False
+            break
+
+        if empty:
+            return
 
     # Save the message in the database
     message = Message(

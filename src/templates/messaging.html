@@ -6,52 +6,53 @@
 
 {% block scripts %}
 <script>
-    if ( window.history.replaceState ) {
-        window.history.replaceState( null, null, window.location.href );
-    }
+  if (window.history.replaceState) {
+    window.history.replaceState(null, null, window.location.href);
+  }
 </script>
 <script src="https://cdn.socket.io/4.0.0/socket.io.min.js"></script>
 <script src="{{ url_for('static', filename='js/messages.js') }}"></script>
 {% endblock %}
 
 {% block body %}
-<div id="users" class="list-group">
-    <form method="get" action="{{ url_for('search_messages') }}">
-        <input type="text" class="form-control" name="search_query" id="search-query" required placeholder="Search for a message">
+<div class="h-100 d-flex">
+  <div id="users" class="list-group border-end rounded-0">
+    <form class="border-bottom" method="get" action="{{ url_for('search_messages') }}">
+      <input id="search-query" class="form-control rounded-0" type="text" name="search_query" placeholder="Search for a message" required />
     </form>
     {% for user in users %}
-        {% if sender_id != user.id %}
-        <a class="list-group-item list-group-item-action d-flex gap-3 py-3 {{user.id}}" href="{{ url_for('messaging', receiver_id=user.id) }}">
-                <div class="initials">
-                    <img class="ratio ratio-1x1 rounded-circle flex-shrink-0" src="https://github.com/shadcn.png" alt="Profile Picture" width="32" height="32" />
-                </div>
-                <div class="user-info w-100 justify-content-between">
-                    <h5 class="mb-1">{{ user.name }}</h5>
-                    <small>Read sample</small>
-                </div>
-            </a>
-        {% endif %}
+    {% if sender_id != user.id %}
+    <a class="list-group-item list-group-item-action" href="{{ url_for('messaging', receiver_id=user.id) }}">
+      <div class="d-flex gap-3">
+        <div class="initials">
+          <img class="rounded-circle" src="https://github.com/shadcn.png" alt="Profile Picture" width="32" height="32" />
+        </div>
+        <div class="user-info w-100 justify-content-between">
+          <h5 class="mb-1">{{ user.name }}</h5>
+          <small class="text-muted">Read sample</small>
+        </div>
+      </div>
+    </a>
+    {% endif %}
     {% endfor %}
-</div>
+  </div>
 
-{% if receiver_id %}
-<div id="chat-scape" class="card">
-    <div class="card-body">
-        <div class="message-space">
-        </div>
-        <div class="input-group mt-3">
-            <input type="hidden" name="receiver-id" id="receiver-id" value="{{ receiver_id }}">
-            <input type="hidden" name="sender-id" id="sender-id" value="{{ sender_id }}">
-            <input type="text" class="form-control" name="message" id="message" placeholder="Enter message here" required>
-            <button class="btn btn-primary" type="submit" id="send-message" onclick="sendMessage()">Send</button>
-        </div>
+  {% if receiver_id %}
+  <div id="chat-scape">
+    <input id="receiver-id" type="hidden" name="receiver-id" value="{{ receiver_id }}">
+    <input id="sender-id" type="hidden" name="sender-id" value="{{ sender_id }}">
+    <div class="message-space">
+      <!-- To be added by JavaScript -->
     </div>
-</div>
-{% else %}
-<div class="card">
-    <div class="card-body">
-        asds
+    <div class="input-group border-top" style="padding: 1rem 50px;">
+      <input id="message" class="form-control" type="text" name="message" placeholder="Enter message here" required>
+      <button id="send-message" class="btn btn-primary" type="submit" onclick="sendMessage()">Send</button>
     </div>
+  </div>
+  {% else %}
+  <div class="flex-fill d-flex justify-content-center align-items-center">
+    Open a chat to start messaging
+  </div>
+  {% endif %}
 </div>
-{% endif %}
 {% endblock %}
