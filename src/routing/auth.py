@@ -23,7 +23,7 @@ def send_welcome_email(user_email):
         from_email= os.environ.get('MAIL_DEFAULT_SENDER'),  
         to_emails=user_email,
         subject='Welcome to Eco Primers!',
-        html_content='<strong>Thank you for signing up for Eco Primers. We are excited to have you on board!</strong>'
+        html_content='<strong>Thank you for signing up for Eco Primers. We are excited to have you on board!</strong>\n<p>Remember to set up your security code in case you forget your password</p>'
     )
 
     try:
