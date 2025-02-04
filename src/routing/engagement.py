@@ -1,7 +1,9 @@
-from flask import flash, redirect, render_template, request, session, url_for
 import requests
+from flask import flash, redirect, render_template, request, session, url_for
+
 from lib.database import sql
-from lib.models import Transaction, User
+from lib.enums import TransactionType
+from lib.models import Product, Transaction, User
 from main import app
 from utils import require_login
 
@@ -17,7 +19,8 @@ def tasks():
 def rewards():
     user_id = session.get("user_id")
     user = sql.session.query(User).filter_by(id=user_id).first()
-    return render_template("rewards2.html", user=user)
+    products = sql.session.query(Product).all()
+    return render_template("rewards2.html", user=user, products=products)
 
 
 @app.route("/engagement/points")
@@ -26,7 +29,6 @@ def points():
     user_id = session.get("user_id")
     user = sql.session.query(User).filter_by(id=user_id).first()
     return render_template("points.html", user=user)
-    
 
 
 @app.route("/add_points", methods=["POST"])
@@ -49,9 +51,9 @@ def add_points():
             # Log the transaction
             new_transaction = Transaction(
                 user_id=user_id,
-                type="earned",
-                points=task_points,
-                description=f"Points Gained from completing {task_name}",
+                type=TransactionType.EARNED,
+                amount=task_points,
+                description=f"Points rewarded to user by completing task {task_name}.",
             )
             sql.session.add(new_transaction)
             sql.session.commit()
@@ -65,7 +67,9 @@ def add_points():
 
     return redirect(url_for("rewards"))
 
+
 RECAPTCHA_SECRET_KEY = "6Ldk8skqAAAAAPZgQrYfsfwoOGHQJ5z0q5ZNC4l5"
+
 
 @app.route("/redeem_reward", methods=["POST"])
 @require_login
@@ -77,12 +81,12 @@ def redeem_reward():
     # Verify reCAPTCHA
     recaptcha_response = request.form.get("g-recaptcha-response")  # Get response from form
     recaptcha_verify_url = "https://www.google.com/recaptcha/api/siteverify"
-    
+
     payload = {
         "secret": RECAPTCHA_SECRET_KEY,  # Your Google reCAPTCHA secret key
-        "response": recaptcha_response
+        "response": recaptcha_response,
     }
-    
+
     response = requests.post(recaptcha_verify_url, data=payload)
     result = response.json()
 
@@ -101,9 +105,9 @@ def redeem_reward():
             # Log the transaction
             new_transaction = Transaction(
                 user_id=user_id,
-                type="redeemed",
-                points=reward_cost,
-                description=f"Redeemed {reward_name}",
+                type=TransactionType.REDEMPTION,
+                amount=reward_cost,
+                description=f"Points deducted by redeeming reward {reward_name}.",
             )
             sql.session.add(new_transaction)
             sql.session.commit()
@@ -116,13 +120,15 @@ def redeem_reward():
         flash("You do not have enough points to claim this reward!", "danger")
 
     return redirect(url_for("rewards"))
-''' code without the recapthca requirements in the event it fails to work is not needed anymore in this portion
+
+
+""" code without the recapthca requirements in the event it fails to work is not needed anymore in this portion
 @app.route("/redeem_reward", methods=["POST"])
 @require_login
 def redeem_reward():
     user_id = session.get("user_id")
     reward_name = request.form.get("reward_name")  # Reward name from the form
-    reward_cost = int(request.form.get("reward_cost"))  # Reward cost from the form input label 
+    reward_cost = int(request.form.get("reward_cost"))  # Reward cost from the form input label
 
     # Fetch the user
     user = sql.session.query(User).filter_by(id=user_id).first()
@@ -151,8 +157,7 @@ def redeem_reward():
 
     return redirect(url_for("rewards"))
 
-this is my existing code for reddem reward portion'''
-
+this is my existing code for reddem reward portion"""
 
 
 @app.route("/transactions")

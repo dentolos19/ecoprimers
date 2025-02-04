@@ -1,8 +1,8 @@
 {% extends "admin/base.html" %}
 
 {% block abody %}
-<div class="h-100 d-flex justify-content-center align-items-center">
-  <div class="card" style="width: 500px;">
+<div class="min-h-100 d-flex justify-content-center align-items-center">
+  <div class="my-4 card" style="width: 500px;">
     <div class="card-body">
       <div>
         <h5 class="card-title text-center">View Transaction</h5>
@@ -17,8 +17,8 @@
           <input class="form-control" type="text" id="type" name="type" value="{{ transaction.type }}" disabled />
         </div>
         <div>
-          <label class="form-label" for="points">Points</label>
-          <input class="form-control" type="number" id="points" name="points" value="{{ transaction.points }}" disabled />
+          <label class="form-label" for="amount">Amount</label>
+          <input class="form-control" type="number" id="amount" name="amount" value="{{ transaction.amount }}" disabled />
         </div>
         <div>
           <label class="form-label" for="description">Description</label>
@@ -30,7 +30,7 @@
         </div>
       </div>
       <div class="mt-4 d-flex justify-content-end gap-2">
-        <a class="btn btn-light" href="{{ url_for('admin_transactions') }}">Back</a>
+        <a class="btn btn-secondary" href="{{ url_for('admin_transactions') }}">Back</a>
         <a class="btn btn-primary" href="{{ url_for('admin_users_edit', id=user.id) }}">View User</a>
       </div>
     </div>

@@ -1,9 +1,9 @@
 from datetime import date
 from importlib import import_module
 
-import stripe
 from flask import flash, redirect, render_template, request, session, url_for
 
+from lib import database, payments
 from lib.database import sql
 from lib.models import Event, EventAttendee, User
 from main import app
@@ -21,7 +21,34 @@ def init():
         "current_date": date.today().isoformat(),
         "is_logged_in": check_logged_in(),
         "is_admin_user": check_admin_status(),
+        "dark_mode_enabled": session.get("dark_mode", True),
     }
+
+
+@app.errorhandler(404)
+def error_notfound(error: Exception):
+    print(error)
+    return render_template("error.html", error=error)
+
+
+@app.errorhandler(Exception)
+def error_exception(error: Exception):
+    print(error)
+    return render_template("error.html", error=error)
+
+
+@app.route("/error/reset", methods=["POST"])
+def error_reset():
+    database.reset()
+    flash("Database reset successfully!", "success")
+    return redirect("/")
+
+
+@app.route("/functions/darkmode")
+def toggle_dark_mode():
+    session["dark_mode"] = not session.get("dark_mode", True)
+    print(session["dark_mode"])
+    return redirect(request.referrer)
 
 
 @app.route("/")
@@ -100,29 +127,14 @@ def events():
 def donation():
     if request.method == "POST":
         try:
-            amount = int(request.form["amount"]) * 100
-            if amount < 50:
+            amount = float(request.form["amount"])
+            if amount < 0.5:
                 return "Donation amount must be at least $0.50.", 400
         except ValueError:
             return "Invalid donation amount.", 400
 
-        stripe_session = stripe.checkout.Session.create(
-            payment_method_types=["card"],
-            line_items=[
-                {
-                    "price_data": {
-                        "currency": "sgd",
-                        "product_data": {
-                            "name": "Donation",
-                        },
-                        "unit_amount": amount,
-                    },
-                    "quantity": 1,
-                }
-            ],
-            mode="payment",
-            success_url=url_for("donation_success", _external=True) + "?session_id={CHECKOUT_SESSION_ID}",
-            cancel_url=url_for("donation", _external=True),
+        stripe_session = payments.pay(
+            amount, url_for("donation_success", _external=True), url_for("donation", _external=True)
         )
 
         return redirect(stripe_session.url, code=303)

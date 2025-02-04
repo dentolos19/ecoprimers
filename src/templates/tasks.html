@@ -1,144 +1,105 @@
 {% extends "base.html" %}
 
 {% block stylesheets %}
-<link rel="stylesheet" href="../static/css/custom.css">
 <style>
-    /* Existing styles */
-    .card-container {
-        display: flex;
-        gap: 20px;
-        flex-wrap: wrap;
-        justify-content: center;
-    }
+  .tasks {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+  }
 
-    .card {
-        background: #fff;
-        border-radius: 10px;
-        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-        overflow: hidden;
-        width: 300px;
-        text-align: center;
-    }
+  .check-points-container {
+    margin-top: 20px;
+    text-align: center;
+  }
 
-    .card-img {
-        width: 300px;
-        height: 300px;
-        object-fit: cover;
-        border-radius: 10px;
-        margin: 0 auto;
-        display: block;
-    }
+  .check-points-button {
+    padding: 10px 20px;
+    background-color: green;
+    color: white;
+    font-size: 1.2em;
+    font-weight: bold;
+    border-radius: 8px;
+    border: none;
+    cursor: pointer;
+    text-decoration: none;
+    display: inline-block;
+  }
 
-    .card-title {
-        font-size: 1.2em;
-        margin: 10px 0;
-        color: #556b2f;
-    }
-
-    .card-description {
-        padding: 0 15px;
-        font-size: 0.9em;
-        color: #555;
-    }
-
-    .card-button {
-        display: block;
-        margin: 15px auto;
-        padding: 10px 15px;
-        background-color: #ff6f61;
-        color: white;
-        border: none;
-        border-radius: 5px;
-        cursor: pointer;
-        font-size: 1em;
-    }
-
-    .card-button:hover {
-        background-color: #e65c50;
-    }
-
-    /* Styles for Check Points button */
-    .check-points-container {
-        margin-top: 20px;
-        text-align: center;
-    }
-
-    .check-points-button {
-        padding: 10px 20px;
-        background-color: green;
-        color: white;
-        font-size: 1.2em;
-        font-weight: bold;
-        border-radius: 8px;
-        border: none;
-        cursor: pointer;
-        text-decoration: none;
-        display: inline-block;
-    }
-
-    .check-points-button:hover {
-        background-color: #555;
-        text-decoration: none;
-    }
+  .check-points-button:hover {
+    background-color: #555;
+    text-decoration: none;
+  }
 </style>
 {% endblock %}
 
 {% block body %}
-<main class="main mt-5">
-    <div class="card-container">
-        <div class="card">
-            <img src="../static/img/first.png" alt="Eco Walk Snap" class="card-img">
-            <h2 class="card-title">EcoWalkSnap</h2>
-            <p class="card-description">
-                Step out for the planet! Take a walk, pick up litter, snap a photo, and upload it for AI verification. Keep your surroundings clean and beautiful!
-            </p>
-            <form action="{{ url_for('add_points') }}" method="post">
-                <input style="display: none;" name="task_name" value="EcoWalkSnap">
-                <input style="display: none;" name="task_points" value="100">
-                <button type="submit" class="card-button">Take on the Challenge</button>
-            </form>
-        </div>
-        <div class="card">
-            <img src="../static/img/vision.png" alt="Recycle Vision" class="card-img">
-            <h2 class="card-title">RecycleVision</h2>
-            <p class="card-description">
-                Collect recyclables, snap a picture as you drop them in the bin, and let AI verify your eco-friendly actions. Save reusable material and save the world!
-            </p>
-            <form action="{{ url_for('add_points') }}" method="post">
-            <input style="display: none;" name="task_name" value="RecycleVision">
-                <input style="display: none;" name="task_points" value="100">
-                <button type="submit" class="card-button">Take on the Challenge</button>
-            </form>
-        </div>
-        <div class="card">
-            <img src="../static/img/thirstyroots.png" alt="Thirsty Roots" class="card-img">
-            <h2 class="card-title">Thirsty Roots</h2>
-            <p class="card-description">
-                Water a plant or tree, snap a picture, and let AI verify your care for nature. Help save your environment with your conscious effort.
-            </p>
-            <form action="{{ url_for('add_points') }}" method="post">
-            <input style="display: none;" name="task_name" value="Thirsty Roots">
-                <input style="display: none;" name="task_points" value="100">
-                <button type="submit" class="card-button">Take on the Challenge</button>
-            </form>
-        </div>
-        <div class="card">
-            <img src="../static/img/lights.png" alt="Lights Out" class="card-img">
-            <h2 class="card-title">Lights Out</h2>
-            <p class="card-description">
-                Turn off unused lights, snap a pic, and let AI confirm your energy-saving efforts. With your help we can save our environment.
-            </p>
-            <form action="{{ url_for('add_points') }}" method="post">
-            <input style="display: none;" name="task_name" value="Lights Out">
-                <input style="display: none;" name="task_points" value="100">
-                <button type="submit" class="card-button">Take on the Challenge</button>
-            </form>
-        </div>
-    </div>
+<div class="container my-4">
+  <h3 class="text-center mb-4">Tasks</h3>
+  <div class="tasks gap-4">
+    <!-- Task 1 -->
+    <form class="card" method="post" action="{{ url_for('add_points') }}">
+      <input class="visually-hidden" name="task_name" value="EcoWalkSnap">
+      <input class="visually-hidden" name="task_points" value="100">
+      <img class="card-img-top" style="aspect-ratio: 1 / 1; object-fit: cover;" src="../static/img/first.png" alt="Eco Walk Snap">
+      <div class="card-body">
+        <h5 class="card-title">EcoWalkSnap</h5>
+        <p class="card-text">
+          Step out for the planet! Take a walk, pick up litter, snap a photo, and upload it for AI verification. Keep
+          your surroundings clean and beautiful!
+        </p>
+        <button class="btn btn-primary" type="submit">Take on the Challenge</button>
+      </div>
+    </form>
 
-    <!-- Check Points Button -->
-    <div class="check-points-container">
-        <a href="{{ url_for('points') }}" class="check-points-button mb-4">Check Points</a>
-    </div>
-</main>
+     <!-- Task 2 -->
+    <form class="card" method="post" action="{{ url_for('add_points') }}">
+      <input class="visually-hidden" name="task_name" value="RecycleVision">
+      <input class="visually-hidden" name="task_points" value="100">
+      <img class="card-img-top" style="aspect-ratio: 1 / 1; object-fit: cover;" src="../static/img/vision.png" alt="Recycle Vision">
+      <div class="card-body">
+        <h5 class="card-title">RecycleVision</h5>
+        <p class="card-text">
+          Collect recyclables, snap a picture as you drop them in the bin, and let AI verify your eco-friendly actions.
+          Save reusable material and save the world!
+        </p>
+        <button class="btn btn-primary" type="submit">Take on the Challenge</button>
+      </div>
+    </form>
+
+     <!-- Task 3 -->
+    <form class="card" method="post" action="{{ url_for('add_points') }}">
+      <input class="visually-hidden" name="task_name" value="Thirsty Roots">
+      <input class="visually-hidden" name="task_points" value="100">
+      <img class="card-img-top" style="aspect-ratio: 1 / 1; object-fit: cover;" src="../static/img/thirstyroots.png" alt="Thirsty Roots">
+      <div class="card-body">
+        <h5 class="card-title">Thirsty Roots</h5>
+        <p class="card-text">
+          Water a plant or tree, snap a picture, and let AI verify your care for nature. Help save your environment with
+          your conscious effort.
+        </p>
+        <button class="btn btn-primary" type="submit">Take on the Challenge</button>
+      </div>
+    </form>
+
+     <!-- Task 4 -->
+    <form class="card" method="post" action="{{ url_for('add_points') }}">
+      <input class="visually-hidden" name="task_name" value="Lights Out">
+      <input class="visually-hidden" name="task_points" value="100">
+      <img class="card-img-top" style="aspect-ratio: 1 / 1; object-fit: cover;" src="../static/img/lights.png" alt="Lights Out">
+      <div class="card-body">
+        <h5 class="card-title">Lights Out</h5>
+        <p class="card-text">
+          Turn off unused lights, snap a pic, and let AI confirm your energy-saving efforts. With your help we can save
+          our environment.
+        </p>
+        <button class="btn btn-primary" type="submit">Take on the Challenge</button>
+      </div>
+    </form>
+  </div>
+
+  <!-- Check Points Button -->
+  <div class="check-points-container">
+    <a class="check-points-button mb-4" href="{{ url_for('points') }}">Check Points</a>
+  </div>
+</div>
 {% endblock %}

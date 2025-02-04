@@ -1,46 +1,40 @@
 {% extends "base.html" %}
 
 {% block stylesheets %}
-<link rel="stylesheet" href="../static/css/social-media.css" />
-<link
-  rel="stylesheet"
-  href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css"
-/>
-<link
-  rel="stylesheet"
-  href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css"
-/>
+<style>
+  .posts {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+  }
+</style>
 {% endblock %}
 
 {% block body %}
-<div class="container mt-5">
-  <h1 class="text-center text-secondary mb-4 font-weight-bold">Saved Posts</h1>
-
-  <div class="row">
-    {% for post in posts %}
-      <div class="col-md-4 mb-4">
-        <div class="card shadow-lg rounded">
-          <img
-            class="card-img-top"
-            src="{{ url_for('static', filename='uploads/' + post.post.image_filename) }}"
-            alt="Post image"
-            style="object-fit: cover; height: 250px;"
-          />
-          <div class="card-body">
-            <p class="card-text text-muted" style="font-size: 1rem; line-height: 1.5;">
-              {{ post.post.description }}
-            </p>
-            <div class="d-flex justify-content-between align-items-center">
-              <button class="btn btn-primary btn-sm">
-                <i class="fas fa-heart"></i> Unsave
-              </button>
-              <small class="text-muted">{{ post.post.created_at.strftime('%b %d, %Y') }}</small>
-            </div>
-          </div>
-        </div>
-      </div>
-    {% endfor %}
+<div class="posts container my-4">
+  {% for post in posts %}
+  <div class="card shadow">
+    <!-- Header -->
+    <div class="card-body d-flex justify-content-between align-items-center">
+      <h5 class="card-title m-0">{{ post.post.user.name }}</h5>
+      <form>
+        <button class="btn btn-sm btn-primary">
+          <i class="fas fa-heart"></i>
+          <span>Unsave</span>
+        </button>
+      </form>
+    </div>
+    <div>
+      <img class="card-img-top" src="{{ post.post.image_url }}" alt="Post image" style="object-fit: cover; height: 250px;" />
+    </div>
+    <div class="card-body d-flex justify-content-between align-items-center">
+      <span>
+        {{ post.post.content }}
+      </span>
+      <span>
+        <small class="text-muted">{{ post.post.created_at.strftime('%b %d, %Y') }}</small>
+      </span>
+    </div>
   </div>
+  {% endfor %}
 </div>
-
 {% endblock %}
