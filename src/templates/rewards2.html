@@ -1,394 +1,74 @@
 {% extends "base.html" %}
 
+{% block scripts %}
+<script src="https://www.google.com/recaptcha/api.js" async defer></script>
+{% endblock %}
+
 {% block stylesheets %}
-
 <style>
-  .points-box {
-    background-color: #fef7c3;
-    padding: 10px 20px;
-    border-radius: 8px;
-    text-align: center;
-    margin: 5px auto;
-    width: 960px;
-    max-width: 90%;
-    font-weight: bold;
-    font-size: 1.5em;
-  }
-
-  .rewards-header {
-    text-align: center;
-    font-size: 2em;
-    margin-top: 10px; 
-    margin-bottom: 5px; 
-    color: #333;
-  }
-
-  .rewards-container {
+  .rewards {
     display: grid;
-    width: 70%;
-    margin: 0 auto;
-    grid-template-columns: repeat(3, 1fr); 
-    gap: 20px; 
-    padding: 20px;
-    text-align: center; 
+    grid-template-columns: repeat(4, 1fr);
   }
-
-  .reward-item {
-    background-color: #eaeaea;
-    padding: 15px;
-    border-radius: 8px;
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-    text-align: center;
-    cursor: pointer;
-  }
-
-  .reward-item img {
-    width: 200px;
-    height: 200px;
-    object-fit: cover;
-    margin-bottom: 15px;
-    border-radius: 5px;
-  }
-
-  .reward-item h3 {
-    font-size: 1.3em;
-    color: #333;
-    margin-bottom: 8px;
-  }
-
-  .modal-body img {
-    width: 100%;
-    height: auto;
-    object-fit: cover;
-    margin-bottom: 15px;
-    border-radius: 5px;
-  }
-
-  .modal-buttons {
-    display: flex;
-    justify-content: space-between;
-    margin-top: 15px;
-  }
-
-  .btn-cancel {
-    background-color: #white;
-    color: rgb(0, 0, 0);
-    border: none;
-    padding: 10px 20px;
-    border-radius: 5px;
-    cursor: pointer;
-    font size: 1.2em;
-  }
-
-  .btn-redeem {
-    background-color: #107A52;
-    color: white;
-    border: none;
-    padding: 10px 20px;
-    border-radius: 5px;
-    cursor: not-allowed;
-  }
-
-  .no-btn-redeem {
-    background-color: #ff6f61;
-    color: white;
-    border: none;
-    padding: 10px 20px;
-    border-radius: 5px;
-    cursor: not-allowed;
-  }
-  
-  /*flash message css*/
-  .flash-message.success {
-    color: #fff;
-    background-color: #4caf50;
-    padding: 10px;
-    margin: 10px 0;
-    border-radius: 5px;
-}
-
-.flash-message.danger {
-    color: #fff;
-    background-color: #f44336;
-    padding: 10px;
-    margin: 10px 0;
-    border-radius: 5px;
-}
-
-.recaptcha-container {
-    display: flex;
-    justify-content: center;
-    margin-top: 10px;
-    margin-bottom: 15px;
-}
-
-
 </style>
 {% endblock %}
 
 {% block body %}
-
-<div class="points-box">Points: {{ user.points }}</div>
-<h1 class="rewards-header">Rewards</h1>
-<!-- recapthca
-<form action="{{ url_for('redeem_reward') }}" method="post">
-      <div class="g-recaptcha" data-sitekey="6Ldk8skqAAAAADv8tINcjejBa3JllvFUrNKkxa30"></div>
-      <br/>
-      
-  </form>
-  <script src="https://www.google.com/recaptcha/api.js" async defer></script>
- -->
-<div class="rewards-container">
-  <!-- Reward Item 1 -->
-  <div class="card" style="cursor: pointer;" data-bs-toggle="modal" data-bs-target="#rewardModal1">
-    <img class="card-img-top" style='height: 257px' src="../static/img/reusable-cup.png" alt="Reusable Cup" />
-    <div class="card-body">
-      <h5 class="card-title">Reusable Cup</h5>
-      <p class="card-text">200 pts</p>
-    </div>
+<div class="container my-4">
+  <!-- Header -->
+  <div class="mb-4 d-flex justify-content-between align-items-center">
+    <h3 class="text-center m-0">Rewards</h3>
+    <span class="badge text-bg-primary">{{ user.points }}</span>
   </div>
-  <!-- Reward Item 2 -->
-<div class="card" style="cursor: pointer;" data-bs-toggle="modal" data-bs-target="#rewardModal2">
-  <img class="card-img-top" style='height: 257px' src="../static/img/iron_on.png" alt="Iron on Badge" />
-  <div class="card-body">
-    <h5 class="card-title">Iron on Badge</h5>
-    <p class="card-text">100 pts</p>
-  </div>
-</div>
 
-<!-- Reward Item 3 -->
-<div class="card" style="cursor: pointer;" data-bs-toggle="modal" data-bs-target="#rewardModal3">
-  <img class="card-img-top" style='height: 257px' src="../static/img/reusable-utensil.png" alt="Reusable Utensil" />
-  <div class="card-body">
-    <h5 class="card-title">Reusable Utensil</h5>
-    <p class="card-text">1000 pts</p>
-  </div>
-</div>
-
-<!-- Reward Item 4 -->
-<div class="card" style="cursor: pointer;" data-bs-toggle="modal" data-bs-target="#rewardModal4">
-  <img class="card-img-top" src="../static/img/ziplog-bag.png" alt="ZipLog Bag" />
-  <div class="card-body">
-    <h5 class="card-title">ZipLog Bag</h5>
-    <p class="card-text">500 pts</p>
-  </div>
-</div>
-
-<!-- Reward Item 5 -->
-<div class="card" style="cursor: pointer;" data-bs-toggle="modal" data-bs-target="#rewardModal5">
-  <img class="card-img-top" style="height: 218px" src="../static/img/notebook.png" alt="Notebook" />
-  <div class="card-body">
-    <h5 class="card-title">Notebook</h5>
-    <p class="card-text">1500 pts</p>
-  </div>
-</div>
-
-<!-- Reward Item 6 -->
-<div class="card" style="cursor: pointer;" data-bs-toggle="modal" data-bs-target="#rewardModal6">
-  <img class="card-img-top" style="height: 218px" src="../static/img/tote_bag.png" alt="Tote Bag" />
-  <div class="card-body">
-    <h5 class="card-title">Tote Bag</h5>
-    <p class="card-text">2000 pts</p>
-  </div>
-</div>
-
-
-<!-- Modal 1 -->
-<div class="modal fade" id="rewardModal1" tabindex="-1" aria-labelledby="rewardModalLabel1" aria-hidden="true">
-  <div class="modal-dialog">
-    <div class="modal-content">
-      <div class="modal-header">
-        <h5 class="modal-title" id="rewardModalLabel1">Reusable Cup</h5>
-        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+  <!-- Rewards -->
+  <div class="rewards gap-4">
+    {% for index, product in enumerate(products) %}
+    <div class="card" style="cursor: pointer;" data-bs-toggle="modal" data-bs-target="#modal-{{ index }}">
+      <img class="card-img-top" style="aspect-ratio: 1 / 1; object-fit: cover;" src="{{ product.image_url }}" alt="Reusable Cup" />
+      <div class="card-body">
+        <h5 class="card-title">{{ product.name }}</h5>
+        <p class="card-text">{{ product.points }} pts</p>
       </div>
-      <div class="modal-body">
-        <img src="../static/img/reusable-cup.png" alt="Reusable Cup" />
-        <p>Made from durable materials, this reusable cup helps reduce single-use plastics and is perfect for your daily coffee needs!</p>
-        <div class="modal-buttons">
-          <button class="btn-cancel" data-bs-dismiss="modal">Cancel</button>
-          <form action="{{ url_for('redeem_reward') }}" method="post" style="display: inline;">
-            <input type="hidden" name="reward_name" value="Reusable Cup">
-            <input type="hidden" name="reward_cost" value="200">
-            
-            {% if user.points >= 200 %}
-            <div class="recaptcha-container">
-              <div class="g-recaptcha" data-sitekey="6Ldk8skqAAAAADv8tINcjejBa3JllvFUrNKkxa30"></div>
+
+      <!-- Modal -->
+      <div id="modal-{{ index }}" class="modal fade" tabindex="-1">
+        <div class="modal-dialog">
+          <form class="modal-content" method="post" action="{{ url_for('redeem_reward') }}">
+            <!-- Hidden Fields -->
+            <input type="hidden" name="reward_name" value="{{ product.name }}">
+            <input type="hidden" name="reward_cost" value="{{ product.points }}">
+
+            <!-- Modal Content -->
+            <div class="modal-header">
+              <h5 class="modal-title">
+                <span>{{ product.name }}</span>
+                <span class="badge text-bg-primary">{{ product.points }}</span>
+              </h5>
+              <button class="btn-close" type="button" data-bs-dismiss="modal"></button>
             </div>
-            <button type="submit" class="btn-redeem">Redeem (200 pts)</button>
-            {% else %}
-            <button class="no-btn-redeem" disabled>(Not enough points)</button>
-            {% endif %}
+            <img class="img-fluid" src="{{ product.image_url }}" alt="Reusable Cup" />
+            <div class="modal-body">
+              <div>{{ product.description if product.description else "No description provided." }}</div>
+              {% if user.points >= product.points %}
+              <div class="mt-2">
+                <div class="g-recaptcha" data-sitekey="6Ldk8skqAAAAADv8tINcjejBa3JllvFUrNKkxa30"></div>
+              </div>
+              {% endif %}
+            </div>
+            <div class="modal-footer">
+              <button class="btn btn-secondary" type="button" data-bs-dismiss="modal">Cancel</button>
+              {% if user.points >= product.points %}
+              <button class="btn btn-primary" type="submit">Redeem ({{ product.points }} pts)</button>
+              {% else %}
+              <button class="btn btn-primary" type="button" disabled>Not Enough Points</button>
+              {% endif %}
+            </div>
           </form>
-          <script src="https://www.google.com/recaptcha/api.js" async defer></script>
         </div>
       </div>
     </div>
+    {% endfor %}
   </div>
 </div>
-
-<!-- Modal 2 -->
-<div class="modal fade" id="rewardModal2" tabindex="-1" aria-labelledby="rewardModalLabel2" aria-hidden="true">
-  <div class="modal-dialog">
-    <div class="modal-content">
-      <div class="modal-header">
-        <h5 class="modal-title" id="rewardModalLabel2">Iron on Badge</h5>
-        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-      </div>
-      <div class="modal-body">
-        <img src="../static/img/iron_on.png" alt="Iron on Badge" />
-        <p>Show your support for sustainability with this iron-on badge. Perfect for bags, jackets, or hats!</p>
-        <div class="modal-buttons">
-          <button class="btn-cancel" data-bs-dismiss="modal">Cancel</button>
-          <form action="{{ url_for('redeem_reward') }}" method="post" style="display: inline;">
-            <input type="hidden" name="reward_name" value="Iron on Badge">
-            <input type="hidden" name="reward_cost" value="100">
-            
-            {% if user.points >= 100 %}
-            <div class="recaptcha-container">
-              <div class="g-recaptcha" data-sitekey="6Ldk8skqAAAAADv8tINcjejBa3JllvFUrNKkxa30"></div>
-            </div>
-            <button type="submit" class="btn-redeem">Redeem (100 pts)</button>
-            {% else %}
-            <button class="no-btn-redeem" disabled>(Not enough points)</button>
-            {% endif %}
-          </form>
-          <script src="https://www.google.com/recaptcha/api.js" async defer></script>
-        </div>
-      </div>
-    </div>
-  </div>
-</div>
-
-
-<!-- Modal 3 -->
-<div class="modal fade" id="rewardModal3" tabindex="-1" aria-labelledby="rewardModalLabel3" aria-hidden="true">
-  <div class="modal-dialog">
-    <div class="modal-content">
-      <div class="modal-header">
-        <h5 class="modal-title" id="rewardModalLabel3">Reusable Utensil</h5>
-        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-      </div>
-      <div class="modal-body">
-        <img src="../static/img/reusable-utensil.png" alt="Reusable Utensil" />
-        <p>Eco-friendly and reusable, this utensil set helps you reduce waste during meals.</p>
-        <div class="modal-buttons">
-          <button class="btn-cancel" data-bs-dismiss="modal">Cancel</button>
-          <form action="{{ url_for('redeem_reward') }}" method="post" style="display: inline;">
-            <input type="hidden" name="reward_name" value="Reusable Utensil">
-            <input type="hidden" name="reward_cost" value="1000">
-            {% if user.points >= 1000 %}
-            <div class="recaptcha-container">
-              <div class="g-recaptcha" data-sitekey="6Ldk8skqAAAAADv8tINcjejBa3JllvFUrNKkxa30"></div>
-            </div>
-            <button type="submit" class="btn-redeem">Redeem (1000 pts)</button>
-            {% else %}
-            <button class="no-btn-redeem" disabled>Not enough points</button>
-            {% endif %}
-          </form>
-          <script src="https://www.google.com/recaptcha/api.js" async defer></script>
-        </div>
-      </div>
-    </div>
-  </div>
-</div>
-
-
-<!-- Modal 4 -->
-<div class="modal fade" id="rewardModal4" tabindex="-1" aria-labelledby="rewardModalLabel4" aria-hidden="true">
-  <div class="modal-dialog">
-    <div class="modal-content">
-      <div class="modal-header">
-        <h5 class="modal-title" id="rewardModalLabel4">ZipLog Bag</h5>
-        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-      </div>
-      <div class="modal-body">
-        <img src="../static/img/ziplog-bag.png" alt="ZipLog Bag" />
-        <p>Reusable and durable, this ZipLog bag is ideal for storing snacks or supplies!</p>
-        <div class="modal-buttons">
-          <button class="btn-cancel" data-bs-dismiss="modal">Cancel</button>
-          <form action="{{ url_for('redeem_reward') }}" method="post" style="display: inline;">
-            <input type="hidden" name="reward_name" value="ZipLog Bag">
-            <input type="hidden" name="reward_cost" value="500">
-            {% if user.points >= 500 %}
-            <div class="recaptcha-container">
-              <div class="g-recaptcha" data-sitekey="6Ldk8skqAAAAADv8tINcjejBa3JllvFUrNKkxa30"></div>
-            </div>
-            <button type="submit" class="btn-redeem">Redeem (500 pts)</button>
-            {% else %}
-            <button class="no-btn-redeem" disabled>(Not enough points)</button>
-            {% endif %}
-          </form>
-          <script src="https://www.google.com/recaptcha/api.js" async defer></script>
-        </div>
-      </div>
-    </div>
-  </div>
-</div>
-
-
-<!-- Modal 5 -->
-<div class="modal fade" id="rewardModal5" tabindex="-1" aria-labelledby="rewardModalLabel5" aria-hidden="true">
-  <div class="modal-dialog">
-    <div class="modal-content">
-      <div class="modal-header">
-        <h5 class="modal-title" id="rewardModalLabel5">Notebook</h5>
-        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-      </div>
-      <div class="modal-body">
-        <img src="../static/img/notebook.png" alt="Notebook" />
-        <p>Stay organized with this eco-friendly notebook made from recycled materials.</p>
-        <div class="modal-buttons">
-          <button class="btn-cancel" data-bs-dismiss="modal">Cancel</button>
-          <form action="{{ url_for('redeem_reward') }}" method="post" style="display: inline;">
-            <input type="hidden" name="reward_name" value="Notebook">
-            <input type="hidden" name="reward_cost" value="1500">
-            {% if user.points >= 1500 %}
-            <div class="recaptcha-container">
-              <div class="g-recaptcha" data-sitekey="6Ldk8skqAAAAADv8tINcjejBa3JllvFUrNKkxa30"></div>
-            </div>
-            <button type="submit" class="btn-redeem">Redeem (1500 pts)</button>
-            {% else %}
-            <button class="no-btn-redeem" disabled>(Not enough points)</button>
-            {% endif %}
-          </form>
-          <script src="https://www.google.com/recaptcha/api.js" async defer></script>
-        </div>
-      </div>
-    </div>
-  </div>
-</div>
-
-
-<!-- Modal 6 -->
-<div class="modal fade" id="rewardModal6" tabindex="-1" aria-labelledby="rewardModalLabel6" aria-hidden="true">
-  <div class="modal-dialog">
-    <div class="modal-content">
-      <div class="modal-header">
-        <h5 class="modal-title" id="rewardModalLabel6">Tote Bag</h5>
-        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-      </div>
-      <div class="modal-body">
-        <img src="../static/img/tote_bag.png" alt="Tote Bag" />
-        <p>Made from durable, reusable materials, this tote bag helps reduce plastic waste.</p>
-        <div class="modal-buttons">
-          <button class="btn-cancel" data-bs-dismiss="modal">Cancel</button>
-          <form action="{{ url_for('redeem_reward') }}" method="post" style="display: inline;">
-            <input type="hidden" name="reward_name" value="Tote Bag">
-            <input type="hidden" name="reward_cost" value="2000">
-            {% if user.points >= 2000 %}
-            <div class="recaptcha-container">
-              <div class="g-recaptcha" data-sitekey="6Ldk8skqAAAAADv8tINcjejBa3JllvFUrNKkxa30"></div>
-            </div>
-            <button type="submit" class="btn-redeem">Redeem (2000 pts)</button>
-            {% else %}
-            <button class="no-btn-redeem" disabled>(Not enough points)</button>
-            {% endif %}
-          </form>
-          <script src="https://www.google.com/recaptcha/api.js" async defer></script>
-        </div>
-      </div>
-    </div>
-  </div>
-</div>
-
 {% endblock %}

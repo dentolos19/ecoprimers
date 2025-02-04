@@ -133,8 +133,10 @@ class Product(Base):
     __tablename__ = "products"
 
     name: Mapped[str]
-    points: Mapped[int]
-    stock: Mapped[int]
+    description: Mapped[Optional[str]]
+    points: Mapped[int] = mapped_column(default=0)
+    stock: Mapped[int] = mapped_column(default=0)
+    image_url: Mapped[Optional[str]]
 
 
 class Transaction(Base):

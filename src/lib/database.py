@@ -76,6 +76,7 @@ def setup():
     global sql
 
     with app.app_context():
+        # Users
         sql.session.add(
             User(
                 name="Administrator",
@@ -90,8 +91,18 @@ def setup():
                 password=generate_password_hash("Dennise!123", method="pbkdf2:sha1"),
             )
         )
+
+        # Events
         sql.session.add(Event(title="Cleaning Day", description="Todo", location="Chinatown", date="2025-03-01"))
-        sql.session.add(Product(name="Reusable Cup", points=200, stock=50))
+
+        # Products
+        sql.session.add(Product(name="Reusable Cup", points=200, stock=50, image_url="/static/img/reusable-cup.png"))
+        sql.session.add(Product(name="Iron on Badge", points=100, stock=50, image_url="/static/img/iron_on.png"))
+        sql.session.add(Product(name="Reusable Utensil", points=1000, stock=50, image_url="/static/img/reusable-utensil.png"))
+        sql.session.add(Product(name="ZipLog Bag", points=500, stock=50, image_url="/static/img/ziplog-bag.png"))
+        sql.session.add(Product(name="Notebook", points=1500, stock=50, image_url="/static/img/notebook.png"))
+        sql.session.add(Product(name="Tote Bag", points=2000, stock=50, image_url="/static/img/tote_bag.png"))
+
         sql.session.commit()
 
 
