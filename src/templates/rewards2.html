@@ -47,7 +47,7 @@
               </h5>
               <button class="btn-close" type="button" data-bs-dismiss="modal"></button>
             </div>
-            <img class="img-fluid" src="{{ product.image_url }}" alt="Reusable Cup" />
+            <img class="img-fluid" src="{{ product.image_url }}" alt="{{ product.name }}" />
             <div class="modal-body">
               <div>{{ product.description if product.description else "No description provided." }}</div>
               {% if user.points >= product.points %}
