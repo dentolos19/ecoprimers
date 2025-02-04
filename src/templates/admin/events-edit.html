@@ -1,7 +1,7 @@
 {% extends "admin/base.html" %}
 
 {% block abody %}
-<div class="h-100 d-flex justify-content-center align-items-center">
+<div class="min-vh-100 d-flex justify-content-center align-items-center my-4">
   <div class="card" style="width: 500px;">
     <form class="card-body" method="POST" action="{{ url_for('admin_events_edit', id=event.id) }}" enctype="multipart/form-data">
       <div>
@@ -26,11 +26,11 @@
         </div>
         <div>
           <label class="form-label" for="date">Date</label>
-          <input class="form-control" type="date" id="date" name="date"  min="{{ current_date }}" value="{{ event.date }}" required />
+          <input class="form-control" type="date" id="date" name="date" min="{{ current_date }}" value="{{ event.date }}" required />
         </div>
         <div>
           <label class="form-label" for="image">Event Image</label>
-          <img class="my-2 rounded" style="width: 100%;" src="{{ event.image_filename }}"/>
+          <img class="my-2 rounded" style="width: 100%; max-height: 300px; object-fit: cover;" src="{{ event.image_filename }}" />
           <input class="form-control" type="file" id="image" name="image" />
         </div>
       </div>
