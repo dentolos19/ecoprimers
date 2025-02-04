@@ -26,13 +26,13 @@ def init():
 
 
 @app.errorhandler(404)
-def error_notfound(error):
+def error_notfound(error: Exception):
     print(error)
-    return render_template("notfound.html", error=error)
+    return render_template("error.html", error=error)
 
 
 @app.errorhandler(Exception)
-def error_exception(error):
+def error_exception(error: Exception):
     print(error)
     return render_template("error.html", error=error)
 

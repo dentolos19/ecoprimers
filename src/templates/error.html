@@ -6,9 +6,14 @@
     <div class="card-body">
       <h5 class="card-title text-center">Error</h5>
       <p class="card-text">{{ error }}</p>
-      <form class="d-flex justify-content-center" method="post" action="{{ url_for('error_reset') }}">
-        <button class="btn btn-primary btn-sm" type="submit">Reset Database</button>
-      </form>
+      <div class="d-flex justify-content-center gap-2">
+        <a href="{{ url_for('home') }}" class="btn btn-sm btn-primary">Home</a>
+        {% if is_admin_user %}
+        <form method="post" action="{{ url_for('error_reset') }}">
+          <button class="btn btn-sm btn-danger" type="submit">Reset</button>
+        </form>
+        {% endif %}
+      </div>
     </div>
   </div>
 </div>
