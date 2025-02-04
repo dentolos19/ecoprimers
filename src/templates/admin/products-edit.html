@@ -24,13 +24,11 @@
           <label class="form-label" for="stock">Stock</label>
           <input class="form-control" type="number" id="stock" name="stock" min="0" value="{{ product.stock }}" required />
         </div>
-        {% if product.image_url %}
-        <div>
-          <img class="w-100 img-fluid rounded" src="{{ product.image_url }}" alt="{{ product.name }}"/>
-        </div>
-        {% endif %}
         <div>
           <label class="form-label" for="image">Image</label>
+          {% if product.image_url %}
+          <img class="mb-2 w-100 img-fluid rounded" src="{{ product.image_url }}" alt="{{ product.name }}" />
+          {% endif %}
           <input class="form-control" type="file" id="image" name="image" />
         </div>
       </div>

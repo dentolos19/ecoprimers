@@ -66,7 +66,7 @@ def admin_events_new():
             description=event_description,
             location=event_location,
             date=event_date,
-            image_filename=image_url,
+            image_url=image_url,
         )
 
         try:
@@ -95,7 +95,7 @@ def admin_events_edit(id):
         event_date = request.form["date"]
         event_image = request.files["image"]
 
-        image_url = event.image_filename
+        image_url = event.image_url
 
         if event_image and not allowed_file(event_image.filename):
             flash("Invalid file type! Only images with extensions .png, .jpg, .jpeg, and .gif are allowed.", "danger")
@@ -107,7 +107,7 @@ def admin_events_edit(id):
         event.description = event_description
         event.location = event_location
         event.date = event_date
-        event.image_filename = image_url
+        event.image_url = image_url
 
         try:
             sql.session.commit()

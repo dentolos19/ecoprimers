@@ -49,7 +49,7 @@
                 <div class="col">
                     <div class="card shadow-sm hover-item" id="eventDetails" data-event-id="{{ event.id }}">
                         <img
-                            src="{{ event.image_filename if event.image_filename else 'https://via.placeholder.com/300x200' }}"
+                            src="{{ event.image_url if event.image_url else 'https://via.placeholder.com/300x200' }}"
                             class="card-img-top"
                             style="height: 300px; width: 100%; object-fit: cover;"
                             alt="{{ event.title }}">

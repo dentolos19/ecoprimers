@@ -26,11 +26,13 @@
         </div>
         <div>
           <label class="form-label" for="date">Date</label>
-          <input class="form-control" type="date" id="date" name="date"  min="{{ current_date }}" value="{{ event.date }}" required />
+          <input class="form-control" type="date" id="date" name="date" min="{{ current_date }}" value="{{ event.date }}" required />
         </div>
         <div>
-          <label class="form-label" for="image">Event Image</label>
-          <img class="my-2 rounded" style="width: 100%;" src="{{ event.image_filename }}"/>
+          <label class="form-label" for="image">Image</label>
+          {% if event.image_url %}
+          <img class="mb-2 w-100 img-fluid rounded" src="{{ event.image_url }}" alt="{{ event.title }}" />
+          {% endif %}
           <input class="form-control" type="file" id="image" name="image" />
         </div>
       </div>

@@ -33,7 +33,9 @@ class User(Base):
     security: Mapped[Optional[str]]
 
     followings: Mapped[List["UserFollow"]] = relationship(back_populates="user", foreign_keys="UserFollow.user_id")
-    followers: Mapped[List["UserFollow"]] = relationship(back_populates="follower", foreign_keys="UserFollow.follower_id")
+    followers: Mapped[List["UserFollow"]] = relationship(
+        back_populates="follower", foreign_keys="UserFollow.follower_id"
+    )
 
 
 class UserFollow(Base):
@@ -50,10 +52,10 @@ class Event(Base):
     __tablename__ = "events"
 
     title: Mapped[str]
-    description: Mapped[str]
+    description: Mapped[Optional[str]]
     location: Mapped[str]
     date: Mapped[str]
-    image_filename: Mapped[Optional[str]]
+    image_url: Mapped[Optional[str]]
 
     attendees: Mapped[List["EventAttendee"]] = relationship(back_populates="event", cascade="all, delete")
 
