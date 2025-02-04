@@ -76,6 +76,7 @@ def setup():
     global sql
 
     with app.app_context():
+        # Users
         sql.session.add(
             User(
                 name="Administrator",
@@ -90,8 +91,83 @@ def setup():
                 password=generate_password_hash("Dennise!123", method="pbkdf2:sha1"),
             )
         )
-        sql.session.add(Event(title="Cleaning Day", description="Todo", location="Chinatown", date="2025-03-01"))
-        sql.session.add(Product(name="Reusable Cup", points=200, stock=50))
+
+        # Events
+        sql.session.add(
+            Event(
+                title="Cleaning Day",
+                description="Todo",
+                location="Yishun",
+                date="2025-03-01",
+                image_url="/static/img/cleaning-day.jpg",
+            )
+        )
+        sql.session.add(
+            Event(
+                title="Newspaper Roll",
+                description="Todo",
+                location="Yishun",
+                date="2025-03-01",
+                image_url="/static/img/newspaper-roll.jpg",
+            )
+        )
+
+        # Products
+        sql.session.add(
+            Product(
+                name="Reusable Cup",
+                description="Made from durable materials, this reusable cup helps reduce single-use plastics and is perfect for your daily coffee needs!",
+                points=200,
+                stock=50,
+                image_url="/static/img/reusable-cup.png",
+            )
+        )
+        sql.session.add(
+            Product(
+                name="Iron on Badge",
+                description="how your support for sustainability with this iron-on badge. Perfect for bags, jackets, or hats!",
+                points=100,
+                stock=50,
+                image_url="/static/img/iron-on-badge.png",
+            )
+        )
+        sql.session.add(
+            Product(
+                name="Reusable Utensil",
+                description="Eco-friendly and reusable, this utensil set helps you reduce waste during meals.",
+                points=1000,
+                stock=50,
+                image_url="/static/img/reusable-utensil.png",
+            )
+        )
+        sql.session.add(
+            Product(
+                name="ZipLog Bag",
+                description="Reusable and durable, this ZipLog bag is ideal for storing snacks or supplies!",
+                points=500,
+                stock=50,
+                image_url="/static/img/ziplog-bag.png",
+            )
+        )
+        sql.session.add(
+            Product(
+                name="Notebook",
+                description="Stay organized with this eco-friendly notebook made from recycled materials.",
+                points=1500,
+                stock=50,
+                image_url="/static/img/notebook.png",
+            )
+        )
+        sql.session.add(
+            Product(
+                name="Tote Bag",
+                description="Made from durable, reusable materials, this tote bag helps reduce plastic waste.",
+                points=2000,
+                stock=50,
+                image_url="/static/img/tote-bag.png",
+            )
+        )
+
         sql.session.commit()
 
 

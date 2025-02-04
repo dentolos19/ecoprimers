@@ -19,7 +19,7 @@
         </div>
 
         <div class="col-md-6">
-            <img src="{{ url_for('static', filename='uploads/' + event.image_filename) if event.image_filename else 'https://via.placeholder.com/300x200' }}" class="img-fluid mb-3" alt="Event Image" style="height: 400px; width: 100%; object-fit: cover;">
+            <img src="{{ event.image_url if event.image_url else 'https://via.placeholder.com/300x200' }}" class="img-fluid mb-3" alt="Event Image" style="height: 400px; width: 100%; object-fit: cover;">
 
             <hr>
             {% if is_logged_in %}

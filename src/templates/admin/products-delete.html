@@ -1,8 +1,8 @@
 {% extends "admin/base.html" %}
 
 {% block abody %}
-<div class="h-100 d-flex justify-content-center align-items-center">
-  <div class="card" style="width: 400px;">
+<div class="min-h-100 d-flex justify-content-center align-items-center">
+  <div class="my-4 card" style="width: 400px;">
     <form class="card-body" method="POST" action="{{ url_for('admin_products_delete', id=product.id) }}">
       <div>
         <h5 class="card-title text-center">Delete Product</h5>

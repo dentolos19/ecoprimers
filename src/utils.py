@@ -11,7 +11,7 @@ from main import app_debug
 
 
 def allowed_file(filename):
-    return "." in filename and filename.rsplit(".", 1)[1].lower() in {"png", "jpg", "jpeg", "gif"}
+    return "." in filename and filename.rsplit(".", 1)[1].lower() in {"png", "jpg", "jpeg", "gif", "mp4"}
 
 
 def generate_random_string(length: int = 8):

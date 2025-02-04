@@ -18,9 +18,11 @@
         <a class="btn btn-warning" href="{{ url_for('community_edit', id=post.id) }}">
           Edit
         </a>
-        <a class="btn btn-danger" href="{{ url_for('community_delete', post_id=post.id) }}">
-          Delete
-        </a>
+        <form method="post" action="{{ url_for('community_delete', id=post.id) }}">
+          <button class="delete-btn btn btn-danger" type="button">
+            Delete
+          </button>
+        </form>
       </div>
       {% else %}
       <form method="post" action="{{ url_for('toggle_follow', user_id=post.user_id) }}">
@@ -40,7 +42,7 @@
 
     <!-- Caption -->
     <div class="card-body">
-      {{ post.content }}
+      {{ post.user.name }}: {{ post.content }}
     </div>
 
     <!-- Actions -->
@@ -81,8 +83,8 @@
               </div>
               <div class="modal-footer">
                 <form class="d-flex" method="post" action="{{ url_for('post_comment', post_id=post.id) }}">
-                  <input class="w-auto form-control flex-fill" type="text" name="comment_text" placeholder="Write a comment..." />
-                  <button class="comment-btn btn btn-primary" type="submit">
+                  <input class="w-auto form-control flex-fill" type="text" name="comment_text" placeholder="Write a comment..." required />
+                  <button class="comment-btn btn btn-primary" type="button" >
                     Post
                   </button>
                 </form>
@@ -132,11 +134,24 @@
 
   const CommentButtons = document.querySelectorAll("button.comment-btn");
   CommentButtons.forEach(element => {
-    element.addEventListener("click", () => {
-      console.log("Hello");
-      confirm("Are you sure you want to comment?");
-      const CommentForm = element.closest("form");
-      CommentForm.submit();
+    element.addEventListener("click", (event) => {
+      event.preventDefault(); // Stop default form submission
+
+      console.log("Comment button clicked");
+
+      if (!confirm("Are you sure you want to Comment?")) {
+        return; // Stop execution if the user clicks "Cancel"
+      }
+
+      if (!element.closest("form").checkValidity()) {
+        alert("Please fill out the comment field.");
+        return;
+      }
+
+      const commentForm = element.closest("form");
+      if (commentForm) {
+        commentForm.submit(); // Manually submit only if confirmed
+      }
     });
   });
 
@@ -152,6 +167,26 @@
       }
     });
   });
+
+  const deleteButtons = document.querySelectorAll("button.delete-btn");
+
+  deleteButtons.forEach(element => {
+    element.addEventListener("click", (event) => {
+      event.preventDefault(); // Stop default form submission
+
+      console.log("Delete button clicked");
+
+      if (!confirm("Are you sure you want to Delete?")) {
+        return; // Stop execution if the user clicks "Cancel"
+      }
+
+      const deleteForm = element.closest("form");
+      if (deleteForm) {
+        deleteForm.submit(); // Manually submit only if confirmed
+      }
+    });
+  });
+
 </script>
 
 {% endblock %}
