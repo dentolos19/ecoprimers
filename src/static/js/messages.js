@@ -16,7 +16,7 @@ function displayMessage(message) {
 if (message.sender_id == currentSenderId) {
     messageBlock.innerHTML = `
     <form action="/community/messages/${message.receiver_id}/${message.id}" method="POST">
-      <div class="message card bg-light text-dark rounded-3 justify-content-end">
+      <div class="message card rounded-3 justify-content-end">
         <div class="card-body">
           <p class="card-text">${message.message}</p>
           <button type="submit" class="btn btn-danger btn-sm float-end">Delete</button>
@@ -28,7 +28,7 @@ if (message.sender_id == currentSenderId) {
   } else {
     messageBlock.innerHTML = `
     <form action="/community/messages/${message.receiver_id}/${message.id}" method="POST">
-      <div class="message card bg-light text-dark rounded-3">
+      <div class="message card rounded-3">
         <div class="card-body">
           <p class="card-text">${message.message}</p>
           <small class="text-muted">Read status: ${message.is_read ? "Read" : "Unread"}</small>

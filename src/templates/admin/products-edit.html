@@ -1,16 +1,20 @@
 {% extends "admin/base.html" %}
 
 {% block abody %}
-<div class="h-100 d-flex justify-content-center align-items-center">
-  <div class="card" style="width: 500px;">
-    <form class="card-body" method="POST" action="{{ url_for('admin_products_edit', id=product.id) }}">
+<div class="min-h-100 d-flex justify-content-center align-items-center">
+  <div class="my-4 card" style="width: 500px;">
+    <form class="card-body" method="POST" action="{{ url_for('admin_products_edit', id=product.id) }}" enctype="multipart/form-data">
       <div>
-        <h5 class="card-title text-center">New Product</h5>
+        <h5 class="card-title text-center">Edit Product</h5>
       </div>
       <div class="vstack gap-2">
         <div>
           <label class="form-label" for="name">Name</label>
           <input class="form-control" type="text" id="name" name="name" value="{{ product.name }}" required />
+        </div>
+        <div>
+          <label class="form-label" for="description">Description</label>
+          <textarea class="form-control" id="description" name="description" rows="4" required>{{ product.description }}</textarea>
         </div>
         <div>
           <label class="form-label" for="points">Points</label>
@@ -19,6 +23,13 @@
         <div>
           <label class="form-label" for="stock">Stock</label>
           <input class="form-control" type="number" id="stock" name="stock" min="0" value="{{ product.stock }}" required />
+        </div>
+        <div>
+          <label class="form-label" for="image">Image</label>
+          {% if product.image_url %}
+          <img class="mb-2 w-100 img-fluid rounded" src="{{ product.image_url }}" alt="{{ product.name }}" />
+          {% endif %}
+          <input class="form-control" type="file" id="image" name="image" />
         </div>
       </div>
       <div class="mt-4 d-flex justify-content-end gap-2">

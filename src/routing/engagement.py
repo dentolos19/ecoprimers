@@ -3,7 +3,7 @@ from flask import flash, redirect, render_template, request, session, url_for
 
 from lib.database import sql
 from lib.enums import TransactionType
-from lib.models import Transaction, User
+from lib.models import Product, Transaction, User
 from main import app
 from utils import require_login
 
@@ -19,7 +19,8 @@ def tasks():
 def rewards():
     user_id = session.get("user_id")
     user = sql.session.query(User).filter_by(id=user_id).first()
-    return render_template("rewards2.html", user=user)
+    products = sql.session.query(Product).all()
+    return render_template("rewards2.html", user=user, products=products)
 
 
 @app.route("/engagement/points")
@@ -28,7 +29,6 @@ def points():
     user_id = session.get("user_id")
     user = sql.session.query(User).filter_by(id=user_id).first()
     return render_template("points.html", user=user)
-
 
 
 @app.route("/add_points", methods=["POST"])
@@ -67,7 +67,9 @@ def add_points():
 
     return redirect(url_for("rewards"))
 
+
 RECAPTCHA_SECRET_KEY = "6Ldk8skqAAAAAPZgQrYfsfwoOGHQJ5z0q5ZNC4l5"
+
 
 @app.route("/redeem_reward", methods=["POST"])
 @require_login
@@ -82,7 +84,7 @@ def redeem_reward():
 
     payload = {
         "secret": RECAPTCHA_SECRET_KEY,  # Your Google reCAPTCHA secret key
-        "response": recaptcha_response
+        "response": recaptcha_response,
     }
 
     response = requests.post(recaptcha_verify_url, data=payload)
@@ -118,7 +120,9 @@ def redeem_reward():
         flash("You do not have enough points to claim this reward!", "danger")
 
     return redirect(url_for("rewards"))
-''' code without the recapthca requirements in the event it fails to work is not needed anymore in this portion
+
+
+""" code without the recapthca requirements in the event it fails to work is not needed anymore in this portion
 @app.route("/redeem_reward", methods=["POST"])
 @require_login
 def redeem_reward():
@@ -153,8 +157,7 @@ def redeem_reward():
 
     return redirect(url_for("rewards"))
 
-this is my existing code for reddem reward portion'''
-
+this is my existing code for reddem reward portion"""
 
 
 @app.route("/transactions")

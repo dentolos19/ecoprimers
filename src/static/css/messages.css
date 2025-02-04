@@ -1,15 +1,10 @@
-.body {
-  display: flex;
-}
-
 #users {
   height: 100%;
   width: 400px;
-  background-color: #fff !important;
 }
 
 .user {
-  margin-top: -1em; 
+  margin-top: -1em;
   display: flex;
   align-items: center;
   gap: 15px;
@@ -19,7 +14,6 @@
 }
 
 .user .initials {
-  background-color: #fff;
   height: 53px;
   width: 53px;
   border-radius: 50%;
@@ -56,13 +50,6 @@
   border-radius: 50%;
 }
 
-#users :hover {
-  background-color: #b0b0b0;
-}
-
-#users .active {
-  background-color: #b0b0b0;
-}
 
 #input-space {
   height: 80px;
@@ -85,8 +72,6 @@
 .message-block .message {
   padding-left: 10px;
   padding-right: 10px;
-  border: 1px solid #000;
-  border-radius: 10px;
 
   max-width: 275px;
   height: auto;
@@ -118,6 +103,7 @@
 }
 
 .card-body {
+  width: 100%;
   display: flex;
   flex-direction: column;
   height: 100%;
@@ -127,7 +113,6 @@
 .input-group {
   position: sticky;
   bottom: 0;
-  background-color: white;
   padding: 10px;
 }
 
@@ -138,4 +123,3 @@
   flex-grow: 1;
   padding-bottom: 10px; /* Avoid overlap with the input field */
 }
-

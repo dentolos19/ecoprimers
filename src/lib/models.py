@@ -33,7 +33,9 @@ class User(Base):
     security: Mapped[Optional[str]]
 
     followings: Mapped[List["UserFollow"]] = relationship(back_populates="user", foreign_keys="UserFollow.user_id")
-    followers: Mapped[List["UserFollow"]] = relationship(back_populates="follower", foreign_keys="UserFollow.follower_id")
+    followers: Mapped[List["UserFollow"]] = relationship(
+        back_populates="follower", foreign_keys="UserFollow.follower_id"
+    )
 
 
 class UserFollow(Base):
@@ -50,10 +52,10 @@ class Event(Base):
     __tablename__ = "events"
 
     title: Mapped[str]
-    description: Mapped[str]
+    description: Mapped[Optional[str]]
     location: Mapped[str]
     date: Mapped[str]
-    image_filename: Mapped[Optional[str]]
+    image_url: Mapped[Optional[str]]
 
     attendees: Mapped[List["EventAttendee"]] = relationship(back_populates="event", cascade="all, delete")
 
@@ -133,8 +135,10 @@ class Product(Base):
     __tablename__ = "products"
 
     name: Mapped[str]
-    points: Mapped[int]
-    stock: Mapped[int]
+    description: Mapped[Optional[str]]
+    points: Mapped[int] = mapped_column(default=0)
+    stock: Mapped[int] = mapped_column(default=0)
+    image_url: Mapped[Optional[str]]
 
 
 class Transaction(Base):
@@ -161,8 +165,8 @@ class Message(Base):
 
     def to_dict(self):
         return super().to_dict() | {
-            "sender": self.sender.to_dict(),
-            "receiver": self.receiver.to_dict(),
+            "sender_id": self.sender_id,
+            "receiver_id": self.receiver_id,
             "message": self.message,
             "is_read": self.is_read,
         }

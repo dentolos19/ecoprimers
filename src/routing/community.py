@@ -61,6 +61,7 @@ def community_post():
 
 
 @app.route("/community/posts/<id>", methods=["GET", "POST"])
+@require_login
 def community_edit(id):
     post = sql.session.query(Post).filter_by(id=id).first()
 

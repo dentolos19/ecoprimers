@@ -33,8 +33,10 @@
 {% endblock %}
 
 {% block body %}
-<div class="mt-4 container">
-  <div class="tasks gap-2">
+<div class="container my-4">
+  <h3 class="text-center mb-4">Tasks</h3>
+  <div class="tasks gap-4">
+    <!-- Task 1 -->
     <form class="card" method="post" action="{{ url_for('add_points') }}">
       <input class="visually-hidden" name="task_name" value="EcoWalkSnap">
       <input class="visually-hidden" name="task_points" value="100">
@@ -48,6 +50,8 @@
         <button class="btn btn-primary" type="submit">Take on the Challenge</button>
       </div>
     </form>
+
+     <!-- Task 2 -->
     <form class="card" method="post" action="{{ url_for('add_points') }}">
       <input class="visually-hidden" name="task_name" value="RecycleVision">
       <input class="visually-hidden" name="task_points" value="100">
@@ -61,6 +65,8 @@
         <button class="btn btn-primary" type="submit">Take on the Challenge</button>
       </div>
     </form>
+
+     <!-- Task 3 -->
     <form class="card" method="post" action="{{ url_for('add_points') }}">
       <input class="visually-hidden" name="task_name" value="Thirsty Roots">
       <input class="visually-hidden" name="task_points" value="100">
@@ -74,6 +80,8 @@
         <button class="btn btn-primary" type="submit">Take on the Challenge</button>
       </div>
     </form>
+
+     <!-- Task 4 -->
     <form class="card" method="post" action="{{ url_for('add_points') }}">
       <input class="visually-hidden" name="task_name" value="Lights Out">
       <input class="visually-hidden" name="task_points" value="100">
