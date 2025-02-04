@@ -18,10 +18,10 @@
         <a class="btn btn-warning" href="{{ url_for('community_edit', id=post.id) }}">
           Edit
         </a>
-        <form method="get" action="{{ url_for('community_delete', post_id=post.user_id) }}"">
-        <button type="button" class="delete-btn btn btn-danger" >
-          Delete
-        </button>
+        <form method="post" action="{{ url_for('community_delete', id=post.id) }}">
+          <button class="delete-btn btn btn-danger" type="button">
+            Delete
+          </button>
         </form>
       </div>
       {% else %}
@@ -83,8 +83,8 @@
               </div>
               <div class="modal-footer">
                 <form class="d-flex" method="post" action="{{ url_for('post_comment', post_id=post.id) }}">
-                  <input class="w-auto form-control flex-fill" type="text" name="comment_text" placeholder="Write a comment..." />
-                  <button class="comment-btn btn btn-primary" type="submit">
+                  <input class="w-auto form-control flex-fill" type="text" name="comment_text" placeholder="Write a comment..." required />
+                  <button class="comment-btn btn btn-primary" type="button" >
                     Post
                   </button>
                 </form>
@@ -133,22 +133,27 @@
   });
 
   const CommentButtons = document.querySelectorAll("button.comment-btn");
-CommentButtons.forEach(element => {
-  element.addEventListener("click", (event) => {
-    event.preventDefault(); // Stop default form submission
+  CommentButtons.forEach(element => {
+    element.addEventListener("click", (event) => {
+      event.preventDefault(); // Stop default form submission
 
-    console.log("Comment button clicked");
+      console.log("Comment button clicked");
 
-    if (!confirm("Are you sure you want to Comment?")) {
-      return; // Stop execution if the user clicks "Cancel"
-    }
+      if (!confirm("Are you sure you want to Comment?")) {
+        return; // Stop execution if the user clicks "Cancel"
+      }
 
-    const commentForm = element.closest("form");
-    if (commentForm) {
-      commentForm.submit(); // Manually submit only if confirmed
-    }
+      if (!element.closest("form").checkValidity()) {
+        alert("Please fill out the comment field.");
+        return;
+      }
+
+      const commentForm = element.closest("form");
+      if (commentForm) {
+        commentForm.submit(); // Manually submit only if confirmed
+      }
+    });
   });
-});
 
   // JavaScript to toggle the dropdown menu and hide it when clicking outside
   document.addEventListener("click", function (event) {
@@ -163,24 +168,24 @@ CommentButtons.forEach(element => {
     });
   });
 
-const deleteButtons = document.querySelectorAll("button.delete-btn");
+  const deleteButtons = document.querySelectorAll("button.delete-btn");
 
-deleteButtons.forEach(element => {
-  element.addEventListener("click", (event) => {
-    event.preventDefault(); // Stop default form submission
+  deleteButtons.forEach(element => {
+    element.addEventListener("click", (event) => {
+      event.preventDefault(); // Stop default form submission
 
-    console.log("Delete button clicked");
+      console.log("Delete button clicked");
 
-    if (!confirm("Are you sure you want to Delete?")) {
-      return; // Stop execution if the user clicks "Cancel"
-    }
+      if (!confirm("Are you sure you want to Delete?")) {
+        return; // Stop execution if the user clicks "Cancel"
+      }
 
-    const deleteForm = element.closest("form");
-    if (deleteForm) {
-      deleteForm.submit(); // Manually submit only if confirmed
-    }
+      const deleteForm = element.closest("form");
+      if (deleteForm) {
+        deleteForm.submit(); // Manually submit only if confirmed
+      }
+    });
   });
-});
 
 </script>
 

@@ -80,11 +80,10 @@ def community_edit(id):
     return render_template("community-edit.html", post=post)
 
 
-@app.route("/community/posts/<post_id>/delete", methods=["GET", "POST"])
+@app.route("/community/posts/<id>/delete", methods=["POST"])
 @require_login
-def community_delete(post_id):
-    # post = Post.query.get(post_id)
-    post = sql.session.query(Post).filter_by(id=post_id).first()
+def community_delete(id):
+    post = sql.session.query(Post).filter_by(id=id).first()
     sql.session.delete(post)
     sql.session.commit()
     return redirect(url_for("community"))
