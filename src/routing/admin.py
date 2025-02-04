@@ -1,9 +1,12 @@
+import json
 import os
+from datetime import datetime
 
 from flask import flash, redirect, render_template, request, url_for
 from werkzeug.security import generate_password_hash
 from werkzeug.utils import secure_filename
 
+from lib.ai import agent
 from lib.database import sql
 from lib.models import Event, Product, Transaction, User
 from main import app
@@ -53,14 +56,15 @@ def admin_events_new():
         event_date = request.form["date"]
         image = request.files["image"]
 
+        if image and not allowed_file(image.filename):
+            flash("Invalid file type! Only images with extensions .png, .jpg, .jpeg, and .gif are allowed.", "danger")
+            return redirect(request.url)
+
         image_filename = None
         if image and allowed_file(image.filename):
-            # Secure the filename and save it
             image_filename = secure_filename(image.filename)
             image.save(os.path.join(app.config["UPLOAD_FOLDER"], image_filename))
 
-
-        # Create an Event object and save it to the database
         new_event = Event(
             title=event_title,
             description=event_description,
@@ -70,7 +74,6 @@ def admin_events_new():
         )
 
         try:
-            # Add the event to the session and commit it to the database
             sql.session.add(new_event)
             sql.session.commit()
             flash("Event added successfully!", "success")
@@ -96,13 +99,15 @@ def admin_events_edit(id):
         event_date = request.form["date"]
         image = request.files["image"]
 
+        if image and not allowed_file(image.filename):
+            flash("Invalid file type! Only images with extensions .png, .jpg, .jpeg, and .gif are allowed.", "danger")
+            return redirect(request.url)
+
         image_filename = None
         if image and allowed_file(image.filename):
-            # Secure the filename and save it
             image_filename = secure_filename(image.filename)
             image.save(os.path.join(app.config["UPLOAD_FOLDER"], image_filename))
 
-        # Update the event object with the new data
         event.title = event_title
         event.description = event_description
         event.location = event_location
@@ -110,7 +115,6 @@ def admin_events_edit(id):
         event.image_filename = image_filename
 
         try:
-            # Commit the changes to the database
             sql.session.commit()
             flash("Event updated successfully!", "success")
         except Exception as e:
@@ -128,7 +132,6 @@ def admin_events_delete(id):
     event = sql.session.query(Event).filter_by(id=id).first()
 
     if request.method == "POST":
-        # Collect data from the form
         event_title = request.form["title"]
 
         if event.title != event_title:
@@ -390,3 +393,43 @@ def admin_transactions_delete(id):
         return redirect(url_for("admin_transactions"))
 
     return render_template("admin/transactions-delete.html", transaction=transaction)
+
+
+@app.route("/admin/advanced")
+def admin_advanced():
+    return render_template("admin/advanced.html")
+
+
+@app.route("/admin/advanced/generate/users", methods=["POST"])
+def admin_advanced_generate_users():
+    # Collect data from the form
+    count = int(request.form["count"])
+
+    # Get prompt
+    with open("src/static/generateusers.txt", "r") as file:
+        prompt = file.read().format(count=count, today=datetime.now().strftime("%Y-%m-%d"))
+
+    # Generate response
+    response = agent.generate_content(prompt, generation_config={"response_mime_type": "application/json"})
+    data = json.loads(response.candidates[0].content.parts[0].text.strip())
+
+    # Parse response
+    users = data["users"]
+    for user in users:
+        user["created_at"] = datetime.strptime(user["created_at"], "%Y-%m-%dT%H:%M:%S")
+
+    try:
+        # Add the users to the database
+        sql.session.bulk_insert_mappings(User, users)
+        sql.session.commit()
+        flash("Users generated successfully!", "success")
+    except Exception as e:
+        sql.session.rollback()
+        flash(f"An error occurred while generating users! {str(e)}", "danger")
+
+    return redirect(url_for("admin_advanced"))
+
+
+@app.route("/admin/advanced/generate/transactions", methods=["POST"])
+def admin_advanced_generate_transactions():
+    pass

@@ -4,15 +4,29 @@ from flask import redirect, render_template, request, session, url_for
 from werkzeug.utils import secure_filename
 
 from lib.database import sql
-from lib.models import Post, PostLike
+from lib.models import Post, PostComment, PostLike, PostSaved, UserFollow
 from main import app
 from utils import allowed_file, require_login
 
 @app.context_processor
 def init_community():
+
+    user_id = session.get('user_id')
+
     def is_liked(likes, user_id):
         return any(like.user_id == user_id for like in likes)
-    return dict(is_liked=is_liked)
+
+    def is_saved(saves, user_id):
+        return any(save.user_id == user_id for save in saves)
+    
+    def is_followed(follows, user_id, follower_id):
+        return any(follow.user_id == user_id and follow.follower_id == follower_id for follow in follows)
+    
+    def is_comment(comments, user_id):
+        return any(comment.user_id == user_id for comment in comments)
+    
+    return dict(user_id=user_id, is_liked=is_liked, is_saved=is_saved, is_followed=is_followed, is_comment=is_comment)
+
 
 @app.route("/community/post", methods=["GET", "POST"])
 @require_login
@@ -53,29 +67,29 @@ def community():
     user_id = session.get("user_id")
     return render_template("community.html", posts=posts, user_id=user_id)
 
-@app.route("/delete_post/<post_id>", methods=["POST"])
+@app.route("/community/saved")
+@require_login
+def community_saved():
+    user_id = session.get("user_id")
+    saved_posts = sql.session.query(PostSaved).filter_by(user_id=user_id).all()
+
+    return render_template("community-saved.html", posts=saved_posts)
+
+@app.route("/community/posts/<post_id>/delete", methods=["GET", "POST"])
 @require_login
 def delete_post(post_id):
     # post = Post.query.get(post_id)
     post = sql.session.query(Post).filter_by(id=post_id).first()
-    if post:
-        # If the post has an image, delete it from the file system
-        if post.image_filename:
-            image_path = os.path.join(app.config["UPLOAD_FOLDER"], post.image_filename)
-            if os.path.exists(image_path):
-                os.remove(image_path)
-
-        sql.session.delete(post)
-        sql.session.commit()
-        return redirect(url_for("community"))
-    else:
-        return "Post not found", 404
+    sql.session.delete(post)
+    sql.session.commit()
+    return redirect(url_for("community"))
+    
 
 
-@app.route("/update_post/<post_id>", methods=["GET", "POST"])
+@app.route("/community/posts/<post_id>", methods=["GET", "POST"])
 def update_post(post_id):
-    #post = Post.query.get(post_id)
     post = sql.session.query(Post).filter_by(id=post_id).first()
+    
     if not post:
         return "Post not found", 404
 
@@ -104,10 +118,10 @@ def update_post(post_id):
         return redirect(url_for("community"))
 
     # Render the update form with the current post data
-    return render_template("update_post.html", post=post)
+    return render_template("community-update.html", post=post)
 
 
-@app.route("/toggle_like/<post_id>", methods=["GET", "POST"])
+@app.route("/community/posts/<post_id>/like", methods=["GET", "POST"])
 def toggle_like(post_id):
     user_id = session.get("user_id")
     like = sql.session.query(PostLike).filter_by(post_id=post_id, user_id=user_id).first()
@@ -121,6 +135,71 @@ def toggle_like(post_id):
     else:
         sql.session.delete(like)
 
+    sql.session.commit()
+
+    return redirect(url_for("community"))
+
+@app.route("/community/posts/<user_id>/follow", methods=["GET", "POST"])
+def toggle_follow(user_id):
+    follower_id = session.get("user_id")
+    follow = sql.session.query(UserFollow).filter_by( user_id=user_id, follower_id=follower_id).first()
+
+    if not follow:
+        follow = UserFollow(
+            user_id=user_id,
+            follower_id=follower_id
+        )
+        sql.session.add(follow)
+    else:
+        sql.session.delete(follow)
+
+    sql.session.commit()
+
+    return redirect(url_for("community"))
+
+
+@app.route("/community/posts/<post_id>/save", methods=["GET", "POST"])
+def toggle_save(post_id):
+    user_id = session.get("user_id")  # Get the current logged-in user's ID
+    
+    # Check if the post is already saved by the user
+    save = sql.session.query(PostSaved).filter_by(post_id=post_id, user_id=user_id).first()
+
+    if not save:
+        # If the post is not already saved, add it to the PostSaved table
+        save = PostSaved(
+            post_id=post_id,
+            user_id=user_id
+        )
+        sql.session.add(save)
+    else:
+        # If the post is already saved, remove it from the PostSaved table
+        sql.session.delete(save)
+
+    # Commit the changes to the database
+    sql.session.commit()
+
+    # Redirect back to the community page (or wherever you want)
+    return redirect(url_for("community"))
+
+
+@app.route("/community/posts/<post_id>/comment", methods=["GET", "POST"])
+def post_comment(post_id):
+    user_id = session.get("user_id")  # Get the current logged-in user's ID
+
+    message = request.form["comment_text"]
+    user_id = session.get("user_id")
+        # Add post to the database
+
+    
+    print(message)
+    new_comment = PostComment(
+        message = message,
+        post_id=post_id,
+        user_id=user_id,
+        )
+
+    sql.session.add(new_comment)
     sql.session.commit()
 
     return redirect(url_for("community"))

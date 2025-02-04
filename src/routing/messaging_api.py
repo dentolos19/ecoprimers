@@ -5,7 +5,6 @@ from lib.database import sql
 from lib.models import Message
 from main import app
 
-# TODO: Ivan, you can move this to your messaging.py route file
 
 @app.route("/api/messages", methods=["GET", "POST"])
 def api_messages():

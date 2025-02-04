@@ -1,6 +1,6 @@
 // messages.js
 const socket = io({
-	transports: ["polling"],	
+	transports: ["polling"],
 });
 
 // Store current chat state
@@ -13,31 +13,31 @@ function displayMessage(message) {
 	messageBlock.className = `message-block ${message.sender_id === currentSenderId ? "you" : "other-person"}`;
 	messageBlock.id = message.id;
 
-	if (message.sender_id == currentSenderId) {
-		
-		messageBlock.innerHTML = `
-		<form action="/community/messages/${message.receiver_id}/${message.id}" method="POST">
-			<div class="message">
-				<p>${message.message}</p>
-				<span class="timestamp">Read status: ${message.is_read ? "Read" : "Unread"}</span>
-				<button type="submit">Delete</button> 
-			</div>
-		</form>
-		`;
-		console.log(`test: logged in user = sender, sender id = ${message.sender_id}, current sender id = ${currentSenderId}`);
-	} else {
-		
-		messageBlock.innerHTML = `
-		<form action="/community/messages/${message.receiver_id}/${message.id}" method="POST">
-			<div class="message">
-				<p>${message.message}</p>
-				<span class="timestamp">Read status: ${message.is_read ? "Read" : "Unread"}</span>
-			</div>
-		</form>
-		`;
-		console.log(`test: logged in user = receiver, sender id = ${message.sender_id}, current sender id = ${currentSenderId}`);
-	}
-
+if (message.sender_id == currentSenderId) {
+    messageBlock.innerHTML = `
+    <form action="/community/messages/${message.receiver_id}/${message.id}" method="POST">
+      <div class="message card bg-light text-dark rounded-3 justify-content-end">
+        <div class="card-body">
+          <p class="card-text">${message.message}</p>
+          <button type="submit" class="btn btn-danger btn-sm float-end">Delete</button>
+        </div>
+      </div>
+    </form>
+    `;
+    console.log(`test: logged in user = sender, sender id = ${message.sender_id}, current sender id = ${currentSenderId}`);
+  } else {
+    messageBlock.innerHTML = `
+    <form action="/community/messages/${message.receiver_id}/${message.id}" method="POST">
+      <div class="message card bg-light text-dark rounded-3">
+        <div class="card-body">
+          <p class="card-text">${message.message}</p>
+          <small class="text-muted">Read status: ${message.is_read ? "Read" : "Unread"}</small>
+        </div>
+      </div>
+    </form>
+    `;
+    console.log(`test: logged in user = receiver, sender id = ${message.sender_id}, current sender id = ${currentSenderId}`);
+  }
 	messageSpace.appendChild(messageBlock);
 	messageSpace.scrollTop = messageSpace.scrollHeight;
 }
@@ -45,7 +45,8 @@ function displayMessage(message) {
 
 document.addEventListener("DOMContentLoaded", function () {
 	currentSenderId = document.querySelector("#sender-id").value;
-	currentRecipientId = document.querySelector("#receiver-id").value;
+	currentRecipientId = window.location.pathname.split("/")[3];
+  console.log(currentRecipientId)
 
 	fetch(`/api/messages?sender_id=${currentSenderId}&receiver_id=${currentRecipientId}`)
 		.then((response) => {
@@ -65,7 +66,6 @@ document.addEventListener("DOMContentLoaded", function () {
 	});
 
 	socket.on("receive_message", (messages) => {
-		// TODO: Fix socket updates
 		const messageSpace = document.querySelector(".message-space");
 		messageSpace.innerHTML = "";
 		fetch(`/api/messages?sender_id=${currentSenderId}&receiver_id=${currentRecipientId}`)
@@ -112,23 +112,31 @@ function sendMessage() {
         receiver_id: currentRecipientId,
         message: content
     });
-	
+
 };
 
-// Listen for 'receive_message' event
-// In messages.js, replace your socket.on("receive_message") event with this:
 socket.on("receive_message", (message) => {
     // Check if this message belongs to current chat
-    if (message.sender_id === currentRecipientId || 
+    if (message.sender_id === currentRecipientId ||
         (message.sender_id === currentSenderId && message.receiver_id === currentRecipientId)) {
         displayMessage(message);
     }
 });
 
-// Add this to your existing socket event listeners
 socket.on("message_deleted", (data) => {
     const messageElement = document.getElementById(data.message_id);
     if (messageElement) {
         messageElement.remove();
     }
+});
+
+document.addEventListener("DOMContentLoaded", function () {
+  const inputElement = document.querySelector("input#message");
+
+  inputElement.addEventListener("keypress", function (event) {
+    if (event.key === "Enter") {
+      event.preventDefault(); // Prevent the default form submission
+      sendMessage(); // Trigger the sendMessage function
+    }
+  });
 });

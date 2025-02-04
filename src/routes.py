@@ -3,7 +3,6 @@ from importlib import import_module
 
 import stripe
 from flask import flash, redirect, render_template, request, session, url_for
-from werkzeug.security import check_password_hash, generate_password_hash
 
 from lib.database import sql
 from lib.models import Event, EventAttendee, User
@@ -13,11 +12,16 @@ from utils import check_admin_status, check_logged_in, require_login
 
 @app.context_processor
 def init():
-    utils = import_module("utils")
-    current_date = date.today().isoformat()
-    is_logged_in = check_logged_in()
-    is_admin_user = check_admin_status()
-    return dict(any=any, len=len, utils=utils, current_date=current_date, is_logged_in=is_logged_in, is_admin_user=is_admin_user)
+    return {
+        "any": any,
+        "len": len,
+        "range": range,
+        "enumerate": enumerate,
+        "utils": import_module("utils"),
+        "current_date": date.today().isoformat(),
+        "is_logged_in": check_logged_in(),
+        "is_admin_user": check_admin_status(),
+    }
 
 
 @app.route("/")
@@ -27,11 +31,9 @@ def home():
 
 
 @app.route("/profile")
+@require_login
 def profile():
     user_id = session.get("user_id")
-    if not user_id:
-        return redirect("/login")
-
     user = sql.session.query(User).filter(User.id == user_id).first()
 
     if not user:
@@ -41,11 +43,9 @@ def profile():
 
 
 @app.route("/edit_profile", methods=["GET", "POST"])
+@require_login
 def edit_profile():
     user_id = session.get("user_id")
-    if not user_id:
-        return redirect("/login")
-
     user = sql.session.query(User).filter(User.id == user_id).first()
 
     if request.method == "POST":
@@ -65,105 +65,6 @@ def edit_profile():
             sql.session.rollback()
 
     return render_template("edit-profile.html", user=user)
-
-
-@app.route("/login", methods=["GET", "POST"])
-def login():
-    if "user_id" in session:
-        flash("You're already logged in!", "danger")
-        return redirect(url_for("home"))
-
-    if request.method == "POST":
-        email = request.form["email"]
-        password = request.form["password"]
-
-        user = sql.session.query(User).filter_by(email=email).first()
-
-        if user and check_password_hash(user.password, password):
-            session["user_id"] = user.id
-            session["user_email"] = user.email
-
-            # Check the email domain
-            if user.email.endswith("@mymail.nyp.edu.sg"):
-                flash("Admin login successful!", "success")
-                return redirect(url_for("admin"))
-            else:
-                flash("Login successful!", "success")
-                return redirect(url_for("home"))
-        else:
-            flash("Invalid email or password. Please try again.", "danger")
-
-    return render_template("login.html")
-
-
-@app.route("/signup", methods=["GET", "POST"])
-def signup():
-    if request.method == "POST":
-        email = request.form["email"]
-        name = request.form["name"]
-        password = request.form["password"]
-        bio = request.form["bio"]
-        birthday = request.form["birthday"]
-        security = request.form["security"]  # New security field
-
-        hashed_password = generate_password_hash(password, method="pbkdf2:sha1")
-
-        new_user = User(
-            email=email,
-            name=name,
-            password=hashed_password,
-            bio=bio,
-            birthday=birthday,
-            security=security,  # Save security question
-        )
-
-        try:
-            sql.session.add(new_user)
-            sql.session.commit()
-            flash("Sign up successful! You can now log in.", "success")
-            return redirect("/login")
-        except Exception as e:
-            if "unique constraint" in str(e).lower():
-                flash("Error! Email already exists.", "danger")
-            sql.session.rollback()
-    return render_template("signup.html")
-
-
-@app.route("/logout")
-def logout():
-    session.clear()  # Clear all session data
-    flash("You've been logged out successfully.", "success")
-    return redirect(url_for("home"))
-
-
-@app.route("/reset_password", methods=["GET", "POST"])
-def reset_password():
-    if request.method == "POST":
-        email = request.form["email"]
-        security = request.form["security"]
-        new_password = request.form["new_password"]
-
-        # Fetch the user from the database
-        user = sql.session.query(User).filter_by(email=email).first()
-
-        if user and user.security == security:
-            # Check if the new password is the same as the current one
-            if check_password_hash(user.password, new_password):
-                flash("New password cannot be the same as the current password.", "danger")
-            else:
-                # Update the user's password
-                user.password = generate_password_hash(new_password, method="pbkdf2:sha1")
-                try:
-                    sql.session.commit()
-                    flash("Password reset successfully. You can now log in.", "success")
-                    return redirect("/login")
-                except Exception:
-                    sql.session.rollback()
-                    flash("Error resetting password. Please try again.", "danger")
-        else:
-            flash("Incorrect email or security answer.", "danger")
-
-    return render_template("reset-password.html")
 
 
 @app.route("/events")
@@ -277,11 +178,12 @@ def event_signup():
 
     return render_template("event-signup.html", event=event, user=user)
 
+
 @app.route("/event/withdraw", methods=["POST"])
 @require_login
 def event_withdraw():
-    event_id = request.form.get("event_id")  
-    user_id = session.get("user_id")  
+    event_id = request.form.get("event_id")
+    user_id = session.get("user_id")
 
     attendee = sql.session.query(EventAttendee).filter_by(event_id=event_id, user_id=user_id).first()
     if not attendee:
@@ -307,3 +209,4 @@ from routing.chat_api import *
 from routing.community import *
 from routing.engagement import *
 from routing.messaging import *
+from routing.messaging_api import *
