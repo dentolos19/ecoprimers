@@ -1,13 +1,13 @@
 {% extends "admin/base.html" %}
 
 {% block abody %}
-<div class="container">
-  <!-- Title Bar -->
-  <div class="mt-4">
+<div class="container my-4">
+  <!-- Header -->
+  <div>
     <h3 class="m-0">Transactions ({{ transactions.__len__() }})</h3>
   </div>
 
-  <!-- Transaction Items -->
+  <!-- Items -->
   <div class="mt-4 vstack gap-2">
     {% for transaction in transactions %}
     <div class="card">

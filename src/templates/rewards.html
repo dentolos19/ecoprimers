@@ -28,7 +28,7 @@
   <div class="rewards gap-2">
     {% for index, product in enumerate(products) %}
     <div class="card" style="cursor: pointer;" data-bs-toggle="modal" data-bs-target="#modal-{{ index }}">
-      <img class="card-img-top" style="aspect-ratio: 1 / 1; object-fit: cover;" src="{{ product.image_url }}" alt="Reusable Cup" />
+      <img class="card-img-top" style="aspect-ratio: 1 / 1; object-fit: cover;" src="{{ product.image_url }}" alt="{{ product.name }}" />
       <div class="card-body">
         <h5 class="card-title">{{ product.name }}</h5>
         <p class="card-text">{{ product.points }} pts</p>

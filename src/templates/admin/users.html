@@ -1,16 +1,16 @@
 {% extends "admin/base.html" %}
 
 {% block abody %}
-<div class="container">
-  <!-- Title Bar -->
-  <div class="mt-4 d-flex justify-content-between align-items-center">
+<div class="container my-4">
+  <!-- Header -->
+  <div class="d-flex justify-content-between align-items-center">
     <h3 class="m-0">Users ({{ users.__len__() }})</h3>
     <a class="btn btn-primary" href="{{ url_for('admin_users_new') }}">
       New User
     </a>
   </div>
 
-  <!-- User Items -->
+  <!-- Items -->
   <div class="mt-4 vstack gap-2">
     {% for user in users %}
     <div class="card">

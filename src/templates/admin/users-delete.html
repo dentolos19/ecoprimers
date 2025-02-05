@@ -1,7 +1,7 @@
 {% extends "admin/base.html" %}
 
 {% block abody %}
-<div class="min-h-100 d-flex justify-content-center align-items-center">
+<div class="container d-flex justify-content-center align-items-center">
   <div class="my-4 card" style="width: 400px;">
     <form class="card-body" method="POST" action="{{ url_for('admin_users_delete', id=user.id) }}">
       <div>

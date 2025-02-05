@@ -17,10 +17,10 @@
     <div class="card-body d-flex justify-content-between align-items-center">
       <h5 class="card-title m-0">{{ post.post.user.name }}</h5>
       <form>
-        <button class="btn btn-sm btn-primary">
-          <i class="fas fa-heart"></i>
+        <a class="btn btn-sm btn-primary" href="{{ url_for('toggle_save', post_id=post.post.id) }}">
+          <i class="fa-solid fa-floppy-disk"></i>
           <span>Unsave</span>
-        </button>
+        </a>
       </form>
     </div>
     <div>

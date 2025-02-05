@@ -1,11 +1,8 @@
-import json
-from datetime import datetime
 
 from flask import flash, redirect, render_template, request, url_for
 from werkzeug.security import generate_password_hash
 
-from lib import database, storage
-from lib.ai import agent
+from lib import storage
 from lib.database import sql
 from lib.models import Event, Product, Transaction, User
 from main import app
@@ -270,8 +267,12 @@ def admin_products_new():
 
         image_url = None
 
-        if product_image and allowed_file(product_image.filename):
-            image_url = storage.upload(product_image)
+        if product_image:
+            if allowed_file(product_image.filename):
+                image_url = storage.upload(product_image)
+            else:
+                flash("The file format is not allowed.", "danger")
+                return redirect(request.referrer)
 
         # Create a Product object and save it to the database
         new_product = Product(
@@ -312,8 +313,12 @@ def admin_products_edit(id):
 
         image_url = product.image_url
 
-        if product_image and allowed_file(product_image.filename):
-            image_url = storage.upload(product_image)
+        if product_image:
+            if allowed_file(product_image.filename):
+                image_url = storage.upload(product_image)
+            else:
+                flash("The file format is not allowed.", "danger")
+                return redirect(url_for('admin_products_edit', id=id))
 
         # Update the product object with the new data
         product.name = product_name
