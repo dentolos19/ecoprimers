@@ -1,55 +1,26 @@
 {% extends "base.html" %}
 
-{% block stylesheets %}
-<style>
-    .transaction-container {
-        width: 400px;
-        margin: 20px auto;
-        padding: 10px;
-        background-color: #f2f2f2;
-        border-radius: 10px;
-    }
-    .transaction-item {
-        background-color: white;
-        margin: 10px 0;
-        padding: 15px;
-        border-radius: 8px;
-        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-    }
-    .transaction-item span {
-        font-size: 0.9em;
-    }
-    .points-earned {
-        color: green;
-        font-weight: bold;
-    }
-    .points-redeemed {
-        color: red;
-        font-weight: bold;
-    }
-</style>
-{% endblock %}
-
 {% block body %}
-<div class="transaction-container">
-    <h2>Transactions</h2>
-    {% for transaction in transactions %}
-    <div class="transaction-item">
-        <div>
-            <span>{{ transaction.created_at.strftime('%d/%m/%Y') }}</span><br>
-            <span>{{ transaction.description }}</span>
+<div class="my-4 container d-flex justify-content-center align-items-center">
+  <div style="width: 400;">
+    <h3 class="mb-4 text-center">Transactions</h3>
+    <div class="vstack gap-2">
+      {% for transaction in transactions %}
+      <div class="card d-flex flex-row">
+        <div class="card-body flex-fill">
+          <h5 class="card-title">{{ transaction.created_at.strftime('%d/%m/%Y') }}</h5>
+          <p class="card-text text-muted">{{ transaction.description }}</p>
         </div>
-        <div>
-            {% if transaction.type == "earned" %}
-            <span class="points-earned">+{{ transaction.points }} pts</span>
-            {% elif transaction.type == "redeemed" %}
-            <span class="points-redeemed">-{{ transaction.points }} pts</span>
-            {% endif %}
+        <div class="card-body d-flex justify-content-end align-items-center">
+          {% if transaction.type.value == "earned" %}
+          <span class="text-success" style="font-weight: bold;">+{{ transaction.amount }} pts</span>
+          {% elif transaction.type.value == "redemption" %}
+          <span class="text-danger" style="font-weight: bold;">-{{ transaction.amount }} pts</span>
+          {% endif %}
         </div>
+      </div>
+      {% endfor %}
     </div>
-    {% endfor %}
+  </div>
 </div>
 {% endblock %}
