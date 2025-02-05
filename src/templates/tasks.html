@@ -6,36 +6,22 @@
     display: grid;
     grid-template-columns: repeat(4, 1fr);
   }
-
-  .check-points-container {
-    margin-top: 20px;
-    text-align: center;
-  }
-
-  .check-points-button {
-    padding: 10px 20px;
-    background-color: green;
-    color: white;
-    font-size: 1.2em;
-    font-weight: bold;
-    border-radius: 8px;
-    border: none;
-    cursor: pointer;
-    text-decoration: none;
-    display: inline-block;
-  }
-
-  .check-points-button:hover {
-    background-color: #555;
-    text-decoration: none;
-  }
 </style>
 {% endblock %}
 
 {% block body %}
 <div class="container my-4">
-  <h3 class="text-center mb-4">Tasks</h3>
-  <div class="tasks gap-4">
+  <!-- Header -->
+  <div class="mb-4 d-flex justify-content-between align-items-center">
+    <h3 class="text-center m-0">Tasks</h3>
+    <div class="btn-group">
+      <a class="btn btn-primary" href="{{ url_for('rewards') }}">{{ user.points }} points</a>
+      <a class="btn btn-secondary" href="{{ url_for('transactions') }}">View Transactions</a>
+    </div>
+  </div>
+
+  <!-- Tasks -->
+  <div class="tasks gap-2">
     <!-- Task 1 -->
     <form class="card" method="post" action="{{ url_for('add_points') }}">
       <input class="visually-hidden" name="task_name" value="EcoWalkSnap">
@@ -51,7 +37,7 @@
       </div>
     </form>
 
-     <!-- Task 2 -->
+    <!-- Task 2 -->
     <form class="card" method="post" action="{{ url_for('add_points') }}">
       <input class="visually-hidden" name="task_name" value="RecycleVision">
       <input class="visually-hidden" name="task_points" value="100">
@@ -66,7 +52,7 @@
       </div>
     </form>
 
-     <!-- Task 3 -->
+    <!-- Task 3 -->
     <form class="card" method="post" action="{{ url_for('add_points') }}">
       <input class="visually-hidden" name="task_name" value="Thirsty Roots">
       <input class="visually-hidden" name="task_points" value="100">
@@ -81,7 +67,7 @@
       </div>
     </form>
 
-     <!-- Task 4 -->
+    <!-- Task 4 -->
     <form class="card" method="post" action="{{ url_for('add_points') }}">
       <input class="visually-hidden" name="task_name" value="Lights Out">
       <input class="visually-hidden" name="task_points" value="100">
@@ -95,11 +81,6 @@
         <button class="btn btn-primary" type="submit">Take on the Challenge</button>
       </div>
     </form>
-  </div>
-
-  <!-- Check Points Button -->
-  <div class="check-points-container">
-    <a class="check-points-button mb-4" href="{{ url_for('points') }}">Check Points</a>
   </div>
 </div>
 {% endblock %}

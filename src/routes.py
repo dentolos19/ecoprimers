@@ -15,6 +15,7 @@ def init():
     return {
         "any": any,
         "len": len,
+        "str": str,
         "range": range,
         "enumerate": enumerate,
         "utils": import_module("utils"),

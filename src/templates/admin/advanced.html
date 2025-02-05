@@ -2,7 +2,7 @@
 
 {% block stylesheets %}
 <style>
-  .container {
+  .features {
     display: grid;
     grid-template-columns: repeat(3, 1fr);
   }
@@ -10,50 +10,58 @@
 {% endblock %}
 
 {% block abody %}
-<div class="container py-4 gap-2">
-  <form class="card" method="post" action="{{ url_for('admin_advanced_reset_database') }}">
-    <div class="card-body d-flex flex-column">
-      <h5 class="card-title">Reset Database</h5>
-      <p class="card-text flex-fill">Reset the database by dropping all tables and recreating them.</p>
-      <div class="mt-3">
-        <button class="btn btn-primary" type="submit">Reset</button>
+<div class="container my-4">
+  <!-- Header -->
+  <div>
+    <h3 class="m-0">Advanced Features</h3>
+  </div>
+
+  <!-- Features -->
+  <div class="features mt-4 gap-2">
+    <form class="card" method="post" action="{{ url_for('admin_advanced_reset_database') }}">
+      <div class="card-body d-flex flex-column">
+        <h5 class="card-title">Reset Database</h5>
+        <p class="card-text flex-fill">Reset the database by dropping all tables and recreating them.</p>
+        <div class="mt-3">
+          <button class="btn btn-primary" type="submit">Reset</button>
+        </div>
       </div>
-    </div>
-  </form>
-  <form class="card" method="post" action="{{ url_for('admin_advanced_setup_database') }}">
-    <div class="card-body d-flex flex-column">
-      <h5 class="card-title">Setup Database</h5>
-      <p class="card-text flex-fill">Preload database with curated data. Warning, you can only run this once!</p>
-      <div class="mt-3">
-        <button class="btn btn-primary" type="submit">Setup</button>
+    </form>
+    <form class="card" method="post" action="{{ url_for('admin_advanced_setup_database') }}">
+      <div class="card-body d-flex flex-column">
+        <h5 class="card-title">Setup Database</h5>
+        <p class="card-text flex-fill">Preload database with curated data. You should run this if you have reset the database!</p>
+        <div class="mt-3">
+          <button class="btn btn-primary" type="submit">Setup</button>
+        </div>
       </div>
-    </div>
-  </form>
-  <form class="card" method="post" action="{{ url_for('admin_advanced_generate_users') }}">
-    <div class="card-body d-flex flex-column">
-      <h5 class="card-title">Generate Users</h5>
-      <p class="card-text flex-fill">Uses AI to generate random users. The generated password is "generateduser".</p>
-      <div>
-        <label class="form-label" for="userCount">Count</label>
-        <input class="form-control" type="number" id="userCount" name="count" value="10" min="1" />
+    </form>
+    <form class="card" method="post" action="{{ url_for('admin_advanced_generate_users') }}">
+      <div class="card-body d-flex flex-column">
+        <h5 class="card-title">Generate Users</h5>
+        <p class="card-text flex-fill">Uses AI to generate random users. The generated password is "generateduser".</p>
+        <div>
+          <label class="form-label" for="userCount">Count</label>
+          <input class="form-control" type="number" id="userCount" name="count" value="10" min="1" />
+        </div>
+        <div class="mt-3">
+          <button class="btn btn-primary" type="submit">Generate</button>
+        </div>
       </div>
-      <div class="mt-3">
-        <button class="btn btn-primary" type="submit">Generate</button>
+    </form>
+    <form class="card" method="post" action="{{ url_for('admin_advanced_generate_transactions') }}">
+      <div class="card-body d-flex flex-column">
+        <h5 class="card-title">Generate Transactions</h5>
+        <p class="card-text flex-fill">Uses AI to generate random transactions. This will randomly use existing users.</p>
+        <div>
+          <label class="form-label" for="transactionCount">Count</label>
+          <input class="form-control" type="number" id="transactionCount" name="count" value="10" min="1" />
+        </div>
+        <div class="mt-3">
+          <button class="btn btn-primary" type="submit" disabled>Generate</button>
+        </div>
       </div>
-    </div>
-  </form>
-  <form class="card" method="post" action="{{ url_for('admin_advanced_generate_transactions') }}">
-    <div class="card-body d-flex flex-column">
-      <h5 class="card-title">Generate Transactions</h5>
-      <p class="card-text flex-fill">Uses AI to generate random transactions. This will randomly use existing users.</p>
-      <div>
-        <label class="form-label" for="transactionCount">Count</label>
-        <input class="form-control" type="number" id="transactionCount" name="count" value="10" min="1" />
-      </div>
-      <div class="mt-3">
-        <button class="btn btn-primary" type="submit" disabled>Generate</button>
-      </div>
-    </div>
-  </form>
+    </form>
+  </div>
 </div>
 {% endblock %}

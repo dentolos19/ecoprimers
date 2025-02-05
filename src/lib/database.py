@@ -96,7 +96,7 @@ def setup():
         sql.session.add(
             Event(
                 title="Cleaning Day",
-                description="Todo",
+                description="Join us for a community cleaning day to help keep our neighborhood clean and green. All necessary cleaning supplies will be provided.",
                 location="Yishun",
                 date="2025-03-01",
                 image_url="/static/img/cleaning-day.jpg",
@@ -105,8 +105,8 @@ def setup():
         sql.session.add(
             Event(
                 title="Newspaper Roll",
-                description="Todo",
-                location="Yishun",
+                description="Participate in our newspaper roll event where we collect and recycle old newspapers. Help us promote recycling and reduce waste.",
+                location="Ang Mo Kio",
                 date="2025-03-01",
                 image_url="/static/img/newspaper-roll.jpg",
             )
