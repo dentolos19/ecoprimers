@@ -1,4 +1,4 @@
-from flask import redirect, render_template, request, session, url_for
+from flask import flash, redirect, render_template, request, session, url_for
 
 from lib import storage
 from lib.database import sql
@@ -34,6 +34,14 @@ def community():
     return render_template("community.html", posts=posts)
 
 
+@app.route("/community/saved")
+@require_login
+def community_saved():
+    user_id = session.get("user_id")
+    posts = sql.session.query(PostSaved).filter_by(user_id=user_id).all()
+    return render_template("community-saved.html", posts=posts)
+
+
 @app.route("/community/post", methods=["GET", "POST"])
 @require_login
 def community_post():
@@ -43,8 +51,12 @@ def community_post():
         image = request.files["image"]
 
         image_url = None
+
         if image and allowed_file(image.filename):
             image_url = storage.upload(image)
+        else:
+            flash("Not allowed")
+            return redirect(url_for("community_post"))
 
         post = Post(
             user_id=user_id,
@@ -102,7 +114,7 @@ def toggle_like(post_id):
 
     sql.session.commit()
 
-    return redirect(url_for("community"))
+    return redirect(request.referrer)
 
 
 @app.route("/community/posts/<user_id>/follow", methods=["GET", "POST"])
@@ -118,7 +130,7 @@ def toggle_follow(user_id):
 
     sql.session.commit()
 
-    return redirect(url_for("community"))
+    return redirect(request.referrer)
 
 
 @app.route("/community/posts/<post_id>/save", methods=["GET", "POST"])
@@ -140,16 +152,15 @@ def toggle_save(post_id):
     sql.session.commit()
 
     # Redirect back to the community page (or wherever you want)
-    return redirect(url_for("community"))
+    return redirect(request.referrer)
 
 
 @app.route("/community/posts/<post_id>/comment", methods=["GET", "POST"])
 def post_comment(post_id):
-    user_id = session.get("user_id")  # Get the current logged-in user's ID
+    user_id = session.get("user_id")
 
     message = request.form["comment_text"]
     user_id = session.get("user_id")
-    # Add post to the database
 
     print(message)
     new_comment = PostComment(
@@ -162,11 +173,3 @@ def post_comment(post_id):
     sql.session.commit()
 
     return redirect(url_for("community"))
-
-
-@app.route("/community/saved")
-@require_login
-def community_saved():
-    user_id = session.get("user_id")
-    posts = sql.session.query(PostSaved).filter_by(user_id=user_id).all()
-    return render_template("community-saved.html", posts=posts)
