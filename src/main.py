@@ -9,7 +9,7 @@ from lib import ai, database, google, payments, storage
 app = Flask(__name__)
 app.config["SECRET_KEY"] = os.environ.get("SECRET_KEY")
 
-socket = SocketIO(app, cors_allowed_origins="*", logger=True, engineio_logger=True)
+socket = SocketIO(app, async_mode="eventlet", cors_allowed_origins="*", logger=True, engineio_logger=True)
 
 # Setup global variables
 app_debug = bool(app.config["DEBUG"])
