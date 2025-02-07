@@ -10,5 +10,3 @@ ENV FLASK_APP=src/main.py
 
 # CMD ["python3", "-m" , "flask", "run", "--host=0.0.0.0", "--no-debugger", "--no-reload"]
 CMD ["gunicorn", "-k", "eventlet", "-w", "1", "-b", "0.0.0.0:5000", "src.main:app"]
-
-
