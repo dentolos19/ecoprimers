@@ -1,11 +1,13 @@
 import requests
-from flask import flash, redirect, render_template, request, session, url_for
+from flask import flash, redirect, render_template, request, session, url_for ,send_file
 
 from lib.database import sql
 from lib.enums import TransactionType
 from lib.models import Product, Transaction, User
 from main import app
 from utils import require_login
+import pandas as pd
+import io
 
 
 @app.route("/engagement/task")
@@ -131,7 +133,49 @@ def transactions():
 
     # Fetch all transactions for the user
     user_transactions = (
-        sql.session.query(Transaction).filter_by(user_id=user_id).order_by(Transaction.created_at.desc()).all()
+        sql.session.query(Transaction)
+        .filter_by(user_id=user_id)
+        .order_by(Transaction.created_at.desc())
+        .all()
     )
 
     return render_template("transactions.html", transactions=user_transactions)
+
+@app.route('/export-transactions')
+def export_transactions():
+    user_id = session.get("user_id")
+
+    # Fetch user transactions
+    user_transactions = (
+        sql.session.query(Transaction)
+        .filter_by(user_id=user_id)
+        .order_by(Transaction.created_at.desc())
+        .all()
+    )
+
+    if not user_transactions:
+        return "No transactions found.", 404
+
+    # Convert transactions to a list of dictionaries
+    transactions_data = [
+        {
+            "Date": transaction.created_at.strftime('%d/%m/%Y'),
+            "Description": transaction.description,
+            "Points": transaction.amount,
+            "Type": transaction.type.value,  # Assuming transaction.type is an Enum
+        }
+        for transaction in user_transactions
+    ]
+
+    # Convert to Pandas DataFrame
+    df = pd.DataFrame(transactions_data)
+
+    # Save to an in-memory Excel file
+    output = io.BytesIO()
+    with pd.ExcelWriter(output, engine='xlsxwriter') as writer:
+        df.to_excel(writer, index=False, sheet_name="Transactions")
+
+    output.seek(0)
+
+    # Send file as downloadable attachment
+    return send_file(output, as_attachment=True, download_name="transactions.xlsx", mimetype="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")

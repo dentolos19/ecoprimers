@@ -2,8 +2,11 @@
 
 {% block body %}
 <div class="my-4 container d-flex justify-content-center align-items-center">
-  <div style="width: 400;">
+  <div style="width: 400px;">
     <h3 class="mb-4 text-center">Transactions</h3>
+    <div class="text-center mb-3">
+      <a href="{{ url_for('export_transactions') }}" class="btn btn-success">Download to Excel</a>
+    </div>
     <div class="vstack gap-2">
       {% for transaction in transactions %}
       <div class="card d-flex flex-row">
