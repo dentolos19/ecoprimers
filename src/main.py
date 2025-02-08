@@ -9,7 +9,7 @@ from lib import ai, database, google, payments, storage
 app = Flask(__name__)
 app.config["SECRET_KEY"] = os.environ.get("SECRET_KEY")
 
-socket = SocketIO(app, cors_allowed_origins="*", logger=True, engineio_logger=True)
+socket = SocketIO(app, async_mode="eventlet", cors_allowed_origins="*", logger=True, engineio_logger=True)
 
 # Setup global variables
 app_debug = bool(app.config["DEBUG"])
@@ -25,5 +25,5 @@ storage.init(app)
 from routes import *
 
 if __name__ == "__main__":
-    socket.run(app, host="127.0.0.1", port=5000, debug=app_debug)
-    app.run(host="127.0.0.1", port=3000)
+    socket.run(app, host="0.0.0.0", port=3000, debug=app_debug)
+    app.run(host="0.0.0.0", port=5000, allow_unsafe_werkzeug=True)

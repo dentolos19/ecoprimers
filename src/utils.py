@@ -7,7 +7,6 @@ from flask import flash, redirect, session, url_for
 
 from lib.database import sql
 from lib.models import User
-from main import app_debug
 
 
 def allowed_file(filename):
@@ -39,7 +38,8 @@ def check_logged_in():
 def check_admin_status():
     if not check_logged_in():
         return False
-    return session.get("user_email").endswith("@mymail.nyp.edu.sg") or app_debug
+    # TODO: Remove True, add app_debug
+    return session.get("user_email").endswith("@mymail.nyp.edu.sg") or True
 
 
 def require_login(func):
