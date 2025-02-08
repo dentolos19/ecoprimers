@@ -25,5 +25,5 @@ storage.init(app)
 from routes import *
 
 if __name__ == "__main__":
-    socket.run(app, host="127.0.0.1", port=5000, debug=app_debug)
-    app.run(host="127.0.0.1", port=3000)
+    socket.run(app, host="0.0.0.0", port=3000, debug=app_debug)
+    app.run(host="0.0.0.0", port=5000, allow_unsafe_werkzeug=True)

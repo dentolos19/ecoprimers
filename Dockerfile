@@ -2,11 +2,15 @@ FROM python:3.12-slim
 
 WORKDIR /app
 
-COPY requirements.txt requirements.txt
-RUN pip3 install -r requirements.txt
+# Install dependencies
+COPY requirements.txt .
+RUN pip install -r requirements.txt
+
+# Copy source code
 COPY . .
 
-ENV FLASK_APP=src/main.py
+# Expose port
+EXPOSE 5000
 
-# CMD ["python3", "-m" , "flask", "run", "--host=0.0.0.0", "--no-debugger", "--no-reload"]
-CMD ["gunicorn", "-k", "eventlet", "-w", "1", "-b", "0.0.0.0:5000", "src.main:app"]
+# Run the application
+CMD ["python3", "-m", "flask", "--app", "src/main.py", "run", "--no-debugger", "--no-reload"]

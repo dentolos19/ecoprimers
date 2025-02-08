@@ -56,6 +56,9 @@ def init(app: Flask, local: bool = True):
         # Initialize the app with the extension
         sql.init_app(app)
     except:
+        if local:
+            return
+
         # Uses local database if the remote database is not available
         init(app, local=True)
     else:
