@@ -16,6 +16,7 @@ def init():
         "any": any,
         "len": len,
         "str": str,
+        "env": os.environ,
         "range": range,
         "enumerate": enumerate,
         "utils": import_module("utils"),

@@ -4,11 +4,12 @@ from sqlalchemy import and_, or_
 
 from lib.database import sql
 from lib.models import Message, Rooms, User
+from lib.socket import io as socketio
 from main import app, socket
 from utils import require_login
 
 
-@socket.on("join")
+@socketio.on("join")
 def on_join(data):
     room = sql.session.query(Rooms).filter(
     or_(
@@ -42,7 +43,7 @@ def messaging(receiver_id=None):
     )
 
 
-@socket.on("send_message")
+@socketio.on("send_message")
 def handle_send_message(data):
     print("running the send message python function")
     sender_id = session["user_id"]

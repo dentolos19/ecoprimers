@@ -13,4 +13,4 @@ COPY . .
 EXPOSE 5000
 
 # Run the application
-CMD ["python3", "-m", "flask", "--app", "src/main.py", "run", "--no-debugger", "--no-reload"]
+CMD ["gunicorn", "--conf", "src/gunicorn.py", "--chdir", "src", "--bind", "0.0.0.0:5000", "main:app"]

@@ -7,7 +7,7 @@ from werkzeug.utils import secure_filename
 initialized: bool = False
 
 
-def init(app: Flask):
+def init(app: Flask, local: bool = True):
     global initialized
     global session
 

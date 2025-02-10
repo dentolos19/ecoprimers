@@ -38,7 +38,7 @@ def check_logged_in():
 def check_admin_status():
     if not check_logged_in():
         return False
-    # TODO: Remove True, add app_debug
+    # TODO: Remove True
     return session.get("user_email").endswith("@mymail.nyp.edu.sg") or True
 
 
