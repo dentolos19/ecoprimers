@@ -4,9 +4,8 @@ from flask import Flask
 from flask import session as flask_session
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy.orm import Session
-from werkzeug.security import generate_password_hash
 
-from lib.models import Base, Event, Product, User
+from lib.models import Base, Event, Product
 
 initialized: bool = False
 sql: SQLAlchemy = None
@@ -79,21 +78,21 @@ def setup():
     global sql
 
     with app.app_context():
-        # Users
-        sql.session.add(
-            User(
-                name="Administrator",
-                email="admin@ecoprimers.app",
-                password=generate_password_hash("admin", method="pbkdf2:sha1"),
-            )
-        )
-        sql.session.add(
-            User(
-                name="Dennise Duck",
-                email="dennise@duck.com",
-                password=generate_password_hash("Dennise!123", method="pbkdf2:sha1"),
-            )
-        )
+        # # Users
+        # sql.session.add(
+        #     User(
+        #         name="Administrator",
+        #         email="admin@ecoprimers.app",
+        #         password=generate_password_hash("admin", method="pbkdf2:sha1"),
+        #     )
+        # )
+        # sql.session.add(
+        #     User(
+        #         name="Dennise Duck",
+        #         email="dennise@duck.com",
+        #         password=generate_password_hash("Dennise!123", method="pbkdf2:sha1"),
+        #     )
+        # )
 
         # Events
         sql.session.add(
