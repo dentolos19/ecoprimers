@@ -9,7 +9,7 @@ WORKDIR /app
 # Install dependencies
 COPY pyproject.toml .
 COPY uv.lock .
-RUN uv sync --frozen --compile-bytecode
+RUN uv sync --frozen --compile-bytecode --no-editable
 
 # Copy source code
 COPY . .

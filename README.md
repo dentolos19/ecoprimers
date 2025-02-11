@@ -64,13 +64,14 @@ This platform integrates **secure authentication**, **volunteer management**, **
 
 ### Prerequisites
 
-- [Python](https://python.org) 3.12+
+- [Python](https://python.org) 3.13+
+- [uv](https://docs.astral.sh/uv)
 
 ### Installation
 
 1. Clone this repository: `git clone https://github.com/dentolos19/appdevproj.git`
-2. Open the project: `code .`
-3. Run the project: <kbd>F5</kbd>
+2. Install dependencies: `uv sync`
+2. Run the project: `uv run src/main.py`
 
 ## 📜 License
 
