@@ -55,7 +55,8 @@ def toggle_dark_mode():
 @app.route("/")
 @app.route("/home")
 def home():
-    return render_template("home.html")
+    GOOGLE_API_KEY = os.environ.get("GOOGLE_API_KEY")
+    return render_template("home.html", GOOGLE_API_KEY=GOOGLE_API_KEY)
 
 
 @app.route("/profile")
