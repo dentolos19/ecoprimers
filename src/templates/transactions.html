@@ -7,6 +7,10 @@
     <div class="text-center mb-3">
       <a href="{{ url_for('export_transactions') }}" class="btn btn-success">Download to Excel</a>
     </div>
+    <div class="text-center mb-3">
+      <a href="{{ url_for('dashboard') }}" class="btn btn-success">View Dashboard</a>
+    </div>
+
     <div class="vstack gap-2">
       {% for transaction in transactions %}
       <div class="card d-flex flex-row">
