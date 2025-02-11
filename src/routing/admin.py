@@ -3,12 +3,11 @@ from datetime import datetime
 from flask import flash, json, redirect, render_template, request, url_for
 from werkzeug.security import generate_password_hash
 
-from lib import database, storage
-from lib.ai import agent
+from lib import ai, database, storage
 from lib.database import sql
 from lib.models import Event, Product, Transaction, User
 from main import app
-from utils import allowed_file, require_admin
+from utils import require_admin
 
 
 @app.route("/admin")
@@ -54,11 +53,11 @@ def admin_events_new():
         event_date = request.form["date"]
         event_image = request.files["image"]
 
-        if event_image and not allowed_file(event_image.filename):
+        if event_image and not storage.check_format(event_image, storage.image_extensions):
             flash("Invalid file type! Only images with extensions .png, .jpg, .jpeg, and .gif are allowed.", "danger")
             return redirect(request.url)
 
-        image_url = storage.upload(event_image)
+        image_url = storage.upload_file(event_image)
 
         new_event = Event(
             title=event_title,
@@ -96,11 +95,11 @@ def admin_events_edit(id):
 
         image_url = event.image_url
 
-        if event_image and not allowed_file(event_image.filename):
+        if event_image and not storage.check_format(event_image, storage.image_extensions):
             flash("Invalid file type! Only images with extensions .png, .jpg, .jpeg, and .gif are allowed.", "danger")
             return redirect(request.url)
         elif event_image:
-            image_url = storage.upload(event_image)
+            image_url = storage.upload_file(event_image)
 
         event.title = event_title
         event.description = event_description
@@ -270,8 +269,8 @@ def admin_products_new():
         image_url = None
 
         if product_image:
-            if allowed_file(product_image.filename):
-                image_url = storage.upload(product_image)
+            if storage.check_format(product_image, storage.image_extensions):
+                image_url = storage.upload_file(product_image)
             else:
                 flash("The file format is not allowed.", "danger")
                 return redirect(request.referrer)
@@ -316,8 +315,8 @@ def admin_products_edit(id):
         image_url = product.image_url
 
         if product_image:
-            if allowed_file(product_image.filename):
-                image_url = storage.upload(product_image)
+            if storage.check_format(product_image, storage.image_extensions):
+                image_url = storage.upload_file(product_image)
             else:
                 flash("The file format is not allowed.", "danger")
                 return redirect(url_for("admin_products_edit", id=id))
@@ -452,8 +451,8 @@ def admin_advanced_generate_users():
         prompt = file.read().format(count=count, today=datetime.now().strftime("%Y-%m-%d"))
 
     # Generate response
-    response = agent.generate_content(prompt, generation_config={"response_mime_type": "application/json"})
-    data = json.loads(response.candidates[0].content.parts[0].text.strip())
+    response = ai.generate_structured(prompt)
+    data = json.loads(response)
 
     # Parse response
     users = data["users"]

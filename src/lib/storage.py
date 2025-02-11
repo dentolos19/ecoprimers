@@ -4,6 +4,10 @@ from flask import Flask
 from werkzeug.datastructures import FileStorage
 from werkzeug.utils import secure_filename
 
+image_extensions = {"png", "jpg", "jpeg", "gif"}
+video_extensions = {"mp4"}
+media_extensions = image_extensions.union(video_extensions)
+
 initialized: bool = False
 
 
@@ -22,7 +26,11 @@ def init(app: Flask, local: bool = True):
     initialized = True
 
 
-def upload(file: FileStorage) -> str:
+def check_format(file: FileStorage, allowed_extensions: list[str]) -> bool:
+    return "." in file.filename and file.filename.rsplit(".", 1)[1].lower() in allowed_extensions
+
+
+def upload_file(file: FileStorage) -> str:
     from main import app
     from utils import generate_random_string
 

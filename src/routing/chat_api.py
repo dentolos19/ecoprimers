@@ -1,6 +1,6 @@
 from flask import request
 
-from lib.ai import agent
+from lib import ai
 from main import app
 
 
@@ -26,7 +26,6 @@ def api_chat():
     ai_request += f"user (current prompt): {prompt}\n"
 
     # Generate a response
-    ai_response = agent.generate_content(ai_request)
-    ai_response_text = ai_response.candidates[0].content.parts[0].text.strip()
+    ai_response = ai.generate(ai_request)
 
-    return {"response": ai_response_text}
+    return {"response": ai_response}

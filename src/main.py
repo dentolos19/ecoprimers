@@ -4,6 +4,11 @@ from flask import Flask
 
 from lib import ai, database, google, payments, socket, storage
 from lib.socket import io as socketio
+from utils import load_environment
+
+# Load environment variables
+load_environment()
+
 
 # Initialize Flask app
 app = Flask(__name__)
@@ -22,4 +27,4 @@ socket.init(app)
 from routes import *
 
 if __name__ == "__main__":
-    socketio.run(app, host="0.0.0.0", port=5000, debug=app_debug)
+    socketio.run(app, host="0.0.0.0", port=5000, debug=app_debug, allow_unsafe_werkzeug=True)

@@ -12,7 +12,7 @@ def init(app: Flask):
     if initialized:
         return
 
-    io = SocketIO(app, async_mode="eventlet")
+    io = SocketIO(app)
     io.init_app(app)
 
     initialized = True

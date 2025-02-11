@@ -12,8 +12,8 @@
         "FLASK_DEBUG": "1"
       },
       "jinja": true,
-      "autoStartBrowser": true,
-      "preLaunchTask": "setup"
+      "autoStartBrowser": true
+      // "preLaunchTask": "setup"
     }
   ]
 }

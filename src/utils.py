@@ -1,3 +1,4 @@
+import os
 import random
 import string
 from datetime import datetime
@@ -9,8 +10,13 @@ from lib.database import sql
 from lib.models import User
 
 
-def allowed_file(filename):
-    return "." in filename and filename.rsplit(".", 1)[1].lower() in {"png", "jpg", "jpeg", "gif", "mp4"}
+def load_environment():
+    from dotenv import load_dotenv
+
+    for file in (".env", "../.env"):
+        env = os.path.join(os.getcwd(), file)
+        if os.path.exists(env):
+            load_dotenv(env)
 
 
 def generate_random_string(length: int = 8):

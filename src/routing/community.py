@@ -4,7 +4,7 @@ from lib import storage
 from lib.database import sql
 from lib.models import Post, PostComment, PostLike, PostSaved, UserFollow
 from main import app
-from utils import allowed_file, require_login
+from utils import require_login
 
 
 @app.context_processor
@@ -52,8 +52,8 @@ def community_post():
 
         image_url = None
 
-        if image and allowed_file(image.filename):
-            image_url = storage.upload(image)
+        if image and storage.check_format(image, storage.media_extensions):
+            image_url = storage.upload_file(image)
         else:
             flash("Not allowed")
             return redirect(url_for("community_post"))
@@ -81,8 +81,8 @@ def community_edit(id):
         post.content = request.form["content"]
         image = request.files["image"]
 
-        if image and allowed_file(image.filename):
-            image_url = storage.upload(image)
+        if image and storage.check_format(image, storage.media_extensions):
+            image_url = storage.upload_file(image)
             post.image_url = image_url
 
         sql.session.commit()

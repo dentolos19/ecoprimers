@@ -48,28 +48,22 @@ def init(app: Flask, local: bool = True):
     app.config["SQLALCHEMY_DATABASE_URI"] = url
     app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = True
 
-    try:
-        sql = SQLAlchemy(model_class=Base)
-        session = sql.session
+    # Initialize the database extension
+    sql = SQLAlchemy(model_class=Base)
+    session = sql.session
 
-        # Initialize the app with the extension
-        sql.init_app(app)
-    except:
-        if local:
-            return
+    # Initialize the app with the extension
+    sql.init_app(app)
 
-        # Uses local database if the remote database is not available
-        init(app, local=True)
-    else:
-        # Create all the tables of the database; does not update existing tables
-        with app.app_context():
-            sql.create_all()
+    # Create all the tables of the database; does not update existing tables
+    with app.app_context():
+        sql.create_all()
 
-        initialized = True
+    initialized = True
 
-        # Setup the database with initial data
-        if first_setup:
-            setup()
+    # Setup the database with initial data
+    if first_setup:
+        setup()
 
 
 def setup():
@@ -78,22 +72,6 @@ def setup():
     global sql
 
     with app.app_context():
-        # # Users
-        # sql.session.add(
-        #     User(
-        #         name="Administrator",
-        #         email="admin@ecoprimers.app",
-        #         password=generate_password_hash("admin", method="pbkdf2:sha1"),
-        #     )
-        # )
-        # sql.session.add(
-        #     User(
-        #         name="Dennise Duck",
-        #         email="dennise@duck.com",
-        #         password=generate_password_hash("Dennise!123", method="pbkdf2:sha1"),
-        #     )
-        # )
-
         # Events
         sql.session.add(
             Event(

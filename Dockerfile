@@ -1,10 +1,15 @@
-FROM python:3.12-slim
+FROM python:3.13-slim-bookworm
 
+# Installs uv
+COPY --from=ghcr.io/astral-sh/uv:latest /uv /uvx /bin/
+
+# Set the working directory
 WORKDIR /app
 
 # Install dependencies
-COPY requirements.txt .
-RUN pip install -r requirements.txt
+COPY pyproject.toml .
+COPY uv.lock .
+RUN uv sync --frozen --compile-bytecode
 
 # Copy source code
 COPY . .
@@ -13,4 +18,4 @@ COPY . .
 EXPOSE 5000
 
 # Run the application
-CMD ["gunicorn", "--conf", "src/gunicorn.py", "--chdir", "src", "--bind", "0.0.0.0:5000", "main:app"]
+CMD ["uv", "run", "gunicorn", "--conf", "src/gunicorn.py", "--chdir", "src", "--bind", "0.0.0.0:5000", "main:app"]

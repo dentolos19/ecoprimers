@@ -2,8 +2,8 @@ import os
 
 from dotenv import load_dotenv
 
-for env_file in (".env", "../.env"):
-    env = os.path.join(os.getcwd(), env_file)
+for file in (".env", "../.env"):
+    env = os.path.join(os.getcwd(), file)
     if os.path.exists(env):
         load_dotenv(env)
 

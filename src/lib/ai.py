@@ -1,10 +1,10 @@
 import os
 
-import google.generativeai as genai
 from flask import Flask
+from google import genai
 
 initialized: bool = False
-agent: genai.GenerativeModel = None
+agent: genai.Client = None
 
 
 def init(app: Flask):
@@ -20,7 +20,34 @@ def init(app: Flask):
     app.config["GEMINI_AI_MODEL"] = "gemini-1.5-flash"
 
     # Initialize the AI model
-    genai.configure(api_key=app.config["GEMINI_API_KEY"])
-    agent = genai.GenerativeModel(app.config["GEMINI_AI_MODEL"])
+    agent = genai.Client(api_key=app.config["GEMINI_API_KEY"])
 
     initialized = True
+
+
+def generate(prompt: str):
+    global agent
+
+    from main import app
+
+    model = app.config["GEMINI_AI_MODEL"]
+    response = agent.models.generate_content(model=model, contents=[prompt])
+
+    return response.candidates[0].content.parts[0].text.strip()
+
+
+def generate_structured(prompt: str):
+    global agent
+
+    from main import app
+
+    model = app.config["GEMINI_AI_MODEL"]
+    response = agent.models.generate_content(
+        model=model,
+        contents=[prompt],
+        config={
+            "response_mime_type": "application/json",
+        },
+    )
+
+    return response.candidates[0].content.parts[0].text.strip()
