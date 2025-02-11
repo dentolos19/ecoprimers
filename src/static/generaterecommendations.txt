@@ -1,0 +1,3 @@
+Generate a business recommendations based on the following JSON data.
+
+{content}

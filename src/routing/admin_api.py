@@ -2,6 +2,7 @@ from datetime import datetime, timedelta
 
 from sqlalchemy import func
 
+from lib import ai
 from lib.database import sql
 from lib.models import Event, EventAttendee, Post, Transaction, User
 from main import app
@@ -33,6 +34,7 @@ def api_analysis():
     total_users = sql.session.query(func.count(User.id)).scalar()
     total_events = sql.session.query(func.count(Event.id)).scalar()
     total_posts = sql.session.query(func.count(Post.id)).scalar()
+    total_products = sql.session.query(func.count(Transaction.id)).scalar()
 
     data_limit = datetime.now() - timedelta(days=3 * 30)
     monthly_users = get_monthly_data(User, data_limit)
@@ -43,7 +45,22 @@ def api_analysis():
         "totalUsers": total_users,
         "totalEvents": total_events,
         "totalPosts": total_posts,
+        "totalProducts": total_products,
         "monthlyUsers": monthly_users,
         "monthlySignups": monthly_signups,
         "monthlyTransactions": monthly_transactions,
     }
+
+
+@app.route("/api/analysis/recommendations")
+def api_analysis_recommend():
+    data = api_analysis()
+
+    # Get prompt
+    with open("src/static/generaterecommendations.txt", "r") as file:
+        prompt = file.read().format(content=data)
+
+    # Generate response
+    response = ai.generate(prompt)
+
+    return {"response": response}

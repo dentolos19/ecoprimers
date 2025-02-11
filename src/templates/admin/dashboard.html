@@ -6,65 +6,96 @@
 {% endblock %}
 
 {% block abody %}
-<div class="container py-4">
-  <!-- Title Bar -->
-  <div>
-    <h3 class="m-0">Welcome back, Administrator!</h3>
-  </div>
-
-  <!-- Quick Statistics -->
-  <div class="mt-4 d-flex gap-2">
-    <div class="card" style="width: 250px;">
+<div class="py-3 container-fluid">
+  <div class="d-flex gap-2">
+    <div class="card flex-fill">
       <div class="card-body d-flex justify-content-between align-items-center">
         <div style="width: 50px; height: 50px;">
-          <div class="w-100 h-100 bg-success" style="border-radius: 100%;"></div>
+          <img class="img-fluid" src="{{ url_for('static', filename='img/users.png') }}" />
         </div>
         <div class="flex-fill text-end">
           <h5 id="activeUsers" class="m-0">
-            1,000
+            Loading...
           </h5>
           <p class="m-0">Active Users</p>
         </div>
       </div>
     </div>
-    <div class="card" style="width: 250px;">
+    <div class="card flex-fill">
       <div class="card-body d-flex justify-content-between align-items-center">
         <div style="width: 50px; height: 50px;">
-          <div class="w-100 h-100 bg-success" style="border-radius: 100%;"></div>
+          <img class="img-fluid" src="{{ url_for('static', filename='img/events.png') }}" />
         </div>
         <div class="flex-fill text-end">
           <h5 id="platformEvents" class="m-0">
-            1,000
+            Loading...
           </h5>
           <p class="m-0">Platform Events</p>
         </div>
       </div>
     </div>
-    <div class="card" style="width: 250px;">
+    <div class="card flex-fill">
       <div class="card-body d-flex justify-content-between align-items-center">
         <div style="width: 50px; height: 50px;">
-          <div class="w-100 h-100 bg-success" style="border-radius: 100%;"></div>
+          <img class="img-fluid" src="{{ url_for('static', filename='img/posts.png') }}" />
         </div>
         <div class="flex-fill text-end">
           <h5 id="communityPosts" class="m-0">
-            1,000
+            Loading...
           </h5>
           <p class="m-0">Community Posts</p>
         </div>
       </div>
     </div>
+    <div class="card flex-fill">
+      <div class="card-body d-flex justify-content-between align-items-center">
+        <div style="width: 50px; height: 50px;">
+          <img class="img-fluid" src="{{ url_for('static', filename='img/products.png') }}" />
+        </div>
+        <div class="flex-fill text-end">
+          <h5 id="rewardProducts" class="m-0">
+            Loading...
+          </h5>
+          <p class="m-0">Reward Products</p>
+        </div>
+      </div>
+    </div>
   </div>
 
-  <!-- Chart Statistics -->
-  <div class="mt-4">
-    <div style="width: 300px;">
-      <canvas id="monthlyUsers"></canvas>
+  <div class="mt-3 d-flex gap-3">
+    <!-- Chart Statistics -->
+    <div class="d-flex flex-column gap-2" style="width: 60%;">
+      <div class="card">
+        <div class="card-body">
+          <h5 class="card-title">Monthly User Signups</h5>
+          <canvas id="monthlyUsers"></canvas>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-body">
+          <h5 class="card-title">Monthly Event Signups</h5>
+          <canvas id="monthlySignups"></canvas>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-body">
+          <h5 class="card-title">Monthly Transactions</h5>
+          <canvas id="monthlyTransactions"></canvas>
+        </div>
+      </div>
     </div>
-    <div style="width: 300px;">
-      <canvas id="monthlySignups"></canvas>
-    </div>
-    <div style="width: 300px;">
-      <canvas id="monthlyTransactions"></canvas>
+
+    <!-- Recommendations -->
+    <div class="flex-fill">
+      <div class="card">
+        <div class="card-body">
+          <h5>Recommendations</h5>
+          <form id="recommendations">
+            <p class="card-text">Click the button below to generate recommendations based on the current information.</p>
+            <button class="btn btn-primary" type="submit">Generate Recommendations</button>
+          </form>
+        </div>
+      </div>
     </div>
   </div>
 </div>
