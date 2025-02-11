@@ -68,7 +68,40 @@
         </div>
       </div>
     </div>
+
+    <!-- Google Map Section (Placed Below Cards) -->
+    <div class="my-5 text-center">
+      <h2>Our Location</h2>
+      <p class="lead">Find us on the map below.</p>
+      <div id="map"></div>
+    </div>
   </div>
 </div>
+
+<!-- Google Maps Script -->
+<script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDKlkuFIoKFz-9kLLJA-n5B_zRb3hcwayo&callback=initMap" async defer></script>
+<style>
+    #map {
+        height: 400px;
+        width: 100%;
+        border-radius: 10px;
+    }
+</style>
+
+<script>
+    function initMap() {
+        var location = { lat: 1.3801, lng: 103.8489 }; // NYP coordinates 1.380110884475648, 103.84895942386089
+        var map = new google.maps.Map(document.getElementById("map"), {
+            zoom: 12,
+            center: location,
+        });
+
+        var marker = new google.maps.Marker({
+            position: location,
+            map: map,
+            title: "Our Location"
+        });
+    }
+</script>
 
 {% endblock %}
