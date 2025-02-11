@@ -2,6 +2,8 @@ import random
 import string
 from datetime import datetime
 from functools import wraps
+import requests
+import os
 
 from flask import flash, redirect, session, url_for
 
@@ -66,3 +68,31 @@ def require_admin(func):
         return func(*args, **kwargs)
 
     return decorator
+
+def get_weather_data(location):
+    api_key = os.environ.get("OPENWEATHER_API_KEY")
+    base_url = "http://api.openweathermap.org/data/2.5/weather"
+    
+    params = {
+        "q": location,
+        "appid": api_key,
+        "units": "metric", 
+    }
+    response = requests.get(base_url, params=params)
+    
+    if response.status_code == 200:
+        data = response.json()
+        
+        rain_chance = data.get("rain", {}).get("2h", 0)
+        
+        temperature = data["main"].get("temp", None)
+        
+        weather_description = data["weather"][0].get("description", "No description available")
+        
+        return {
+            "rain_chance": rain_chance,
+            "temperature": temperature,
+            "weather_description": weather_description
+        }
+    else:
+        return None

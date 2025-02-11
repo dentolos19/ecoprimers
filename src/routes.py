@@ -7,7 +7,7 @@ from lib import database, payments
 from lib.database import sql
 from lib.models import Event, EventAttendee, User
 from main import app
-from utils import check_admin_status, check_logged_in, require_login
+from utils import check_admin_status, check_logged_in, require_login, get_weather_data
 
 
 @app.context_processor
@@ -156,7 +156,25 @@ def event_info():
     event_id = request.args.get("id")
     event = sql.session.query(Event).filter_by(id=event_id).first()
 
-    return render_template("event-details.html", event=event)
+    if event:
+        location = event.location
+        weather_data = get_weather_data(location)
+
+        if weather_data:
+            rain_chance = weather_data['rain_chance']
+            temperature = weather_data['temperature']
+            weather_description = weather_data['weather_description']
+        else:
+            rain_chance = None
+            temperature = None
+            weather_description = "Weather data unavailable"
+
+
+    return render_template("event-details.html", 
+                           event=event, 
+                           rain_chance=rain_chance,
+                           temperature=temperature,
+                           weather_description=weather_description,)
 
 
 @app.route("/event/signup", methods=["GET", "POST"])
