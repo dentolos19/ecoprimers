@@ -180,7 +180,7 @@ def export_transactions():
         df.to_excel(writer, index=False, sheet_name="Transactions")
 
     output.seek(0)
-
+    
     # Send file as downloadable attachment
     return send_file(output, as_attachment=True, download_name="transactions.xlsx", mimetype="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")
 
@@ -196,10 +196,13 @@ def dashboard():
         .order_by(Transaction.created_at.asc())  # Ascending order for line graph
         .all()
     )
+     # Check if there are transactions
+    #has_transactions = bool(transactions)  # True if transactions exist, False if empty
 
-    if not transactions:
-        return "No transactions found.", 404
-
+    # If no transactions, just render the message without graphs
+    #if not has_transactions:
+        #return render_template("dashboard.html", has_transactions=False)
+     
     # Convert transactions to DataFrame
     df = pd.DataFrame([
         {
@@ -230,7 +233,7 @@ def dashboard():
     plt.title("Most Used Transaction Types")
     plt.xlabel("Transaction Type")
     plt.ylabel("Frequency")
-    plt.savefig(bar_chart, format="png")
+    plt.savefig(bar_chart, format="jpeg")
     plt.close()
     bar_chart.seek(0)
     bar_chart_url = base64.b64encode(bar_chart.getvalue()).decode("utf-8")
