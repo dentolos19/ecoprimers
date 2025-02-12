@@ -10,6 +10,7 @@ dependencies = [
     "flask-sqlalchemy>=3.1.1",
     "google-genai>=1.1.0",
     "gunicorn>=23.0.0",
+    "matplotlib>=3.10.0",
     "pandas>=2.2.3",
     "python-dotenv>=1.0.1",
     "sendgrid>=6.11.0",
