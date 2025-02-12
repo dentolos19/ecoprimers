@@ -8,6 +8,10 @@ from main import app
 from utils import require_login
 import pandas as pd
 import io
+import matplotlib
+matplotlib.use("Agg")  
+import matplotlib.pyplot as plt  
+import base64
 
 
 @app.route("/engagement/task")
@@ -176,6 +180,81 @@ def export_transactions():
         df.to_excel(writer, index=False, sheet_name="Transactions")
 
     output.seek(0)
-
+    
     # Send file as downloadable attachment
     return send_file(output, as_attachment=True, download_name="transactions.xlsx", mimetype="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")
+
+
+@app.route('/dashboard')
+def dashboard():
+    user_id = session.get("user_id")
+
+    # Fetch user transactions
+    transactions = (
+        sql.session.query(Transaction)
+        .filter_by(user_id=user_id)
+        .order_by(Transaction.created_at.asc())  # Ascending order for line graph
+        .all()
+    )
+     # Check if there are transactions
+    #has_transactions = bool(transactions)  # True if transactions exist, False if empty
+
+    # If no transactions, just render the message without graphs
+    #if not has_transactions:
+        #return render_template("dashboard.html", has_transactions=False)
+     
+    # Convert transactions to DataFrame
+    df = pd.DataFrame([
+        {
+            "Date": transaction.created_at.strftime('%Y-%m-%d'),
+            "Type": transaction.type.value,
+            "Amount": transaction.amount
+        }
+        for transaction in transactions
+    ])
+
+    # Ensure DataFrame is not empty
+    if df.empty:
+        return "No data available for visualization.", 404
+
+    # Group data for graphs
+    daily_points = df.groupby("Date")["Amount"].sum()  # Line Graph
+    transaction_counts = df["Type"].value_counts()  # Bar Graph
+
+    # KPI
+    total_earned = df[df["Type"] == "earned"]["Amount"].sum()
+    total_redeemed = abs(df[df["Type"] == "redemption"]["Amount"].sum())  # Convert to positive
+    net_transactions = total_earned - total_redeemed
+
+    #bar graph
+    bar_chart = io.BytesIO()
+    plt.figure(figsize=(7, 5))
+    transaction_counts.plot(kind="bar", color=["green", "red"])
+    plt.title("Most Used Transaction Types")
+    plt.xlabel("Transaction Type")
+    plt.ylabel("Frequency")
+    plt.savefig(bar_chart, format="jpeg")
+    plt.close()
+    bar_chart.seek(0)
+    bar_chart_url = base64.b64encode(bar_chart.getvalue()).decode("utf-8")
+
+    #line graph
+    line_chart = io.BytesIO()
+    plt.figure(figsize=(7, 5))
+    daily_points.plot(kind="line", marker="o", color="blue")
+    plt.title("Daily Points Usage")
+    plt.xlabel("Date")
+    plt.ylabel("Points")
+    plt.grid(True)
+    plt.savefig(line_chart, format="png")
+    plt.close()
+    line_chart.seek(0)
+    line_chart_url = base64.b64encode(line_chart.getvalue()).decode("utf-8")
+
+   
+    return render_template("dashboard.html",
+                           bar_chart_url=bar_chart_url,
+                           line_chart_url=line_chart_url,
+                           total_earned=total_earned,
+                           total_redeemed=total_redeemed,
+                           net_transactions=net_transactions)
