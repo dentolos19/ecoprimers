@@ -157,6 +157,9 @@ def event_info():
     event_id = request.args.get("id")
     event = sql.session.query(Event).filter_by(id=event_id).first()
 
+    # num of attendees
+    attendee_num = len(event.attendees)
+
     if event:
         location = event.location
         weather_data = get_weather_data(location)
@@ -175,7 +178,8 @@ def event_info():
                            event=event, 
                            rain_chance=rain_chance,
                            temperature=temperature,
-                           weather_description=weather_description,)
+                           weather_description=weather_description,
+                           attendee_num=attendee_num)
 
 
 @app.route("/event/signup", methods=["GET", "POST"])
