@@ -5,7 +5,7 @@ from werkzeug.security import generate_password_hash
 
 from lib import ai, database, storage
 from lib.database import sql
-from lib.models import Event, Product, Transaction, User
+from lib.models import Event, EventAttendee, Product, Transaction, User
 from main import app
 from utils import require_admin
 
@@ -81,7 +81,7 @@ def admin_events_new():
 
 
 @app.route("/admin/events/<id>", methods=["GET", "POST"])
-def admin_events_edit(id):
+def admin_events_manage(id):
     # Query the event from the database
     event = sql.session.query(Event).filter_by(id=id).first()
 
@@ -116,7 +116,7 @@ def admin_events_edit(id):
 
         return redirect(url_for("admin_events"))
 
-    return render_template("admin/events-edit.html", event=event)
+    return render_template("admin/events-manage.html", event=event)
 
 
 @app.route("/admin/events/<id>/delete", methods=["GET", "POST"])
@@ -146,9 +146,7 @@ def admin_events_delete(id):
 @app.route("/admin/users")
 @require_admin
 def admin_users():
-    # Query all events from the database
     users = sql.session.query(User).all()
-
     return render_template("admin/users.html", users=users)
 
 
@@ -190,7 +188,7 @@ def admin_users_new():
 
 @app.route("/admin/users/<id>", methods=["GET", "POST"])
 @require_admin
-def admin_users_edit(id):
+def admin_users_manage(id):
     # Query the user from the database
     user = sql.session.query(User).filter_by(id=id).first()
 
@@ -217,7 +215,11 @@ def admin_users_edit(id):
 
         return redirect(url_for("admin_users"))
 
-    return render_template("admin/users-edit.html", user=user)
+    # Query other related data from the database
+    attendings = sql.session.query(EventAttendee).filter_by(user_id=id).all()
+    transactions = sql.session.query(Transaction).filter_by(user_id=id).all()
+
+    return render_template("admin/users-manage.html", user=user, attendings=attendings, transactions=transactions)
 
 
 @app.route("/admin/users/<id>/delete", methods=["GET", "POST"])

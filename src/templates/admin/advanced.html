@@ -10,14 +10,8 @@
 {% endblock %}
 
 {% block abody %}
-<div class="container my-4">
-  <!-- Header -->
-  <div>
-    <h3 class="m-0">Advanced Features</h3>
-  </div>
-
-  <!-- Features -->
-  <div class="features mt-4 gap-2">
+<div class="py-3 container-fluid">
+  <div class="features gap-2">
     <form class="card" method="post" action="{{ url_for('admin_advanced_reset_database') }}">
       <div class="card-body d-flex flex-column">
         <h5 class="card-title">Reset Database</h5>
