@@ -66,10 +66,12 @@ def profile():
     user_id = session.get("user_id")
     user = sql.session.query(User).filter(User.id == user_id).first()
 
+    events = sql.session.query(Event).join(EventAttendee).filter(EventAttendee.user_id == user_id).all()
+
     if not user:
         return "User not found", 404
 
-    return render_template("profile.html", user=user)
+    return render_template("profile.html", user=user, events=events)
 
 
 @app.route("/edit_profile", methods=["GET", "POST"])
