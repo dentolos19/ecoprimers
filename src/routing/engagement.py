@@ -18,7 +18,7 @@ import base64
 import matplotlib.pyplot as plt
 
 
-@app.route("/engagement/task")
+@app.route("/engagement/tasks")
 @require_login
 def tasks():
     user_id = session.get("user_id")

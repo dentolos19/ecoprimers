@@ -38,7 +38,11 @@ def generate_text(prompt: str, return_json: bool = False):
         model=model, contents=[prompt], config={"response_mime_type": "application/json"} if return_json else None
     )
 
-    return response.candidates[0].content.parts[0].text.strip()
+    text = response.candidates[0].content.parts[0].text.strip()
+
+    if return_json:
+        return json.loads(text)
+    return text
 
 
 def generate_structured(prompt: str):
