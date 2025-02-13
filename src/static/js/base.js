@@ -57,11 +57,3 @@ document.addEventListener("DOMContentLoaded", function () {
     });
   });
 });
-
-// Redirect to details page
-document.querySelectorAll("#eventDetails").forEach((card) => {
-  card.addEventListener("click", () => {
-    const eventId = card.getAttribute("data-event-id");
-    window.location.href = `/event/details?id=${eventId}`;
-  });
-});

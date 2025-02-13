@@ -1,6 +1,6 @@
 {% extends "base.html" %}
 
-{% block stylesheets %}
+{% block styles %}
 <style>
   .hover-item:hover {
     transform: scale(1.02);
@@ -72,4 +72,13 @@
   </div>
 </div>
 
+<script>
+  // Redirect to details page
+  document.querySelectorAll("#eventDetails").forEach((card) => {
+    card.addEventListener("click", () => {
+      const eventId = card.getAttribute("data-event-id");
+      window.location.href = `/event/details?id=${eventId}`;
+    });
+  });
+</script>
 {% endblock %}
