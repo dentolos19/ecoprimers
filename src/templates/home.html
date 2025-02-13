@@ -1,107 +1,106 @@
 {% extends "base.html" %}
 
 {% block body %}
+<!-- Hero -->
+<div class="h-100 container-layer">
+  <!-- Background -->
+  <div class="layer el-background"></div>
 
-<div>
-  <!-- Image Carousel -->
-  <div id="carousel" class="carousel slide overflow-hidden" style="width: 100%; height: 700px;">
-    <div class="carousel-inner">
-      <div class="carousel-item active">
-        <img src="{{ url_for('static', filename='img/slide1.jpg')}}" class="d-block w-100" alt="Slide 1">
+  <!-- Effect -->
+  <div class="layer el-dots"></div>
+
+  <!-- Content -->
+  <div class="layer d-flex justify-content-center align-items-center">
+    <div>
+      <div class="d-flex justify-content-center">
+        <img style="width: 150px;" src="{{ static('icon.png') }}" />
       </div>
-      <div class="carousel-item">
-        <img src="{{ url_for('static', filename='img/slide2.jpg')}}" class="d-block w-100" alt="Slide 2">
+      <div class="text-center">
+        <h1 class="mb-3" style="font-size: 3rem;">Eco Primers</h1>
+        <p class="lead">Connecting the environment with technology</p>
       </div>
-    </div>
-    <button class="carousel-control-prev" type="button" data-bs-target="#carousel" data-bs-slide="prev">
-      <span class="carousel-control-prev-icon" aria-hidden="true"></span>
-      <span class="visually-hidden">Previous</span>
-    </button>
-    <button class="carousel-control-next" type="button" data-bs-target="#carousel" data-bs-slide="next">
-      <span class="carousel-control-next-icon" aria-hidden="true"></span>
-      <span class="visually-hidden">Next</span>
-    </button>
-  </div>
-
-  <div class="py-4 container">
-    <!-- About Us Section -->
-    <div class="my-5 text-center">
-      <h2>About Us</h2>
-      <p class="lead">We are an environmental non-profit organization dedicated to making the world a greener place.</p>
-    </div>
-
-    <!-- General Description Section -->
-    <div class="row g-4">
-      <!-- Volunteer Events -->
-      <div class="col-md-4">
-        <div class="card h-100">
-          <img class="card-img-top" src="{{ url_for('static', filename='img/eco1.jpg') }}" alt="Volunteer Events">
-          <div class="card-body">
-            <h5 class="card-title">Volunteer Events</h5>
-            <p class="card-text">Join us in creating positive change for the environment through various events.</p>
-            <a class="btn btn-success float-end" href="{{ url_for('events') }}">Learn More</a>
-          </div>
-        </div>
-      </div>
-
-      <!-- Tasks and Rewards -->
-      <div class="col-md-4">
-        <div class="card h-100">
-          <img class="card-img-top" src="{{ url_for('static', filename='img/eco2.jpg') }}" alt="Tasks and Rewards">
-          <div class="card-body">
-            <h5 class="card-title">Tasks and Rewards</h5>
-            <p class="card-text">Participate in rewarding activities to help preserve our planet and gain some rewards.</p>
-            <a class="btn btn-success float-end" href="{{ url_for('tasks') }}">Learn More</a>
-          </div>
-        </div>
-      </div>
-
-      <!-- Connect with Others -->
-      <div class="col-md-4">
-        <div class="card h-100">
-          <img class="card-img-top" src="{{ url_for('static', filename='img/eco3.jpg') }}" alt="Connect with Others">
-          <div class="card-body">
-            <h5 class="card-title">Connect with Others</h5>
-            <p class="card-text">Build a network of like-minded individuals passionate about the environment.</p>
-            <a class="btn btn-success float-end" href="{{ url_for('messaging') }}">Learn More</a>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <!-- Google Map Section (Placed Below Cards) -->
-    <div class="my-5 text-center">
-      <h2>Our Location</h2>
-      <p class="lead">Find us on the map below.</p>
-      <div id="map"></div>
     </div>
   </div>
 </div>
 
-<!-- Google Maps Script -->
+<div class="el-background-transition" style="height: 50px;"></div>
+
+<div class="mt-5 container">
+  <!-- About Us -->
+  <div class="mb-2 text-center">
+    <h2>About Us</h2>
+    <p class="lead">We are an environmental non-profit organization dedicated to making the world a greener place.</p>
+  </div>
+
+  <div class="row">
+    <!-- Volunteer Events -->
+    <div class="col-4">
+      <div class="card">
+        <img class="card-img-top" src="{{ url_for('static', filename='img/eco1.jpg') }}" alt="Volunteer Events">
+        <div class="card-body">
+          <h5 class="card-title">Volunteer Events</h5>
+          <p class="card-text">Join us in creating positive change for the environment through various events.</p>
+          <a class="btn btn-success float-end" href="{{ url_for('events') }}">Learn More</a>
+        </div>
+      </div>
+    </div>
+
+    <!-- Tasks and Rewards -->
+    <div class="col-4">
+      <div class="card">
+        <img class="card-img-top" src="{{ url_for('static', filename='img/eco2.jpg') }}" alt="Tasks and Rewards">
+        <div class="card-body">
+          <h5 class="card-title">Tasks and Rewards</h5>
+          <p class="card-text">Participate in rewarding activities to help preserve our planet and gain some rewards.</p>
+          <a class="btn btn-success float-end" href="{{ url_for('tasks') }}">Learn More</a>
+        </div>
+      </div>
+    </div>
+
+    <!-- Connect with Others -->
+    <div class="col-4">
+      <div class="card">
+        <img class="card-img-top" src="{{ url_for('static', filename='img/eco3.jpg') }}" alt="Connect with Others">
+        <div class="card-body">
+          <h5 class="card-title">Connect with Others</h5>
+          <p class="card-text">Build a network of like-minded individuals passionate about the environment.</p>
+          <a class="btn btn-success float-end" href="{{ url_for('messaging') }}">Learn More</a>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Google Maps -->
+<div class="mt-5" style="height: 60%;">
+  <div class="text-center">
+    <h2>Our Location</h2>
+    <p class="lead">Find us on the map below.</p>
+  </div>
+  <div id="map" class="h-100"></div>
+</div>
+
 <script src="https://maps.googleapis.com/maps/api/js?key={{ GOOGLE_API_KEY }}&callback=initMap" async defer></script>
-<style>
-    #map {
-        height: 400px;
-        width: 100%;
-        border-radius: 10px;
-    }
-</style>
 
 <script>
-    function initMap() {
-        var location = { lat: 1.3801, lng: 103.8489 }; // NYP coordinates 1.380110884475648, 103.84895942386089
-        var map = new google.maps.Map(document.getElementById("map"), {
-            zoom: 12,
-            center: location,
-        });
+  function initMap() {
+    const mapElement = document.querySelector("#map");
 
-        var marker = new google.maps.Marker({
-            position: location,
-            map: map,
-            title: "Our Location"
-        });
-    }
+    // NYP coordinates 1.380110884475648, 103.84895942386089
+    var location = { lat: 1.3801, lng: 103.8489 };
+
+    // Initialize the map centered at NYP
+    var map = new google.maps.Map(mapElement, {
+      zoom: 12,
+      center: location,
+    });
+
+    // Create a marker and set its position
+    var marker = new google.maps.Marker({
+      position: location,
+      map: map,
+      title: "Our Location"
+    });
+  }
 </script>
-
 {% endblock %}

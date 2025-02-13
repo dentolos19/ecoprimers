@@ -7,7 +7,7 @@ from lib import database, payments
 from lib.database import sql
 from lib.models import Event, EventAttendee, User
 from main import app
-from utils import check_admin_status, check_logged_in, require_login, get_weather_data
+from utils import check_admin_status, check_logged_in, get_weather_data, require_login
 
 
 @app.context_processor
@@ -24,6 +24,7 @@ def init():
         "is_logged_in": check_logged_in(),
         "is_admin_user": check_admin_status(),
         "dark_mode_enabled": session.get("dark_mode", True),
+        "static": lambda path: url_for("static", filename=path),
     }
 
 
@@ -176,8 +177,8 @@ def event_info():
             weather_description = "Weather data unavailable"
 
 
-    return render_template("event-details.html", 
-                           event=event, 
+    return render_template("event-details.html",
+                           event=event,
                            rain_chance=rain_chance,
                            temperature=temperature,
                            weather_description=weather_description,

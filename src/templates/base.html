@@ -37,9 +37,12 @@
     />
 
     <!-- Custom Stylesheets -->
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/base.css') }}" />
+    <link rel="stylesheet" href="{{ static('css/base.css') }}" />
+    <link rel="stylesheet" href="{{ static('css/utilities.css') }}"/>
+    <link rel="stylesheet" href="{{ static('css/fun.css') }}"/>
     {% if dark_mode_enabled %}
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/base-dark.css') }}" />
+    <link rel="stylesheet" href="{{ static('css/base-dark.css') }}" />
+    <link rel="stylesheet" href="{{ static('css/fun-dark.css') }}" />
     {% endif %}
     {% block stylesheets %} {% endblock %}
 

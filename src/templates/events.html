@@ -1,72 +1,75 @@
 {% extends "base.html" %}
 
-{% block title %}Events{% endblock %}
+{% block stylesheets %}
+<style>
+  .hover-item:hover {
+    transform: scale(1.02);
+    transition: transform 0.3s ease-in-out;
+  }
+</style>
+{% endblock %}
 
 {% block body %}
 
 <div class="container-fluid mt-4">
-    <div class="row">
-        <!-- Sidebar Filter -->
-        <div class="col-md-3">
-            <h5 class="mb-4">SEARCH FILTER</h5>
-            <form method="GET" action="{{ url_for('events') }}">
-                <div class="mb-3">
-                    <label for="fromDate" class="form-label">Start Date</label>
-                    <input type="date" class="form-control" id="fromDate" name="fromDate" placeholder="From">
-                </div>
-                <div class="mb-3">
-                    <label for="toDate" class="form-label">End Date</label>
-                    <input type="date" class="form-control" id="toDate" name="toDate" placeholder="To">
-                </div>
-                <div class="mb-3">
-                    <label for="location" class="form-label">Location</label>
-                    <select class="form-select" id="location" name="location">
-                        <option value="">Select Location</option>
-                        {% for event in all_events %}
-                        <option value="{{event.location}}">{{event.location}}</option>
-                        {% endfor %}
-                    </select>
-                </div>
-                <button type="submit" class="btn btn-success w-100">Apply Filters</button>
-            </form>
+  <div class="row">
+    <!-- Sidebar Filter -->
+    <div class="col-md-3">
+      <h5 class="mb-4">SEARCH FILTER</h5>
+      <form method="GET" action="{{ url_for('events') }}">
+        <div class="mb-3">
+          <label for="fromDate" class="form-label">Start Date</label>
+          <input type="date" class="form-control" id="fromDate" name="fromDate" placeholder="From">
         </div>
-
-        <!-- Event Cards -->
-        <div class="col-md-9">
-            <!-- Search Bar -->
-        <div class="input-group mb-4">
-            <form method="GET" action="{{ url_for('events') }}" class="d-flex w-100">
-                <input type="text" class="form-control" name="search" placeholder="Search" aria-label="Search" value="{{ request.args.get('search', '') }}">
-                <button class="btn btn-outline-secondary" type="submit">
-                    <i class="bi bi-search"></i>
-                </button>
-            </form>
+        <div class="mb-3">
+          <label for="toDate" class="form-label">End Date</label>
+          <input type="date" class="form-control" id="toDate" name="toDate" placeholder="To">
         </div>
-
-            <!-- Event Cards Grid -->
-            <div class="row row-cols-1 row-cols-md-2 g-4">
-                {% for event in events %}
-                <div class="col">
-                    <div class="card shadow-sm hover-item" id="eventDetails" data-event-id="{{ event.id }}">
-                        <img
-                            src="{{ event.image_url if event.image_url else 'https://via.placeholder.com/300x200' }}"
-                            class="card-img-top"
-                            style="height: 300px; width: 100%; object-fit: cover;"
-                            alt="{{ event.title }}">
-                        <div class="card-body">
-                            <h5 class="card-title">{{ event.title }}</h5>
-                            <p class="card-text">{{ event.description }}</p>
-                            <p class="card-text"><strong>Number of Attendees: </strong>{{ len(event.attendees) }}</p>
-                            <p class="card-text">
-                                <small class="text-muted">{{ event.date}} at {{ event.location }}</small>
-                            </p>
-                        </div>
-                    </div>
-                </div>
-                {% endfor %}
-            </div>
+        <div class="mb-3">
+          <label for="location" class="form-label">Location</label>
+          <select class="form-select" id="location" name="location">
+            <option value="">Select Location</option>
+            {% for event in all_events %}
+            <option value="{{event.location}}">{{event.location}}</option>
+            {% endfor %}
+          </select>
         </div>
+        <button type="submit" class="btn btn-success w-100">Apply Filters</button>
+      </form>
     </div>
+
+    <!-- Event Cards -->
+    <div class="col-md-9">
+      <!-- Search Bar -->
+      <div class="input-group mb-4">
+        <form method="GET" action="{{ url_for('events') }}" class="d-flex w-100">
+          <input type="text" class="form-control" name="search" placeholder="Search" aria-label="Search" value="{{ request.args.get('search', '') }}">
+          <button class="btn btn-outline-secondary" type="submit">
+            <i class="bi bi-search"></i>
+          </button>
+        </form>
+      </div>
+
+      <!-- Event Cards Grid -->
+      <div class="row row-cols-1 row-cols-md-2 g-4">
+        {% for event in events %}
+        <div class="col">
+          <div class="card shadow-sm hover-item" id="eventDetails" data-event-id="{{ event.id }}">
+            <img src="{{ event.image_url if event.image_url else 'https://via.placeholder.com/300x200' }}" class="card-img-top" style="height: 300px; width: 100%; object-fit: cover;" alt="{{ event.title }}">
+            <div class="card-body">
+              <h5 class="card-title">{{ event.title }}</h5>
+              <p class="card-text">{{ event.description }}</p>
+              <p class="card-text"><strong>Number of Attendees: </strong>{{ len(event.attendees) }}</p>
+              <p class="card-text">
+                <small class="text-muted">{{ event.date}} at {{ event.location }}</small>
+              </p>
+            </div>
+          </div>
+        </div>
+        {% endfor %}
+      </div>
+    </div>
+  </div>
 </div>
 
 {% endblock %}

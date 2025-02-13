@@ -43,12 +43,3 @@ body {
   flex: 1;
   overflow: auto;
 }
-
-.header {
-  background-color: #475841 !important;
-}
-
-.hover-item:hover {
-  transform: scale(1.02);
-  transition: transform 0.3s ease-in-out;
-}
