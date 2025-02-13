@@ -61,6 +61,6 @@ def api_analysis_recommend():
         prompt = file.read().format(content=data)
 
     # Generate response
-    response = ai.generate(prompt)
+    response = ai.generate_text(prompt)
 
     return {"response": response}

@@ -118,9 +118,13 @@ class PostSaved(Base):
 class Task(Base):
     __tablename__ = "tasks"
 
-    title: Mapped[str]
-    description: Mapped[datetime]  # TODO: Why datetime?
-    task_points: Mapped[int]
+    name: Mapped[str]
+    description: Mapped[str]
+    points: Mapped[int]
+    criteria: Mapped[str]
+    image_url: Mapped[Optional[str]]
+
+    players: Mapped[List["TaskStatus"]] = relationship(back_populates="task", cascade="all, delete")
 
 
 class TaskStatus(Base):
@@ -128,7 +132,11 @@ class TaskStatus(Base):
 
     task_id: Mapped[str] = mapped_column(ForeignKey("tasks.id"))
     user_id: Mapped[str] = mapped_column(ForeignKey("users.id"))
-    status: Mapped[str]  # e: "completed" or "pending"
+    completed: Mapped[bool] = mapped_column(default=False)
+    attempts: Mapped[int] = mapped_column(default=0)
+
+    task: Mapped["Task"] = relationship()
+    user: Mapped["User"] = relationship()
 
 
 class Product(Base):

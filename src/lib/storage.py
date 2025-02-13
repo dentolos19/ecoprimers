@@ -31,6 +31,12 @@ def check_format(file: FileStorage, allowed_extensions: list[str]) -> bool:
 
 
 def upload_file(file: FileStorage) -> str:
+    # TODO: Upload files to cloud
+
+    return save_file(file).strip("src")
+
+
+def save_file(file: FileStorage) -> str:
     from main import app
     from utils import generate_random_string
 
@@ -41,4 +47,4 @@ def upload_file(file: FileStorage) -> str:
         generated_name += name[name.rindex(".") :]
 
     file.save(os.path.join(app.config["UPLOAD_FOLDER"], generated_name))
-    return "/static/uploads/" + generated_name
+    return "src/static/uploads/" + generated_name

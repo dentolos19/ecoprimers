@@ -26,6 +26,6 @@ def api_chat():
     ai_request += f"user (current prompt): {prompt}\n"
 
     # Generate a response
-    ai_response = ai.generate(ai_request)
+    ai_response = ai.generate_text(ai_request)
 
     return {"response": ai_response}

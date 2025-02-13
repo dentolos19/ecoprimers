@@ -1,6 +1,9 @@
 import os
 
-from flask import Flask
+import PIL
+import PIL.Image
+import PIL.ImageFile
+from flask import Flask, json
 from google import genai
 
 initialized: bool = False
@@ -25,13 +28,15 @@ def init(app: Flask):
     initialized = True
 
 
-def generate(prompt: str):
+def generate_text(prompt: str, return_json: bool = False):
     global agent
 
     from main import app
 
     model = app.config["GEMINI_AI_MODEL"]
-    response = agent.models.generate_content(model=model, contents=[prompt])
+    response = agent.models.generate_content(
+        model=model, contents=[prompt], config={"response_mime_type": "application/json"} if return_json else None
+    )
 
     return response.candidates[0].content.parts[0].text.strip()
 
@@ -51,3 +56,23 @@ def generate_structured(prompt: str):
     )
 
     return response.candidates[0].content.parts[0].text.strip()
+
+
+def analyze_image(prompt: str, image_path: str, return_json: bool = False):
+    global agent
+
+    from main import app
+
+    model = app.config["GEMINI_AI_MODEL"]
+    image = PIL.Image.open(image_path)
+    response = agent.models.generate_content(
+        model=model,
+        contents=[prompt, image],
+        config={"response_mime_type": "application/json"} if return_json else None,
+    )
+
+    text = response.candidates[0].content.parts[0].text.strip()
+
+    if return_json:
+        return json.loads(text)
+    return text

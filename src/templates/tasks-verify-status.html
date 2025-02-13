@@ -1,0 +1,30 @@
+{% extends "base.html" %}
+
+{% block body %}
+<div class="container h-100 d-flex justify-content-center align-items-center">
+  <form class="card" style="width: 400px;" method="post" action="{{ url_for('tasks_verify') }}" enctype="multipart/form-data">
+    <div class="card-body border-bottom">
+      <h4 class="text-center m-0">Task Verification</h4>
+    </div>
+    <div class="card-body">
+      <div>
+        {% if result.answer %}
+        <div class="alert alert-success text-center" role="alert">
+          Congratulations! You have successfully completed the task. You have earned points!
+        </div>
+        {% else %}
+        <div class="alert alert-danger text-center" role="alert">
+          Oops! Unfortunately, we do not accept your proof of completion. Please try again next time!
+        </div>
+        {% endif %}
+        <p>
+          {{ result.reasoning }}
+        </p>
+      </div>
+      <div class="mt-4 d-flex justify-content-end gap-2">
+        <a class="btn btn-primary" type="submit" href="{{ url_for('tasks') }}">Back</a>
+      </div>
+    </div>
+  </form>
+</div>
+{% endblock %}
