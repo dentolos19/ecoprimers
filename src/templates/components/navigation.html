@@ -1,8 +1,8 @@
-<nav class="navbar navbar-expand-md shadow-sm {{ 'bg-secondary-subtle' if admin else 'bg-body-tertiary' }}">
+<nav class="navbar navbar-expand-md shadow-sm bg-secondary-subtle">
   <div class="container-fluid">
     <!-- Navigation Brand -->
     <a class="navbar-brand" href="{{ url_for('home') }}">
-      <img class="d-inline-block align-text-top" src="{{ url_for('static', filename='/icon.png') }}" alt="Logo" width="30" height="24">
+      <img class="d-inline-block align-text-top" src="{{ static('/icon.png') }}" alt="Logo" width="30" height="24">
       <span class="ms-1">Eco Primers</span>
     </a>
 

@@ -1,7 +1,7 @@
 {% extends "base.html" %}
 
 {% block stylesheets %}
-<link rel="stylesheet" href="{{ url_for('static', filename='css/messages.css') }}">
+<link rel="stylesheet" href="{{ static('css/messages.css') }}">
 {% endblock %}
 
 {% block scripts %}
@@ -11,7 +11,7 @@
   }
 </script>
 <script src="https://cdn.socket.io/4.0.0/socket.io.min.js"></script>
-<script src="{{ url_for('static', filename='js/messages.js') }}"></script>
+<script src="{{ static('js/messages.js') }}"></script>
 {% endblock %}
 
 {% block body %}

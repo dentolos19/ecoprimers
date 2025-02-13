@@ -1,7 +1,3 @@
-// Enable Bootstrap Tooltips
-const tooltipTriggers = document.querySelectorAll("[data-bs-toggle='tooltip']");
-const tooltipList = [...tooltipTriggers].map((tooltipTrigger) => new bootstrap.Tooltip(tooltipTrigger));
-
 const toasterElement = document.getElementById("toaster");
 
 export function toast(message, category) {
@@ -39,10 +35,33 @@ export function toast(message, category) {
   }
 }
 
-// redirect to details page
-document.querySelectorAll('#eventDetails').forEach(card => {
-  card.addEventListener('click', () => {
-    const eventId = card.getAttribute('data-event-id');
+document.addEventListener("DOMContentLoaded", function () {
+  // Enable Bootstrap Tooltips
+  const tooltipTriggers = document.querySelectorAll("[data-bs-toggle='tooltip']");
+  const tooltipList = [...tooltipTriggers].map((tooltipTrigger) => new bootstrap.Tooltip(tooltipTrigger));
+
+  // Add placeholder images
+  document.querySelectorAll("img").forEach((img) => {
+    img.onerror = function () {
+      this.onerror = null; // Prevent infinite loop
+      this.src = "/static/img/placeholder.png";
+    };
+  });
+
+  document.querySelectorAll("form button[type='submit'][data-confirm]").forEach((element) => {
+    element.addEventListener("click", (event) => {
+      const message = element.getAttribute("data-confirm");
+      if (!confirm(message)) {
+        event.preventDefault();
+      }
+    });
+  });
+});
+
+// Redirect to details page
+document.querySelectorAll("#eventDetails").forEach((card) => {
+  card.addEventListener("click", () => {
+    const eventId = card.getAttribute("data-event-id");
     window.location.href = `/event/details?id=${eventId}`;
   });
 });

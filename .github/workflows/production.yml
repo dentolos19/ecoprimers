@@ -11,6 +11,9 @@ on:
       - pyproject.toml
       - uv.lock
   workflow_dispatch:
+concurrency:
+  group: ${{ github.workflow }}
+  cancel-in-progress: true
 jobs:
   deploy:
     name: Deploy Production
