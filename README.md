@@ -65,7 +65,7 @@ This platform integrates **secure authentication**, **volunteer management**, **
 ### Prerequisites
 
 - [Python](https://python.org) 3.13+
-- [uv](https://docs.astral.sh/uv)
+- [uv](https://docs.astral.sh/uv) 0.5+
 
 ### Installation
 

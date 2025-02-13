@@ -1,4 +1,5 @@
 import { marked } from "https://cdn.jsdelivr.net/npm/marked/lib/marked.esm.js";
+import { humanizeMonthYear } from "./utils.js";
 
 const activeUsersElement = document.querySelector("#activeUsers");
 const platformEventsElement = document.querySelector("#platformEvents");
@@ -27,7 +28,7 @@ async function loadAnalysis() {
   new Chart(monthlyUsersElement, {
     type: "line",
     data: {
-      labels: monthlyUsers.map((row) => row.month),
+      labels: monthlyUsers.map((row) => humanizeMonthYear(row.month)),
       datasets: [
         {
           label: "Users per month",
@@ -47,7 +48,7 @@ async function loadAnalysis() {
   new Chart(monthlySignupsElement, {
     type: "line",
     data: {
-      labels: monthlySignups.map((row) => row.month),
+      labels: monthlySignups.map((row) => humanizeMonthYear(row.month)),
       datasets: [
         {
           label: "Signups per month",
@@ -67,7 +68,7 @@ async function loadAnalysis() {
   new Chart(monthlyTransactionsElement, {
     type: "line",
     data: {
-      labels: monthlyTransactions.map((row) => row.month),
+      labels: monthlyTransactions.map((row) => humanizeMonthYear(row.month)),
       datasets: [
         {
           label: "Transactions per month",
@@ -90,13 +91,18 @@ async function generateRecommendations(event) {
 
   recommendationsElement.innerHTML = "Loading...";
 
-  const response = await fetch("/api/analysis/recommendations");
-  const data = await response.json();
-
-  recommendationsElement.innerHTML = "";
-  recommendationsElement.innerHTML = marked.parse(data.response);
+  try {
+    const response = await fetch("/api/analysis/recommendations");
+    const data = await response.json();
+    recommendationsElement.innerHTML = "";
+    recommendationsElement.innerHTML = marked.parse(data.response);
+  } catch (error) {
+    console.error(error);
+    recommendationsElement.innerHTML = "";
+    recommendationsElement.innerHTML = "Unable to load recommendations.";
+  }
 }
 
-recommendationsElement.addEventListener("submit", generateRecommendations)
+recommendationsElement.addEventListener("submit", generateRecommendations);
 
 loadAnalysis();
