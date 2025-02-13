@@ -22,9 +22,9 @@
             <hr>
             <h4 class="my-4">Weather Information</h4>
             {% if temperature is not none %}
-                <p>Temperature: {{ temperature }}°C</p>
-                <p>Condition: {{ weather_description | capitalize }}</p>
-                <p>Chance of Rain: {{ rain_chance }}%</p>
+                <p><strong>Temperature: </strong>{{ temperature }}°C</p>
+                <p><strong>Condition: </strong>{{ weather_description | capitalize }}</p>
+                <p><strong>Chance of rain: </strong>{{ rain_chance }}%</p>
             {% else %}
                 <p>{{ weather_description }}</p>
             {% endif %}
