@@ -449,7 +449,7 @@ def admin_advanced_generate_users():
     count = int(request.form["count"])
 
     # Get prompt
-    with open("src/static/generateusers.txt", "r") as file:
+    with open("src/static/generate-users.txt", "r") as file:
         prompt = file.read().format(count=count, today=datetime.now().strftime("%Y-%m-%d"))
 
     # Generate response

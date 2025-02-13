@@ -57,10 +57,10 @@ def api_analysis_recommend():
     data = api_analysis()
 
     # Get prompt
-    with open("src/static/generaterecommendations.txt", "r") as file:
+    with open("src/static/prompts/generate-recommendations.txt", "r") as file:
         prompt = file.read().format(content=data)
 
     # Generate response
-    response = ai.generate(prompt)
+    response = ai.generate_text(prompt)
 
     return {"response": response}

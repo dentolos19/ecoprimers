@@ -1,25 +1,54 @@
-import requests
-from flask import flash, redirect, render_template, request, session, url_for ,send_file
+import io
 
+import matplotlib
+import pandas as pd
+import requests
+from flask import flash, redirect, render_template, request, send_file, session, url_for
+
+from lib import ai, storage
 from lib.database import sql
 from lib.enums import TransactionType
 from lib.models import Product, Transaction, User
 from main import app
 from utils import require_login
-import pandas as pd
-import io
-import matplotlib
-matplotlib.use("Agg")  
-import matplotlib.pyplot as plt  
+
+matplotlib.use("Agg")
 import base64
 
+import matplotlib.pyplot as plt
 
-@app.route("/engagement/task")
+
+@app.route("/engagement/tasks")
 @require_login
 def tasks():
     user_id = session.get("user_id")
     user = sql.session.query(User).filter_by(id=user_id).first()
     return render_template("tasks.html", user=user)
+
+
+@app.route("/engagement/tasks/verify", methods=["GET", "POST"])
+def tasks_verify():
+    if request.method == "POST":
+        # Collect data from the form
+        image = request.files.get("image")
+
+        # Validate data provided
+        if not image:
+            return "No image provided.", 400
+
+        # Save the image to a file
+        path = storage.save_file(image)
+
+        # Get prompt
+        with open("src/static/prompts/verify.txt", "r") as file:
+            prompt = file.read().format(criteria="Verify if this image contains something green.")
+
+        # Perform verification
+        result = ai.analyze_image(prompt, path, return_json=True)
+
+        return render_template("tasks-verify-status.html", result=result)
+
+    return render_template("tasks-verify.html")
 
 
 @app.route("/engagement/rewards")
@@ -137,24 +166,19 @@ def transactions():
 
     # Fetch all transactions for the user
     user_transactions = (
-        sql.session.query(Transaction)
-        .filter_by(user_id=user_id)
-        .order_by(Transaction.created_at.desc())
-        .all()
+        sql.session.query(Transaction).filter_by(user_id=user_id).order_by(Transaction.created_at.desc()).all()
     )
 
     return render_template("transactions.html", transactions=user_transactions)
 
-@app.route('/export-transactions')
+
+@app.route("/transactions/export")
 def export_transactions():
     user_id = session.get("user_id")
 
     # Fetch user transactions
     user_transactions = (
-        sql.session.query(Transaction)
-        .filter_by(user_id=user_id)
-        .order_by(Transaction.created_at.desc())
-        .all()
+        sql.session.query(Transaction).filter_by(user_id=user_id).order_by(Transaction.created_at.desc()).all()
     )
 
     if not user_transactions:
@@ -163,7 +187,7 @@ def export_transactions():
     # Convert transactions to a list of dictionaries
     transactions_data = [
         {
-            "Date": transaction.created_at.strftime('%d/%m/%Y'),
+            "Date": transaction.created_at.strftime("%d/%m/%Y"),
             "Description": transaction.description,
             "Points": transaction.amount,
             "Type": transaction.type.value,  # Assuming transaction.type is an Enum
@@ -176,16 +200,21 @@ def export_transactions():
 
     # Save to an in-memory Excel file
     output = io.BytesIO()
-    with pd.ExcelWriter(output, engine='xlsxwriter') as writer:
+    with pd.ExcelWriter(output, engine="xlsxwriter") as writer:
         df.to_excel(writer, index=False, sheet_name="Transactions")
 
     output.seek(0)
-    
+
     # Send file as downloadable attachment
-    return send_file(output, as_attachment=True, download_name="transactions.xlsx", mimetype="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")
+    return send_file(
+        output,
+        as_attachment=True,
+        download_name="transactions.xlsx",
+        mimetype="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+    )
 
 
-@app.route('/dashboard')
+@app.route("/transactions/dashboard")
 def dashboard():
     user_id = session.get("user_id")
 
@@ -196,22 +225,24 @@ def dashboard():
         .order_by(Transaction.created_at.asc())  # Ascending order for line graph
         .all()
     )
-     # Check if there are transactions
-    #has_transactions = bool(transactions)  # True if transactions exist, False if empty
+    # Check if there are transactions
+    # has_transactions = bool(transactions)  # True if transactions exist, False if empty
 
     # If no transactions, just render the message without graphs
-    #if not has_transactions:
-        #return render_template("dashboard.html", has_transactions=False)
-     
+    # if not has_transactions:
+    # return render_template("dashboard.html", has_transactions=False)
+
     # Convert transactions to DataFrame
-    df = pd.DataFrame([
-        {
-            "Date": transaction.created_at.strftime('%Y-%m-%d'),
-            "Type": transaction.type.value,
-            "Amount": transaction.amount
-        }
-        for transaction in transactions
-    ])
+    df = pd.DataFrame(
+        [
+            {
+                "Date": transaction.created_at.strftime("%Y-%m-%d"),
+                "Type": transaction.type.value,
+                "Amount": transaction.amount,
+            }
+            for transaction in transactions
+        ]
+    )
 
     # Ensure DataFrame is not empty
     if df.empty:
@@ -226,7 +257,7 @@ def dashboard():
     total_redeemed = abs(df[df["Type"] == "redemption"]["Amount"].sum())  # Convert to positive
     net_transactions = total_earned - total_redeemed
 
-    #bar graph
+    # bar graph
     bar_chart = io.BytesIO()
     plt.figure(figsize=(7, 5))
     transaction_counts.plot(kind="bar", color=["green", "red"])
@@ -238,7 +269,7 @@ def dashboard():
     bar_chart.seek(0)
     bar_chart_url = base64.b64encode(bar_chart.getvalue()).decode("utf-8")
 
-    #line graph
+    # line graph
     line_chart = io.BytesIO()
     plt.figure(figsize=(7, 5))
     daily_points.plot(kind="line", marker="o", color="blue")
@@ -251,10 +282,11 @@ def dashboard():
     line_chart.seek(0)
     line_chart_url = base64.b64encode(line_chart.getvalue()).decode("utf-8")
 
-   
-    return render_template("dashboard.html",
-                           bar_chart_url=bar_chart_url,
-                           line_chart_url=line_chart_url,
-                           total_earned=total_earned,
-                           total_redeemed=total_redeemed,
-                           net_transactions=net_transactions)
+    return render_template(
+        "dashboard.html",
+        bar_chart_url=bar_chart_url,
+        line_chart_url=line_chart_url,
+        total_earned=total_earned,
+        total_redeemed=total_redeemed,
+        net_transactions=net_transactions,
+    )
