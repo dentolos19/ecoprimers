@@ -23,14 +23,14 @@
   <!-- Tasks -->
   <div class="tasks gap-2">
     {% for task in tasks %}
-    <form class="card" method="get" action="{{ url_for('tasks_verify', id=task.id) }}">
+    <div class="card">
       <img class="card-img-top" style="aspect-ratio: 1 / 1; object-fit: cover;" src="{{ task.image_url }}" alt="{{ task.name }}">
       <div class="card-body">
         <h5 class="card-title">{{ task.name }}</h5>
         <p class="card-text">{{ task.description }}</p>
-        <button class="btn btn-primary" type="submit">Verify</button>
+        <a class="btn btn-primary" href="{{ url_for('tasks_verify', id=task.id) }}">Verify</a>
       </div>
-    </form>
+    </div>
     {% endfor %}
   </div>
 </div>

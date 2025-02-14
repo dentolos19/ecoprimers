@@ -52,9 +52,9 @@ def tasks_verify(id):
 
         # TODO: Update the task status, add points, create transaction record
 
-        return render_template("tasks-verify-status.html", result=result)
+        return render_template("tasks-verify-status.html", task=task, result=result)
 
-    return render_template("tasks-verify.html")
+    return render_template("tasks-verify.html", task=task)
 
 
 @app.route("/engagement/rewards")
