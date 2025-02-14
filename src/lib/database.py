@@ -5,7 +5,7 @@ from flask import session as flask_session
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy.orm import Session
 
-from lib.models import Base, Event, Product
+from lib.models import Base, Event, Product, Task
 
 initialized: bool = False
 sql: SQLAlchemy = None
@@ -89,6 +89,44 @@ def setup():
                 location="Ang Mo Kio",
                 date="2025-03-01",
                 image_url="/static/img/newspaper-roll.jpg",
+            )
+        )
+
+        # Tasks
+        sql.session.add(
+            Task(
+                name="EcoWalkSnap",
+                description="Step out for the planet! Take a walk, pick up litter, snap a photo, and upload it for AI verification. Keep your surroundings clean and beautiful!",
+                criteria="",
+                points=100,
+                image_url="/static/img/first.png",
+            )
+        )
+        sql.session.add(
+            Task(
+                name="RecycleVision",
+                description="Collect recyclables, snap a picture as you drop them in the bin, and let AI verify your eco-friendly actions. Save reusable material and save the world!",
+                criteria="",
+                points=100,
+                image_url="/static/img/vision.png",
+            )
+        )
+        sql.session.add(
+            Task(
+                name="Thirsty Roots",
+                description="Water a plant or tree, snap a picture, and let AI verify your care for nature. Help save your environment with your conscious effort.",
+                criteria="",
+                points=100,
+                image_url="/static/img/thirstyroots.png",
+            )
+        )
+        sql.session.add(
+            Task(
+                name="Lights Out",
+                description="Turn off unused lights, snap a pic, and let AI confirm your energy-saving efforts. With your help we can save our environment.",
+                criteria="",
+                points=100,
+                image_url="/static/img/lights.png",
             )
         )
 
