@@ -8,7 +8,7 @@ from flask import flash, redirect, render_template, request, send_file, session,
 from lib import ai, storage
 from lib.database import sql
 from lib.enums import TransactionType
-from lib.models import Product, Transaction, User
+from lib.models import Product, Task, Transaction, User
 from main import app
 from utils import require_login
 
@@ -23,11 +23,15 @@ import matplotlib.pyplot as plt
 def tasks():
     user_id = session.get("user_id")
     user = sql.session.query(User).filter_by(id=user_id).first()
-    return render_template("tasks.html", user=user)
+    tasks = sql.session.query(Task).all()
+
+    return render_template("tasks.html", user=user, tasks=tasks)
 
 
-@app.route("/engagement/tasks/verify", methods=["GET", "POST"])
-def tasks_verify():
+@app.route("/engagement/tasks/<id>", methods=["GET", "POST"])
+def tasks_verify(id):
+    task = sql.session.query(Task).filter_by(id=id).first()
+
     if request.method == "POST":
         # Collect data from the form
         image = request.files.get("image")
@@ -41,14 +45,16 @@ def tasks_verify():
 
         # Get prompt
         with open("src/static/prompts/verify.txt", "r") as file:
-            prompt = file.read().format(criteria="Verify if this image contains something green.")
+            prompt = file.read().format(criteria=task.criteria)
 
         # Perform verification
         result = ai.analyze_image(prompt, path, return_json=True)
 
-        return render_template("tasks-verify-status.html", result=result)
+        # TODO: Update the task status, add points, create transaction record
 
-    return render_template("tasks-verify.html")
+        return render_template("tasks-verify-status.html", task=task, result=result)
+
+    return render_template("tasks-verify.html", task=task)
 
 
 @app.route("/engagement/rewards")

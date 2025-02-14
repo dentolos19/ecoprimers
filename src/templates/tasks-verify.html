@@ -2,7 +2,7 @@
 
 {% block body %}
 <div class="container h-100 d-flex justify-content-center align-items-center">
-  <form class="card" style="width: 400px;" method="post" action="{{ url_for('tasks_verify') }}" enctype="multipart/form-data">
+  <form class="card" style="width: 400px;" method="post" action="{{ url_for('tasks_verify', id=task.id) }}" enctype="multipart/form-data">
     <div class="card-body border-bottom">
       <h4 class="text-center m-0">Task Verification</h4>
     </div>

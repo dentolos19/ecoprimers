@@ -1,0 +1,40 @@
+{% extends "admin/base.html" %}
+
+{% block abody %}
+<div class="container py-3 d-flex justify-content-center">
+  <div class="card" style="width: 500px;">
+    <form class="card-body" method="POST" action="{{ url_for('admin_tasks_new') }}" enctype="multipart/form-data">
+      <div>
+        <h5 class="card-title text-center">New Task</h5>
+      </div>
+      <div class="vstack gap-2">
+        <div>
+          <label class="form-label" for="name">Name</label>
+          <input class="form-control" type="text" id="name" name="name" required />
+        </div>
+        <div>
+          <label class="form-label" for="description">Description</label>
+          <textarea class="form-control" id="description" name="description" rows="4" required></textarea>
+        </div>
+        <div>
+          <label class="form-label" for="criteria">Critera</label>
+          <textarea class="form-control" id="criteria" name="criteria" rows="2" required></textarea>
+        </div>
+        <div>
+          <label class="form-label" for="points">Points</label>
+          <input class="form-control" type="number" id="points" name="points" min="0" value="0" required />
+        </div>
+        <div>
+          <label class="form-label" for="image">Image</label>
+          <input class="form-control" type="file" id="image" name="image" />
+        </div>
+      </div>
+      <div class="mt-4 d-flex justify-content-end gap-2">
+        <a class="btn btn-secondary" href="{{ url_for('admin_tasks') }}">Cancel</a>
+        <button class="btn btn-primary" type="submit">Create</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+{% endblock %}

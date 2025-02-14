@@ -22,65 +22,16 @@
 
   <!-- Tasks -->
   <div class="tasks gap-2">
-    <!-- Task 1 -->
-    <form class="card" method="post" action="{{ url_for('add_points') }}">
-      <input class="visually-hidden" name="task_name" value="EcoWalkSnap">
-      <input class="visually-hidden" name="task_points" value="100">
-      <img class="card-img-top" style="aspect-ratio: 1 / 1; object-fit: cover;" src="../static/img/first.png" alt="Eco Walk Snap">
+    {% for task in tasks %}
+    <div class="card">
+      <img class="card-img-top" style="aspect-ratio: 1 / 1; object-fit: cover;" src="{{ task.image_url }}" alt="{{ task.name }}">
       <div class="card-body">
-        <h5 class="card-title">EcoWalkSnap</h5>
-        <p class="card-text">
-          Step out for the planet! Take a walk, pick up litter, snap a photo, and upload it for AI verification. Keep
-          your surroundings clean and beautiful!
-        </p>
-        <button class="btn btn-primary" type="submit">Take on the Challenge</button>
+        <h5 class="card-title">{{ task.name }}</h5>
+        <p class="card-text">{{ task.description }}</p>
+        <a class="btn btn-primary" href="{{ url_for('tasks_verify', id=task.id) }}">Verify</a>
       </div>
-    </form>
-
-    <!-- Task 2 -->
-    <form class="card" method="post" action="{{ url_for('add_points') }}">
-      <input class="visually-hidden" name="task_name" value="RecycleVision">
-      <input class="visually-hidden" name="task_points" value="100">
-      <img class="card-img-top" style="aspect-ratio: 1 / 1; object-fit: cover;" src="../static/img/vision.png" alt="Recycle Vision">
-      <div class="card-body">
-        <h5 class="card-title">RecycleVision</h5>
-        <p class="card-text">
-          Collect recyclables, snap a picture as you drop them in the bin, and let AI verify your eco-friendly actions.
-          Save reusable material and save the world!
-        </p>
-        <button class="btn btn-primary" type="submit">Take on the Challenge</button>
-      </div>
-    </form>
-
-    <!-- Task 3 -->
-    <form class="card" method="post" action="{{ url_for('add_points') }}">
-      <input class="visually-hidden" name="task_name" value="Thirsty Roots">
-      <input class="visually-hidden" name="task_points" value="100">
-      <img class="card-img-top" style="aspect-ratio: 1 / 1; object-fit: cover;" src="../static/img/thirstyroots.png" alt="Thirsty Roots">
-      <div class="card-body">
-        <h5 class="card-title">Thirsty Roots</h5>
-        <p class="card-text">
-          Water a plant or tree, snap a picture, and let AI verify your care for nature. Help save your environment with
-          your conscious effort.
-        </p>
-        <button class="btn btn-primary" type="submit">Take on the Challenge</button>
-      </div>
-    </form>
-
-    <!-- Task 4 -->
-    <form class="card" method="post" action="{{ url_for('add_points') }}">
-      <input class="visually-hidden" name="task_name" value="Lights Out">
-      <input class="visually-hidden" name="task_points" value="100">
-      <img class="card-img-top" style="aspect-ratio: 1 / 1; object-fit: cover;" src="../static/img/lights.png" alt="Lights Out">
-      <div class="card-body">
-        <h5 class="card-title">Lights Out</h5>
-        <p class="card-text">
-          Turn off unused lights, snap a pic, and let AI confirm your energy-saving efforts. With your help we can save
-          our environment.
-        </p>
-        <button class="btn btn-primary" type="submit">Take on the Challenge</button>
-      </div>
-    </form>
+    </div>
+    {% endfor %}
   </div>
 </div>
 {% endblock %}

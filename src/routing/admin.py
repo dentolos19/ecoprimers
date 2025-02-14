@@ -5,7 +5,7 @@ from werkzeug.security import generate_password_hash
 
 from lib import ai, database, storage
 from lib.database import sql
-from lib.models import Event, EventAttendee, Product, Transaction, User
+from lib.models import Event, EventAttendee, Product, Task, Transaction, User
 from main import app
 from utils import require_admin
 
@@ -248,6 +248,132 @@ def admin_users_delete(id):
     return render_template("admin/users-delete.html", user=user)
 
 
+@app.route("/admin/tasks")
+@require_admin
+def admin_tasks():
+    # Query all tasks from the database
+    tasks = sql.session.query(Task).all()
+
+    return render_template("admin/tasks.html", tasks=tasks)
+
+
+@app.route("/admin/tasks/new", methods=["GET", "POST"])
+@require_admin
+def admin_tasks_new():
+    if request.method == "POST":
+        # Collect data from the form
+        name = request.form.get("name")
+        description = request.form.get("description")
+        criteria = request.form.get("criteria")
+        points = request.form.get("points")
+        image = request.files.get("image")
+
+        image_url = None
+
+        # Validate form data
+        if image:
+            if storage.check_format(image, storage.image_extensions):
+                image_url = storage.upload_file(image)
+            else:
+                flash("The file format is not allowed.", "danger")
+                return redirect(request.referrer)
+
+        # Create new object
+        task = Task(
+            name=name,
+            description=description,
+            criteria=criteria,
+            points=points,
+            image_url=image_url,
+        )
+
+        try:
+            # Commit changes to the database
+            sql.session.add(task)
+            sql.session.commit()
+            flash("Task added successfully!", "success")
+        except Exception as e:
+            sql.session.rollback()
+            flash(f"An error occurred while adding the task! {str(e)}", "danger")
+
+        return redirect(url_for("admin_tasks"))
+
+    return render_template("admin/tasks-new.html")
+
+
+@app.route("/admin/tasks/<id>", methods=["GET", "POST"])
+@require_admin
+def admin_tasks_manage(id):
+    # Query the task from the database
+    task = sql.session.query(Task).filter_by(id=id).first()
+
+    if request.method == "POST":
+        # Collect data from the form
+        name = request.form.get("name")
+        description = request.form.get("description")
+        criteria = request.form.get("criteria")
+        points = request.form.get("points")
+        image = request.files.get("image")
+
+        image_url = task.image_url
+
+        # Validate form data
+        if image:
+            if storage.check_format(image, storage.image_extensions):
+                image_url = storage.upload_file(image)
+            else:
+                flash("The file format is not allowed.", "danger")
+                return redirect(request.referrer)
+
+        # Update the object with the new data
+        task.name = name
+        task.description = description
+        task.criteria = criteria
+        task.points = points
+        task.image_url = image_url
+
+        try:
+            # Commit changes to the database
+            sql.session.commit()
+            flash("Task updated successfully!", "success")
+        except Exception as e:
+            sql.session.rollback()
+            flash(f"An error occurred while updating the task! {str(e)}", "danger")
+
+        return redirect(url_for("admin_tasks"))
+
+    return render_template("admin/tasks-manage.html", task=task)
+
+
+@app.route("/admin/tasks/<id>/delete", methods=["GET", "POST"])
+@require_admin
+def admin_tasks_delete(id):
+    # Query the task from the database
+    task = sql.session.query(Task).filter_by(id=id).first()
+
+    if request.method == "POST":
+        # Collect data from the form
+        task_name = request.form["name"]
+
+        # Validate form data
+        if task.name != task_name:
+            flash("The task name does not match. Please try again.", "danger")
+            return redirect(url_for("admin_tasks_delete", id=id))
+
+        try:
+            # Commit changes to the database
+            sql.session.delete(task)
+            sql.session.commit()
+            flash("Task deleted successfully!", "success")
+        except Exception as e:
+            sql.session.rollback()
+            flash(f"An error occurred while deleting the task! {str(e)}", "danger")
+
+        return redirect(url_for("admin_tasks"))
+
+    return render_template("admin/tasks-delete.html", task=task)
+
+
 @app.route("/admin/products")
 @require_admin
 def admin_products():
@@ -449,7 +575,7 @@ def admin_advanced_generate_users():
     count = int(request.form["count"])
 
     # Get prompt
-    with open("src/static/generate-users.txt", "r") as file:
+    with open("src/static/prompts/generate-users.txt", "r") as file:
         prompt = file.read().format(count=count, today=datetime.now().strftime("%Y-%m-%d"))
 
     # Generate response
