@@ -13,7 +13,7 @@ function displayMessage(message) {
 	messageBlock.className = `message-block ${message.sender_id === currentSenderId ? "you" : "other-person"}`;
 	messageBlock.id = message.id;
 
-if (message.sender_id == currentSenderId) {
+if (message.sender_id == currentSenderId && message.is_visible) {
     messageBlock.innerHTML = `
     <form action="/community/messages/${message.receiver_id}/${message.id}" method="POST">
       <div class="message card rounded-3">
@@ -25,13 +25,12 @@ if (message.sender_id == currentSenderId) {
     </form>
     `;
     console.log(`test: logged in user = sender, sender id = ${message.sender_id}, current sender id = ${currentSenderId}`);
-  } else {
+  } else if (message.receiver_id == currentSenderId && message.is_visible){
     messageBlock.innerHTML = `
     <form action="/community/messages/${message.receiver_id}/${message.id}" method="POST">
       <div class="message card rounded-3">
         <div class="card-body">
           <p class="card-text">${message.message}</p>
-          <small class="text-muted">Read status: ${message.is_read ? "Read" : "Unread"}</small>
         </div>
       </div>
     </form>
@@ -124,10 +123,7 @@ socket.on("receive_message", (message) => {
 });
 
 socket.on("message_deleted", (data) => {
-    const messageElement = document.getElementById(data.message_id);
-    if (messageElement) {
-        messageElement.remove();
-    }
+  location.reload();
 });
 
 document.addEventListener("DOMContentLoaded", function () {

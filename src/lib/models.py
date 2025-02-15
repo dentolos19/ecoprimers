@@ -166,7 +166,7 @@ class Message(Base):
     sender_id: Mapped[str] = mapped_column(ForeignKey("users.id"))
     receiver_id: Mapped[str] = mapped_column(ForeignKey("users.id"))
     message: Mapped[str]
-    is_read: Mapped[bool] = mapped_column(default=False)
+    is_visible: Mapped[bool] = mapped_column(default=False)
 
     sender: Mapped["User"] = relationship(foreign_keys=[sender_id])
     receiver: Mapped["User"] = relationship(foreign_keys=[receiver_id])
@@ -176,7 +176,7 @@ class Message(Base):
             "sender_id": self.sender_id,
             "receiver_id": self.receiver_id,
             "message": self.message,
-            "is_read": self.is_read,
+            "is_visible": self.is_visible,
         }
 
 

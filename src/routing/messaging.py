@@ -68,7 +68,7 @@ def handle_send_message(data):
         sender_id=sender_id,
         receiver_id=receiver_id,
         message=message_content,
-        is_read=False,
+        is_visible=True,
     )
     sql.session.add(message)
     sql.session.commit()
@@ -83,7 +83,7 @@ def handle_send_message(data):
 
     if room:
         # Emit to the room instead of individual receiver
-        socket.emit("receive_message", message.to_dict(), room=room.id)
+        socket.io.emit("receive_message", message.to_dict(), room=room.id)
     else:
         print("No room found for these users")
 
@@ -103,7 +103,13 @@ def edit_message(id):
 def delete_message(receiver_id, message_id):
     print(receiver_id, message_id)
 
-    message = sql.session.query(Message).filter(and_(Message.receiver_id == receiver_id, Message.id == message_id)).first()
+    message = sql.session.query(Message).filter(
+        and_(Message.receiver_id == receiver_id, Message.id == message_id)
+    ).first()
+
+    if message:
+        message.is_visible = False
+        sql.session.commit()
 
     # Get the room before deleting the message
     room = sql.session.query(Rooms).filter(
@@ -113,11 +119,13 @@ def delete_message(receiver_id, message_id):
         )
     ).first()
 
-    sql.session.delete(message)
-    sql.session.commit()
-
     # Emit delete event to the room if found
     if room:
-        socket.emit("message_deleted", {"message_id": message_id}, room=room.id)
+        socket.io.emit("message_deleted", {"message_id": message_id}, room=room.id)
 
     return redirect(url_for("messaging", receiver_id=receiver_id if receiver_id != session["user_id"] else message.sender_id))
+
+
+@app.route("/community/messages/deleted")
+def deleted_messages():
+    pass
