@@ -11,8 +11,10 @@ from lib.enums import TransactionType
 from lib.models import Product, Task, Transaction, User
 from main import app
 from utils import require_login
+
 matplotlib.use("Agg")
 import base64
+
 import matplotlib.pyplot as plt
 
 
@@ -50,10 +52,13 @@ def tasks_verify(id):
 
         # Perform verification
         result = ai.analyze_image(prompt, path, return_json=True)
-
-        print("AI Verification Result:", result)  # Debugging
-
-        if result.get("success"):  # Check if verification is successful
+        
+        print("Verification Result:", result)
+        print("Answer: " + str(result["answer"]))
+        print("Confidence: " + result["reasoning"])
+        
+        if result["answer"]:
+            # Check if verification is successful
             if not user:
                 print("User not found!")  # Debugging
                 flash("User not found!", "danger")
