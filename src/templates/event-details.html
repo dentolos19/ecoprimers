@@ -21,13 +21,9 @@
             <!-- Weather Info Section -->
             <hr>
             <h4 class="my-4">Weather Information</h4>
-            {% if temperature is not none %}
-                <p>Temperature: {{ temperature }}°C</p>
-                <p>Condition: {{ weather_description | capitalize }}</p>
-                <p>Chance of Rain: {{ rain_chance }}%</p>
-            {% else %}
-                <p>{{ weather_description }}</p>
-            {% endif %}
+            <div>
+                <a href="{{ url_for('weather', location=event.location) }}" class="btn btn-success">Weather</a>
+            </div>
         </div>
 
         <div class="col-md-6">
