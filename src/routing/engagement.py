@@ -4,7 +4,7 @@ import matplotlib
 import pandas as pd
 import requests
 from flask import flash, redirect, render_template, request, send_file, session, url_for
-
+from PIL import Image
 from lib import ai, storage
 from lib.database import sql
 from lib.enums import TransactionType
@@ -27,6 +27,21 @@ def tasks():
 
     return render_template("tasks.html", user=user, tasks=tasks)
 
+ALLOWED_IMAGE_EXTENSIONS = {".png", ".jpg", ".jpeg", ".gif"} 
+
+def is_allowed_file(filename):
+    return "." in filename and filename.rsplit(".", 1)[1].lower() in ALLOWED_IMAGE_EXTENSIONS
+
+
+
+def is_valid_image(file):
+    try:
+        img = Image.open(io.BytesIO(file.read()))  
+        img.verify()  # Verify it's an image
+        file.seek(0)  # Reset file pointer after reading
+        return True
+    except Exception:
+        return False
 
 @app.route("/engagement/tasks/<id>", methods=["GET", "POST"])
 @require_login
@@ -39,9 +54,18 @@ def tasks_verify(id):
         # Collect data from the form
         image = request.files.get("image")
 
-        # Validate data provided
+        # Validate image file
         if not image:
-            return "No image provided.", 400
+            flash("No image provided.", "danger")
+            return redirect(request.url)
+
+        if not is_allowed_file(image.filename):
+            flash("Invalid file type! Only images (PNG, JPG, JPEG, GIF) are allowed.", "danger")
+            return redirect(request.url)
+
+        if not is_valid_image(image):
+            flash("Invalid image file! Please upload a valid image.", "danger")
+            return redirect(request.url)
 
         # Save the image to a file
         path = storage.save_file(image)
@@ -58,7 +82,6 @@ def tasks_verify(id):
         print("Confidence: " + result["reasoning"])
         
         if result["answer"]:
-            # Check if verification is successful
             if not user:
                 print("User not found!")  # Debugging
                 flash("User not found!", "danger")
