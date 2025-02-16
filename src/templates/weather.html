@@ -1,0 +1,63 @@
+{% extends "base.html" %}
+
+{% block title %}Weather Information{% endblock %}
+
+{% block body %}
+
+
+
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <h1 class="text-center fw-bold mb-4">Weather Information</h1>
+
+            <!-- Weather Search Form -->
+            <div class="card shadow-sm mb-4">
+                <div class="card-body">
+                    <form method="POST">
+                        <div class="mb-3">
+                            <label for="city" class="form-label fw-semibold">Enter City Name</label>
+                            <input type="text" 
+                                id="city" 
+                                name="city" 
+                                required 
+                                class="form-control" 
+                                value="{{ request.args.get('location', '') }}">
+                        </div>
+                        <button type="submit" class="btn btn-primary w-100">
+                            Get Weather
+                        </button>
+                    </form>
+
+                </div>
+            </div>
+
+            {% if weather %}
+            <div class="card shadow-sm">
+                <div class="card-body">
+                    <h2 class="text-center fw-bold mb-3">Weather in {{ weather.city }}</h2>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="p-4 rounded text-center bg-body-secondary">
+                                <p class="text-muted mb-1">Temperature</p>
+                                <h3 class="fw-bold">
+                                    {{ "%.1f"|format(weather.temperature) }}°C
+                                </h3>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="p-4 rounded text-center bg-body-secondary">
+                                <p class="text-muted mb-1">Humidity</p>
+                                <h3 class="fw-bold">{{ weather.humidity }}%</h3>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% endif %}
+
+            
+        </div>
+    </div>
+</div>
+{% endblock %}
