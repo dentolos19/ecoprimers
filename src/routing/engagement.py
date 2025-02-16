@@ -21,6 +21,10 @@ import matplotlib.pyplot as plt
 import openmeteo_requests
 from openmeteo_sdk.Variable import Variable
 
+import seaborn as sns
+import plotly.express as px
+import plotly.io as pio
+
 @app.route("/engagement/tasks")
 @require_login
 def tasks():
@@ -142,7 +146,7 @@ def points():
     user = sql.session.query(User).filter_by(id=user_id).first()
     return render_template("points.html", user=user)
 
-
+"""
 @app.route("/engagement/points/add", methods=["POST"])
 @require_login
 def add_points():
@@ -178,7 +182,7 @@ def add_points():
         flash("User not found!", "danger")
 
     return redirect(url_for("rewards"))
-
+"""
 
 RECAPTCHA_SECRET_KEY = "6Ldk8skqAAAAAPZgQrYfsfwoOGHQJ5z0q5ZNC4l5"
 
@@ -288,7 +292,7 @@ def export_transactions():
         mimetype="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
     )
 
-#dashboard at view transaction page
+"""#dashboard at view transaction page
 @app.route("/transactions/dashboard")
 def dashboard():
     user_id = session.get("user_id")
@@ -365,6 +369,102 @@ def dashboard():
         total_redeemed=total_redeemed,
         net_transactions=net_transactions,
     )
+"""
+@app.route("/transactions/dashboard")
+def dashboard():
+    user_id = session.get("user_id")
+
+    # Fetch user transactions
+    transactions = (
+        sql.session.query(Transaction)
+        .filter_by(user_id=user_id)
+        .order_by(Transaction.created_at.asc())
+        .all()
+    )
+
+    # Convert transactions to DataFrame
+    df = pd.DataFrame([
+        {
+            "Date": transaction.created_at.strftime("%Y-%m-%d"),
+            "Type": transaction.type.value,
+            "Amount": transaction.amount,
+        }
+        for transaction in transactions
+    ])
+
+    if df.empty:
+        return "No data available for visualization.", 404
+
+    # Calculate KPIs
+    total_earned = df[df["Type"] == "earned"]["Amount"].sum()
+    total_redeemed = abs(df[df["Type"] == "redemption"]["Amount"].sum())
+    net_transactions = total_earned - total_redeemed
+
+    # Interactive Bar Chart
+    bar_fig = px.bar(
+        df, 
+        x="Type", 
+        y="Amount",
+        color="Type",
+        title="Transaction Analysis by Type",
+        color_discrete_map={"earned": "#28a745", "redemption": "#dc3545"},
+        labels={"Amount": "Points", "Type": "Transaction Type"}
+    )
+    bar_fig.update_layout(
+        showlegend=False,
+        plot_bgcolor='white',
+        hovermode='x unified'
+    )
+    bar_chart_html = pio.to_html(bar_fig, full_html=False)
+
+    # Interactive Line Chart
+    df_grouped = df.groupby('Date')['Amount'].sum().reset_index()
+    line_fig = px.line(
+        df_grouped,
+        x="Date",
+        y="Amount",
+        title="Daily Points Activity",
+        markers=True,
+        labels={"Amount": "Points", "Date": "Transaction Date"}
+    )
+    line_fig.update_layout(
+        plot_bgcolor='white',
+        hovermode='x unified'
+    )
+    line_fig.update_traces(line_color="#0d6efd")
+    line_chart_html = pio.to_html(line_fig, full_html=False)
+
+    # Pie Chart for Transaction Distribution
+    pie_fig = px.pie(
+        df, 
+        names="Type", 
+        values="Amount",
+        title="Transaction Distribution",
+        color="Type",
+        color_discrete_map={"earned": "#28a745", "redemption": "#dc3545"}
+    )
+    pie_chart_html = pio.to_html(pie_fig, full_html=False)
+
+    # Calculate statistics
+    stats = {
+        'avg_transaction': df['Amount'].mean(),
+        'max_transaction': df['Amount'].max(),
+        'total_transactions': len(df),
+        'daily_average': df.groupby('Date')['Amount'].sum().mean()
+    }
+
+    return render_template(
+        "dashboard.html",
+        bar_chart_html=bar_chart_html,
+        line_chart_html=line_chart_html,
+        pie_chart_html=pie_chart_html,
+        total_earned=total_earned,
+        total_redeemed=total_redeemed,
+        net_transactions=net_transactions,
+        stats=stats
+    )
+
+
 
 #api call for weather app
 @app.route("/weather", methods=["GET", "POST"])
