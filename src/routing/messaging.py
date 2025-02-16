@@ -142,4 +142,12 @@ def delete_message(receiver_id, message_id):
 
 @app.route("/community/messages/deleted")
 def deleted_messages():
-    return render_template("deleted_messages.html", messages = {})
+    messages = sql.session.query(Message).filter(and_(Message.sender_id == session["user_id"], Message.is_visible != True))
+    for message in messages:
+        print(message.message)
+    return render_template("deleted_messages.html", messages = messages)
+
+
+@app.route("/community/messages/deleted/restore")
+def restore_message(methods=["POST"]):
+    pass
