@@ -5,6 +5,7 @@ import pandas as pd
 import requests
 from flask import flash, redirect, render_template, request, send_file, session, url_for
 from PIL import Image
+
 from lib import ai, storage
 from lib.database import sql
 from lib.enums import TransactionType
@@ -16,10 +17,19 @@ matplotlib.use("Agg")
 import base64
 
 import matplotlib.pyplot as plt
-
-
 import openmeteo_requests
 from openmeteo_sdk.Variable import Variable
+
+
+def is_valid_image(file):
+    try:
+        img = Image.open(io.BytesIO(file.read()))
+        img.verify()  # Verify it's an image
+        file.seek(0)  # Reset file pointer after reading
+        return True
+    except Exception:
+        return False
+
 
 @app.route("/engagement/tasks")
 @require_login
@@ -30,21 +40,6 @@ def tasks():
 
     return render_template("tasks.html", user=user, tasks=tasks)
 
-ALLOWED_IMAGE_EXTENSIONS = {".png", ".jpg", ".jpeg", ".gif"} 
-
-def is_allowed_file(filename):
-    return "." in filename and filename.rsplit(".", 1)[1].lower() in ALLOWED_IMAGE_EXTENSIONS
-
-
-
-def is_valid_image(file):
-    try:
-        img = Image.open(io.BytesIO(file.read()))  
-        img.verify()  # Verify it's an image
-        file.seek(0)  # Reset file pointer after reading
-        return True
-    except Exception:
-        return False
 
 @app.route("/engagement/tasks/<id>", methods=["GET", "POST"])
 @require_login
@@ -62,7 +57,7 @@ def tasks_verify(id):
             flash("No image provided.", "danger")
             return redirect(request.url)
 
-        if not is_allowed_file(image.filename):
+        if not storage.check_format(image.filename, storage.image_extensions):
             flash("Invalid file type! Only images (PNG, JPG, JPEG, GIF) are allowed.", "danger")
             return redirect(request.url)
 
@@ -79,11 +74,11 @@ def tasks_verify(id):
 
         # Perform verification
         result = ai.analyze_image(prompt, path, return_json=True)
-        
+
         print("Verification Result:", result)
         print("Answer: " + str(result["answer"]))
         print("Confidence: " + result["reasoning"])
-        
+
         if result["answer"]:
             if not user:
                 print("User not found!")  # Debugging
@@ -94,7 +89,7 @@ def tasks_verify(id):
             print("Task Points:", task.points)  # Debugging
 
             task_points = task.points  # Get points from task model
-            task_name = task.name      # Get task name from task model
+            task_name = task.name  # Get task name from task model
 
             try:
                 user.points += task_points
@@ -123,7 +118,6 @@ def tasks_verify(id):
         return render_template("tasks-verify-status.html", task=task, result=result)
 
     return render_template("tasks-verify.html", task=task)
-
 
 
 @app.route("/engagement/rewards")
@@ -246,7 +240,8 @@ def transactions():
 
     return render_template("transactions.html", transactions=user_transactions)
 
-#excel file as database
+
+# excel file as database
 @app.route("/transactions/export")
 def export_transactions():
     user_id = session.get("user_id")
@@ -288,7 +283,8 @@ def export_transactions():
         mimetype="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
     )
 
-#dashboard at view transaction page
+
+# dashboard at view transaction page
 @app.route("/transactions/dashboard")
 def dashboard():
     user_id = session.get("user_id")
@@ -366,55 +362,64 @@ def dashboard():
         net_transactions=net_transactions,
     )
 
-#api call for weather app
+
+# api call for weather app
 @app.route("/weather", methods=["GET", "POST"])
 @require_login
 def weather():
     user_id = session.get("user_id")
     user = sql.session.query(User).filter_by(id=user_id).first()
     weather_data = None
-    
+
     if request.method == "POST":
         try:
             city = request.form.get("city")
             #  OpenMeteo Geocoding API to fetch the coordinates so when user enter location automatically the coordinates are added
-            geocoding_url = f"https://geocoding-api.open-meteo.com/v1/search?name={city}&count=1&language=en&format=json"
+            geocoding_url = (
+                f"https://geocoding-api.open-meteo.com/v1/search?name={city}&count=1&language=en&format=json"
+            )
             location = requests.get(geocoding_url).json()
-            
-            if 'results' in location and location['results']:
-                lat = location['results'][0]['latitude']
-                lon = location['results'][0]['longitude']
-                
+
+            if "results" in location and location["results"]:
+                lat = location["results"][0]["latitude"]
+                lon = location["results"][0]["longitude"]
+
                 # Get weather data
                 om = openmeteo_requests.Client()
                 params = {
                     "latitude": lat,
                     "longitude": lon,
                     "hourly": ["temperature_2m", "precipitation", "wind_speed_10m"],
-                    "current": ["temperature_2m", "relative_humidity_2m"]
+                    "current": ["temperature_2m", "relative_humidity_2m"],
                 }
-                
+
                 responses = om.weather_api("https://api.open-meteo.com/v1/forecast", params=params)
                 response = responses[0]
-                
+
                 # Get current weather data
                 current = response.Current()
                 current_variables = list(map(lambda i: current.Variables(i), range(0, current.VariablesLength())))
-                current_temperature_2m = next(filter(lambda x: x.Variable() == Variable.temperature and x.Altitude() == 2, current_variables))
-                current_relative_humidity_2m = next(filter(lambda x: x.Variable() == Variable.relative_humidity and x.Altitude() == 2, current_variables))
-                
+                current_temperature_2m = next(
+                    filter(lambda x: x.Variable() == Variable.temperature and x.Altitude() == 2, current_variables)
+                )
+                current_relative_humidity_2m = next(
+                    filter(
+                        lambda x: x.Variable() == Variable.relative_humidity and x.Altitude() == 2, current_variables
+                    )
+                )
+
                 weather_data = {
-                    'city': city,
-                    'temperature': current_temperature_2m.Value(),
-                    'humidity': current_relative_humidity_2m.Value(),
-                    'timezone': response.Timezone()
+                    "city": city,
+                    "temperature": current_temperature_2m.Value(),
+                    "humidity": current_relative_humidity_2m.Value(),
+                    "timezone": response.Timezone(),
                 }
-                
+
                 flash("Weather data retrieved successfully!", "success")
             else:
                 flash("City not found!", "danger")
-                
+
         except Exception as e:
             flash(f"Error getting weather data: {str(e)}", "danger")
-    
+
     return render_template("weather.html", user=user, weather=weather_data)
