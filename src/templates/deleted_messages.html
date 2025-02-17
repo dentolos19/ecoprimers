@@ -9,7 +9,7 @@
         <div class="card-body">
           <h5 class="card-title">(sent to {{ message.receiver.name }})</h5>
           <p class="card-text">{{message.message}}</p>
-          <button type="submit" value ="" class="btn btn-success btn-sm float-end">Restore</button>
+          <button type="submit" name="message_restoration" value ="{{message.id}}" class="btn btn-success btn-sm float-end">Restore</button>
         </div>
       </div>
          {% endfor %}

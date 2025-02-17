@@ -1,5 +1,4 @@
 from datetime import date
-from importlib import import_module
 
 from flask import flash, redirect, render_template, request, session, url_for
 
@@ -12,31 +11,37 @@ from utils import check_admin_status, check_logged_in, get_weather_data, require
 
 @app.context_processor
 def init():
-    return {
-        "any": any,
-        "len": len,
-        "str": str,
-        "env": os.environ,
-        "range": range,
-        "enumerate": enumerate,
-        "utils": import_module("utils"),
-        "current_date": date.today().isoformat(),
-        "is_logged_in": check_logged_in(),
-        "is_admin_user": check_admin_status(),
-        "dark_mode_enabled": session.get("dark_mode", True),
-        "static": lambda path: url_for("static", filename=path),
-    }
+    essentials = dict(
+        any=any,
+        len=len,
+        str=str,
+        env=os.environ,
+        range=range,
+        enumerate=enumerate,
+        static=lambda path: url_for("static", filename=path),
+    )
+
+    utils = dict(
+        current_date=date.today().isoformat(),
+        is_logged_in=check_logged_in(),
+        is_admin_user=check_admin_status(),
+        dark_mode_enabled=session.get("dark_mode", True),
+    )
+
+    env = dict(
+        GOOGLE_API_KEY=os.environ.get("GOOGLE_API_KEY"),
+    )
+
+    return {**essentials, **utils, **env}
 
 
 @app.errorhandler(404)
 def error_notfound(error: Exception):
-    print(error)
     return render_template("error.html", error=error)
 
 
 @app.errorhandler(Exception)
 def error_exception(error: Exception):
-    print(error)
     return render_template("error.html", error=error)
 
 
@@ -57,47 +62,27 @@ def toggle_dark_mode():
 @app.route("/")
 @app.route("/home")
 def home():
-    GOOGLE_API_KEY = os.environ.get("GOOGLE_API_KEY")
-    return render_template("home.html", GOOGLE_API_KEY=GOOGLE_API_KEY)
+    articles = []
+    news_api = NewsApiClient(api_key="9b8cdb155e0241bf8a3769991f8aa210")
 
+    try:
+        news = news_api.get_everything(
+            q="(climate change OR global warming OR environmental OR sustainability OR "
+            "renewable energy OR pollution OR biodiversity OR conservation OR "
+            "carbon emissions OR green energy) "
+            "-pope -sex -hospital -death -violence -war -sport -game",
+            language="en",
+            sort_by="publishedAt",
+            page_size=3,
+            domains="reuters.com,theguardian.com,bbc.com,nationalgeographic.com,"
+            "scientificamerican.com,nature.com,sciencedaily.com,"
+            "theconversation.com,sciencenews.org",
+        )
+        articles = news["articles"]
+    except Exception as e:
+        print(f"Error fetching news: {e}")
 
-@app.route("/profile")
-@require_login
-def profile():
-    user_id = session.get("user_id")
-    user = sql.session.query(User).filter(User.id == user_id).first()
-
-    events = sql.session.query(Event).join(EventAttendee).filter(EventAttendee.user_id == user_id).all()
-
-    if not user:
-        return "User not found", 404
-
-    return render_template("profile.html", user=user, events=events)
-
-
-@app.route("/edit_profile", methods=["GET", "POST"])
-@require_login
-def edit_profile():
-    user_id = session.get("user_id")
-    user = sql.session.query(User).filter(User.id == user_id).first()
-
-    if request.method == "POST":
-        user.email = request.form["email"]
-        user.name = request.form["name"]
-        user.bio = request.form["bio"]
-        user.birthday = request.form["birthday"]
-        user.security = request.form["security"]  # Update security question
-
-        try:
-            sql.session.commit()
-            flash("Profile updated successfully!", "success")
-            return redirect("/profile")
-        except Exception as e:
-            if "unique constraint" in str(e).lower():
-                flash("Error! Email already exists.", "danger")
-            sql.session.rollback()
-
-    return render_template("edit-profile.html", user=user)
+    return render_template("home.html", articles=articles)
 
 
 @app.route("/events")
@@ -168,21 +153,22 @@ def event_info():
         weather_data = get_weather_data(location)
 
         if weather_data:
-            rain_chance = weather_data['rain_chance']
-            temperature = weather_data['temperature']
-            weather_description = weather_data['weather_description']
+            rain_chance = weather_data["rain_chance"]
+            temperature = weather_data["temperature"]
+            weather_description = weather_data["weather_description"]
         else:
             rain_chance = None
             temperature = None
             weather_description = "Weather data unavailable"
 
-
-    return render_template("event-details.html",
-                           event=event,
-                           rain_chance=rain_chance,
-                           temperature=temperature,
-                           weather_description=weather_description,
-                           attendee_num=attendee_num)
+    return render_template(
+        "event-details.html",
+        event=event,
+        rain_chance=rain_chance,
+        temperature=temperature,
+        weather_description=weather_description,
+        attendee_num=attendee_num,
+    )
 
 
 @app.route("/event/signup", methods=["GET", "POST"])
@@ -250,3 +236,4 @@ from routing.community import *
 from routing.engagement import *
 from routing.messaging import *
 from routing.messaging_api import *
+from routing.profile import *

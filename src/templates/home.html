@@ -71,8 +71,47 @@
   </div>
 </div>
 
+<!-- Environmental News -->
+<div class="mt-5 container">
+  <div class="mb-4 text-center">
+    <h2>Latest Environmental News</h2>
+    <p class="lead">Stay informed about environmental developments</p>
+  </div>
+
+  <div class="row">
+    {% for article in articles %}
+    <div class="col-4">
+      <div class="card h-100">
+        {% if article.urlToImage %}
+        <img class="card-img-top" src="{{ article.urlToImage }}" alt="News Image" style="height: 200px; object-fit: cover;">
+        {% else %}
+        <div class="bg-light" style="height: 200px; display: flex; align-items: center; justify-content: center">
+          <i class="fas fa-newspaper fa-3x text-muted"></i>
+        </div>
+        {% endif %}
+        <div class="card-body">
+          <h5 class="card-title text-truncate">{{ article.title }}</h5>
+          <p class="card-text small text-muted">{{ article.source.name }} • {{ article.publishedAt.split('T')[0] }}</p>
+          <p class="card-text">{{ article.description[:100] }}...</p>
+        </div>
+        <div class="card-footer bg-transparent">
+          <a class="btn btn-success float-end" href="{{ article.url }}" target="_blank">Read More</a>
+        </div>
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+
+  <div class="text-center mt-4">
+    <a href="{{ url_for('news') }}" class="btn btn-success btn-lg">
+      View All News
+    </a>
+  </div>
+</div>
+
+
 <!-- Google Maps -->
-<div class="mt-5" style="height: 60%;">
+<div class="mt-5" style="height: 80%;">
   <div class="text-center">
     <h2>Our Location</h2>
     <p class="lead">Find us on the map below.</p>
