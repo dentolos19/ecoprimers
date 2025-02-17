@@ -31,6 +31,12 @@ def is_valid_image(file):
         return False
 
 
+import seaborn as sns
+import plotly.express as px
+import plotly.io as pio
+
+from newsapi import NewsApiClient
+
 @app.route("/engagement/tasks")
 @require_login
 def tasks():
@@ -136,7 +142,7 @@ def points():
     user = sql.session.query(User).filter_by(id=user_id).first()
     return render_template("points.html", user=user)
 
-
+"""
 @app.route("/engagement/points/add", methods=["POST"])
 @require_login
 def add_points():
@@ -172,7 +178,7 @@ def add_points():
         flash("User not found!", "danger")
 
     return redirect(url_for("rewards"))
-
+"""
 
 RECAPTCHA_SECRET_KEY = "6Ldk8skqAAAAAPZgQrYfsfwoOGHQJ5z0q5ZNC4l5"
 
@@ -285,6 +291,7 @@ def export_transactions():
 
 
 # dashboard at view transaction page
+"""#dashboard at view transaction page
 @app.route("/transactions/dashboard")
 def dashboard():
     user_id = session.get("user_id")
@@ -361,9 +368,107 @@ def dashboard():
         total_redeemed=total_redeemed,
         net_transactions=net_transactions,
     )
+"""
+@app.route("/transactions/dashboard")
+@require_login
+def dashboard():
+    user_id = session.get("user_id")
 
 
 # api call for weather app
+    # Fetch user transactions
+    transactions = (
+        sql.session.query(Transaction)
+        .filter_by(user_id=user_id)
+        .order_by(Transaction.created_at.asc())
+        .all()
+    )
+
+    # Convert transactions to DataFrame
+    df = pd.DataFrame([
+        {
+            "Date": transaction.created_at.strftime("%Y-%m-%d"),
+            "Type": transaction.type.value,
+            "Amount": transaction.amount,
+        }
+        for transaction in transactions
+    ])
+
+    if df.empty:
+        return "No data available for visualization.", 404
+
+    # Calculate KPIs
+    total_earned = df[df["Type"] == "earned"]["Amount"].sum()
+    total_redeemed = abs(df[df["Type"] == "redemption"]["Amount"].sum())
+    net_transactions = total_earned - total_redeemed
+
+    # Interactive Bar Chart
+    bar_fig = px.bar(
+        df, 
+        x="Type", 
+        y="Amount",
+        color="Type",
+        title="Transaction Analysis by Type",
+        color_discrete_map={"earned": "#28a745", "redemption": "#dc3545"},
+        labels={"Amount": "Points", "Type": "Transaction Type"}
+    )
+    bar_fig.update_layout(
+        showlegend=False,
+        plot_bgcolor='white',
+        hovermode='x unified'
+    )
+    bar_chart_html = pio.to_html(bar_fig, full_html=False)
+
+    # Interactive Line Chart
+    df_grouped = df.groupby('Date')['Amount'].sum().reset_index()
+    line_fig = px.line(
+        df_grouped,
+        x="Date",
+        y="Amount",
+        title="Daily Points Activity",
+        markers=True,
+        labels={"Amount": "Points", "Date": "Transaction Date"}
+    )
+    line_fig.update_layout(
+        plot_bgcolor='white',
+        hovermode='x unified'
+    )
+    line_fig.update_traces(line_color="#0d6efd")
+    line_chart_html = pio.to_html(line_fig, full_html=False)
+
+    # Pie Chart for Transaction Distribution
+    pie_fig = px.pie(
+        df, 
+        names="Type", 
+        values="Amount",
+        title="Transaction Distribution",
+        color="Type",
+        color_discrete_map={"earned": "#28a745", "redemption": "#dc3545"}
+    )
+    pie_chart_html = pio.to_html(pie_fig, full_html=False)
+
+    # Calculate statistics
+    stats = {
+        'avg_transaction': df['Amount'].mean(),
+        'max_transaction': df['Amount'].max(),
+        'total_transactions': len(df),
+        'daily_average': df.groupby('Date')['Amount'].sum().mean()
+    }
+
+    return render_template(
+        "dashboard.html",
+        bar_chart_html=bar_chart_html,
+        line_chart_html=line_chart_html,
+        pie_chart_html=pie_chart_html,
+        total_earned=total_earned,
+        total_redeemed=total_redeemed,
+        net_transactions=net_transactions,
+        stats=stats
+    )
+
+
+
+#api call for weather app
 @app.route("/weather", methods=["GET", "POST"])
 @require_login
 def weather():
@@ -423,3 +528,27 @@ def weather():
             flash(f"Error getting weather data: {str(e)}", "danger")
 
     return render_template("weather.html", user=user, weather=weather_data)
+
+@app.route('/news')
+def news():
+    newsapi = NewsApiClient(api_key='9b8cdb155e0241bf8a3769991f8aa210')
+    
+    try:
+        environmental_news = newsapi.get_everything(
+            q=('climate change OR global warming OR environmental OR sustainability OR '
+               'renewable energy OR pollution OR biodiversity OR conservation OR '
+               'carbon emissions OR green energy OR eco-friendly OR recycling OR '
+               'sustainable development OR clean energy OR wildlife OR ocean conservation OR '
+               'green technology OR zero waste OR circular economy OR electric vehicles OR '
+               'solar power OR wind energy OR climate action OR sustainable living OR '
+               'environmental protection OR green initiatives OR ecosystem'),
+            language='en',
+            sort_by='publishedAt',
+            page_size=9
+        )
+        articles = environmental_news['articles']
+    except Exception as e:
+        print(f"Error fetching news: {e}")
+        articles = []
+    
+    return render_template('news.html', articles=articles)

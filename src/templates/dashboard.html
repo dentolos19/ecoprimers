@@ -1,3 +1,4 @@
+{# using pandas as db but now swithched to a more advance code making it nicer but leaving it here incase need to switch
 {% extends "base.html" %}
 
 {% block body %}
@@ -41,6 +42,115 @@
     <!-- Back to Transactions -->
     <div class="text-center">
         <a href="{{ url_for('transactions') }}" class="btn btn-primary">Back to Transactions</a>
+    </div>
+</div> 
+{% endblock %}
+#}
+
+
+{% extends "base.html" %}
+
+{% block body %}
+<div class="container mt-4">
+    <h2 class="text-center mb-4">User Dashboard</h2>
+    
+    <!-- KPI Cards -->
+    <div class="row mb-4">
+        <div class="col-md-4">
+            <div class="card text-center h-100 shadow-sm">
+                <div class="card-body">
+                    <h5 class="card-title">Total Earned</h5>
+                    <p class="text-success display-4">+{{ total_earned }}</p>
+                    <small class="text-muted">points</small>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card text-center h-100 shadow-sm">
+                <div class="card-body">
+                    <h5 class="card-title">Net Balance</h5>
+                    <p class="text-primary display-4">{{ net_transactions }}</p>
+                    <small class="text-muted">points</small>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card text-center h-100 shadow-sm">
+                <div class="card-body">
+                    <h5 class="card-title">Total Redeemed</h5>
+                    <p class="text-danger display-4">-{{ total_redeemed }}</p>
+                    <small class="text-muted">points</small>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Statistics Cards -->
+    <div class="row mb-4">
+        <div class="col-md-3">
+            <div class="card text-center shadow-sm">
+                <div class="card-body">
+                    <h6 class="card-title">Average Transaction</h6>
+                    <p class="mb-0">{{ "%.2f"|format(stats.avg_transaction) }}</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card text-center shadow-sm">
+                <div class="card-body">
+                    <h6 class="card-title">Largest Transaction</h6>
+                    <p class="mb-0">{{ stats.max_transaction }}</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card text-center shadow-sm">
+                <div class="card-body">
+                    <h6 class="card-title">Total Transactions</h6>
+                    <p class="mb-0">{{ stats.total_transactions }}</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card text-center shadow-sm">
+                <div class="card-body">
+                    <h6 class="card-title">Daily Average</h6>
+                    <p class="mb-0">{{ "%.2f"|format(stats.daily_average) }}</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Interactive Charts Section -->
+    <div class="row">
+        <div class="col-md-6">
+            <div class="card mb-4 shadow-sm">
+                <div class="card-body">
+                    <div>{{ bar_chart_html | safe }}</div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="card mb-4 shadow-sm">
+                <div class="card-body">
+                    <div>{{ pie_chart_html | safe }}</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Line Chart -->
+    <div class="card mb-4 shadow-sm">
+        <div class="card-body">
+            <div>{{ line_chart_html | safe }}</div>
+        </div>
+    </div>
+
+    <!-- Back Button -->
+    <div class="text-center mb-4">
+        <a href="{{ url_for('transactions') }}" class="btn btn-primary">
+            <i class="fas fa-arrow-left"></i> Back to Transactions
+        </a>
     </div>
 </div>
 {% endblock %}
