@@ -38,6 +38,16 @@ def get_current_user():
     return sql.session.query(User).filter_by(id=session.get("user_id")).first()
 
 
+def get_current_session():
+    if not check_logged_in():
+        return None
+    return {
+        "id": session.get("user_id"),
+        "name": session.get("user_name"),
+        "email": session.get("user_email"),
+    }
+
+
 def check_logged_in():
     return ("user_id" in session) or ("user_email" in session)
 

@@ -1,55 +1,136 @@
 {% extends "base.html" %}
 
 {% block body %}
-<div class="container my-4 d-flex justify-content-center">
-  <form class="card shadow" style="width: 600px;" method="post" action="{{ url_for('community_post') }}" enctype="multipart/form-data">
-    <!-- Body -->
-    <div class="card-body">
-      <h5 class="card-title text-center">New Post</h5>
+<div class="container py-3">
+  <div class="card shadow" style="width: 600px;">
+    <!-- Header -->
+    <div class="card-body bg-body-tertiary border-bottom d-flex justify-content-between align-items-center">
+      <h5 class="card-title m-0">{{ post.user.name }}</h5>
+      {% if post.user_id == user_id %}
+      <div class="btn-group">
+        <a class="btn btn-sm btn-primary" href="{{ url_for('community_edit', post_id=post.id) }}">
+          Edit
+        </a>
+        <form method="post" action="{{ url_for('community_delete', post_id=post.id) }}">
+          <button class="delete-btn btn btn-sm btn-danger" type="button">
+            Delete
+          </button>
+        </form>
+      </div>
+      {% else %}
+      <form method="post" action="{{ url_for('toggle_follow', user_id=post.user_id) }}">
+        <button class="follow-btn btn btn-sm {{ 'btn-primary' if is_followed(post.user.followings, post.user_id, user_id) else 'btn-secondary' }}" type="button">
+          {{ 'Followed' if is_followed(post.user.followings, post.user_id, user_id) else 'Follow' }}
+        </button>
+      </form>
+      {% endif %}
     </div>
 
-    <!-- Fields -->
-    <div class="card-body vstack gap-2">
-      <div>
-        <label class="form-label" for="content">Content</label>
-        <textarea id="content" class="form-control" name="content" rows="4" placeholder="What's on your mind?" required></textarea>
-      </div>
-      <div>
-        <label class="form-label" for="image">Image (optional)</label>
-        <input class="form-control" type="file" id="image" name="image" />
-      </div>
+    <!-- Image -->
+    <div>
+      {% if post.image_url %}
+      <img class="img-fluid" src="{{ post.image_url }}" alt="Image" />
+      {% endif %}
+    </div>
+
+    <!-- Caption -->
+    <div class="card-body">
+      {{ post.user.name }}: {{ post.content }}
     </div>
 
     <!-- Actions -->
-    <div class="card-body d-flex justify-content-end gap-2">
-      <a class=" btn btn-secondary" href="{{ url_for('community') }}">Cancel</a>
-      <button class="post-btn btn btn-primary" type="submit">Post</button>
+    <div class="card-body d-flex justify-content-between">
+      <!-- Like  -->
+      <form method="post" action="{{ url_for('toggle_like', post_id=post.id) }}">
+        <button class="btn {{ 'btn-primary' if is_liked(post.likes, user_id) else 'btn-secondary' }}" type="submit" onclick="() => toggleLike(event, {{ post.id }})">
+          <i class="fa-solid fa-heart"></i>
+          <span>{{ len(post.likes) }}</span>
+        </button>
+      </form>
+
+      <!-- Comment -->
+      <form action="{{ url_for('post_comment', post_id=post.id) }}" method="post">
+        <button class="btn btn-primary" type="button" data-bs-toggle="modal" data-bs-target="#commentModal-{{ index }}">
+          <i class="fa-solid fa-comment"></i>
+          <span>{{ len(post.messages) }}</span>
+        </button>
+
+        <!-- Comment Modal -->
+        <div id="commentModal-{{ index }}" class="modal fade" tabindex="-1">
+          <div class="modal-dialog">
+            <div class="modal-content">
+              <div class="modal-header">
+                <h5 class="modal-title">
+                  Comments
+                </h5>
+                <button class="btn-close" type="button" data-bs-dismiss="modal"></button>
+              </div>
+              <div class="modal-body">
+                <div class="d-flex flex-column gap-2">
+                  {% for message in post.messages %}
+                  <div>
+                    <strong>{{ message.user.name }}</strong>: {{ message.message }}
+                  </div>
+                  {% endfor %}
+                </div>
+              </div>
+              <div class="modal-footer d-flex">
+                <input class="w-auto form-control flex-fill" type="text" name="comment_text" placeholder="Write a comment..." required />
+                <button class="comment-btn btn btn-primary" type="button">
+                  Post
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </form>
+
+      <!-- Share Button -->
+      <form method="post" action="{{ url_for('share_post', post_id=post.id) }}">
+        <button class="btn btn-primary" type="button" data-bs-toggle="modal" data-bs-target="#shareModal-{{ index }}">
+          <i class="fa-solid fa-share"></i>
+          <span>{{ len(post.shares) }}</span>
+        </button>
+
+        <!-- Share Modal -->
+        <div class="modal fade" id="shareModal-{{ index }}" tabindex="-1">
+          <div class="modal-dialog">
+            <div class="modal-content">
+              <div class="modal-header">
+                <h5 class="modal-title">Share Post</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+              </div>
+              <div class="modal-body">
+                <div>
+                  <label class="form-label">Select a user to share with</label>
+                  <select class="form-select" name="recipientId" required>
+                    {% for follow in followings %}
+                    <option value="{{ follow.user.id }}">{{ follow.user.name }}</option>
+                    {% endfor %}
+                  </select>
+                </div>
+              </div>
+              <div class="modal-footer d-flex">
+                <button class="btn btn-secondary" type="button" data-bs-dismiss="modal">
+                  Close
+                </button>
+                <button class="btn btn-primary" type="submit">
+                  Share
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </form>
+
+      <!-- Save -->
+      <form method="post" action="{{ url_for('toggle_save', post_id=post.id) }}">
+        <button class="btn {{ 'btn-primary' if is_saved(post.saves, user_id) else 'btn-secondary'}}">
+          <i class="fa-solid fa-floppy-disk"></i>
+          <span>{{ len(post.saves) }}</span>
+        </button>
+      </form>
     </div>
-  </form>
+  </div>
 </div>
-
-<script>
-  const PostButtons = document.querySelectorAll("button.post-btn");
-PostButtons.forEach(element => {
-  element.addEventListener("click", (event) => {
-    event.preventDefault(); // Stop default form submission
-
-    console.log("Hello");
-
-    if (!confirm("Are you sure you want to Post?")) {
-      return; // Stop execution if the user clicks "Cancel"
-    }
-
-    if (!element.closest("form").checkValidity()) {
-      alert("Please fill out the description field.");
-      return;
-    }
-
-    const PostForm = element.closest("form");
-    if (PostForm) {
-      PostForm.submit(); // Manually submit only if confirmed
-    }
-  });
-});
-</script>
 {% endblock %}
