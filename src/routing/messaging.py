@@ -148,6 +148,22 @@ def deleted_messages():
     return render_template("deleted_messages.html", messages = messages)
 
 
-@app.route("/community/messages/deleted/restore")
-def restore_message(methods=["POST"]):
-    pass
+@app.route("/community/messages/deleted/restore", methods=["POST"])
+def restore_message():
+    message_id = request.form.get("message_restoration")
+    if not message_id:
+        return "No message ID provided", 400  # Handle missing message ID
+
+    message = sql.session.query(Message).filter(
+        Message.id == message_id
+    ).first()
+
+    if not message:
+        return "Message not found", 404  # Handle missing message
+
+    message.is_visible = True
+    sql.session.commit()
+
+    socket.io.emit("message_restored")
+    return redirect(url_for("deleted_messages"))  # Redirect after restoring
+
