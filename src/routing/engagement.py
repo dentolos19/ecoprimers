@@ -1,7 +1,6 @@
 import io
 
 import matplotlib
-import openmeteo_requests
 import pandas as pd
 import plotly.express as px
 import plotly.io as pio
@@ -453,69 +452,6 @@ def dashboard():
         net_transactions=net_transactions,
         stats=stats,
     )
-
-
-# api call for weather app
-@app.route("/weather", methods=["GET", "POST"])
-@require_login
-def weather():
-    user_id = session.get("user_id")
-    user = sql.session.query(User).filter_by(id=user_id).first()
-    weather_data = None
-
-    if request.method == "POST":
-        try:
-            city = request.form.get("city")
-            #  OpenMeteo Geocoding API to fetch the coordinates so when user enter location automatically the coordinates are added
-            geocoding_url = (
-                f"https://geocoding-api.open-meteo.com/v1/search?name={city}&count=1&language=en&format=json"
-            )
-            location = requests.get(geocoding_url).json()
-
-            if "results" in location and location["results"]:
-                lat = location["results"][0]["latitude"]
-                lon = location["results"][0]["longitude"]
-
-                # Get weather data
-                om = openmeteo_requests.Client()
-                params = {
-                    "latitude": lat,
-                    "longitude": lon,
-                    "hourly": ["temperature_2m", "precipitation", "wind_speed_10m"],
-                    "current": ["temperature_2m", "relative_humidity_2m"],
-                }
-
-                responses = om.weather_api("https://api.open-meteo.com/v1/forecast", params=params)
-                response = responses[0]
-
-                # Get current weather data
-                current = response.Current()
-                current_variables = list(map(lambda i: current.Variables(i), range(0, current.VariablesLength())))
-                current_temperature_2m = next(
-                    filter(lambda x: x.Variable() == Variable.temperature and x.Altitude() == 2, current_variables)
-                )
-                current_relative_humidity_2m = next(
-                    filter(
-                        lambda x: x.Variable() == Variable.relative_humidity and x.Altitude() == 2, current_variables
-                    )
-                )
-
-                weather_data = {
-                    "city": city,
-                    "temperature": current_temperature_2m.Value(),
-                    "humidity": current_relative_humidity_2m.Value(),
-                    "timezone": response.Timezone(),
-                }
-
-                flash("Weather data retrieved successfully!", "success")
-            else:
-                flash("City not found!", "danger")
-
-        except Exception as e:
-            flash(f"Error getting weather data: {str(e)}", "danger")
-
-    return render_template("weather.html", user=user, weather=weather_data)
-
 
 # entire news section page
 @app.route("/news")
