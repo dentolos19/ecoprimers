@@ -3,9 +3,8 @@ import random
 import string
 from datetime import datetime
 from functools import wraps
-import requests
-import os
 
+import requests
 from flask import flash, redirect, session, url_for
 
 from lib.database import sql
@@ -43,6 +42,18 @@ def check_logged_in():
     return ("user_id" in session) or ("user_email" in session)
 
 
+def login_user(user: User):
+    session["user_id"] = user.id
+    session["user_name"] = user.name
+    session["user_email"] = user.email
+
+
+def logout_user():
+    session.pop("user_id", None)
+    session.pop("user_name", None)
+    session.pop("user_email", None)
+
+
 def check_admin_status():
     if not check_logged_in():
         return False
@@ -75,30 +86,27 @@ def require_admin(func):
 
     return decorator
 
+
 def get_weather_data(location):
     api_key = os.environ.get("OPENWEATHER_API_KEY")
     base_url = "http://api.openweathermap.org/data/2.5/weather"
-    
+
     params = {
         "q": location,
         "appid": api_key,
-        "units": "metric", 
+        "units": "metric",
     }
     response = requests.get(base_url, params=params)
-    
+
     if response.status_code == 200:
         data = response.json()
-        
+
         rain_chance = data.get("rain", {}).get("2h", 0)
-        
+
         temperature = data["main"].get("temp", None)
-        
+
         weather_description = data["weather"][0].get("description", "No description available")
-        
-        return {
-            "rain_chance": rain_chance,
-            "temperature": temperature,
-            "weather_description": weather_description
-        }
+
+        return {"rain_chance": rain_chance, "temperature": temperature, "weather_description": weather_description}
     else:
         return None

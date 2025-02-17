@@ -20,6 +20,7 @@ from utils import require_login
 
 matplotlib.use("Agg")
 
+
 def is_valid_image(file):
     try:
         img = Image.open(io.BytesIO(file.read()))
@@ -516,49 +517,23 @@ def weather():
     return render_template("weather.html", user=user, weather=weather_data)
 
 
-#certain news 
-@app.route('/')
-def home_news():
-    # Add news API code here
-    newsapi = NewsApiClient(api_key='9b8cdb155e0241bf8a3769991f8aa210')
-    
-    try:
-        environmental_news = newsapi.get_everything(
-            q='(climate change OR global warming OR environmental OR sustainability OR '
-              'renewable energy OR pollution OR biodiversity OR conservation OR '
-              'carbon emissions OR green energy) '
-              '-pope -sex -hospital -death -violence -war -sport -game',
-            language='en',
-            sort_by='publishedAt',
-            page_size=3,
-            domains='reuters.com,theguardian.com,bbc.com,nationalgeographic.com,'
-                   'scientificamerican.com,nature.com,sciencedaily.com,'
-                   'theconversation.com,sciencenews.org'
-        )
-        articles = environmental_news['articles']
-    except Exception as e:
-        print(f"Error fetching news: {e}")
-        articles = []
-    
-    return render_template('home.html', articles=articles)
-
-#entire news section page 
-@app.route('/news')
+# entire news section page
+@app.route("/news")
 def news():
     newsapi = NewsApiClient(api_key="9b8cdb155e0241bf8a3769991f8aa210")
 
     try:
         environmental_news = newsapi.get_everything(
-            q='(climate change OR global warming OR environmental OR sustainability OR '
-              'renewable energy OR pollution OR biodiversity OR conservation OR '
-              'carbon emissions OR green energy) '
-              '-pope -sex -hospital -death -violence -war -sport -game',
-            language='en',
-            sort_by='publishedAt',
+            q="(climate change OR global warming OR environmental OR sustainability OR "
+            "renewable energy OR pollution OR biodiversity OR conservation OR "
+            "carbon emissions OR green energy) "
+            "-pope -sex -hospital -death -violence -war -sport -game",
+            language="en",
+            sort_by="publishedAt",
             page_size=12,  # 12 articles for news page
-            domains='reuters.com,theguardian.com,bbc.com,nationalgeographic.com,'
-                   'scientificamerican.com,nature.com,sciencedaily.com,'
-                   'theconversation.com,sciencenews.org'
+            domains="reuters.com,theguardian.com,bbc.com,nationalgeographic.com,"
+            "scientificamerican.com,nature.com,sciencedaily.com,"
+            "theconversation.com,sciencenews.org",
         )
         articles = environmental_news["articles"]
     except Exception as e:

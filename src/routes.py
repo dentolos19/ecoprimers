@@ -1,5 +1,4 @@
 from datetime import date
-from importlib import import_module
 
 from flask import flash, redirect, render_template, request, session, url_for
 
@@ -12,31 +11,37 @@ from utils import check_admin_status, check_logged_in, get_weather_data, require
 
 @app.context_processor
 def init():
-    return {
-        "any": any,
-        "len": len,
-        "str": str,
-        "env": os.environ,
-        "range": range,
-        "enumerate": enumerate,
-        "utils": import_module("utils"),
-        "current_date": date.today().isoformat(),
-        "is_logged_in": check_logged_in(),
-        "is_admin_user": check_admin_status(),
-        "dark_mode_enabled": session.get("dark_mode", True),
-        "static": lambda path: url_for("static", filename=path),
-    }
+    essentials = dict(
+        any=any,
+        len=len,
+        str=str,
+        env=os.environ,
+        range=range,
+        enumerate=enumerate,
+        static=lambda path: url_for("static", filename=path),
+    )
+
+    utils = dict(
+        current_date=date.today().isoformat(),
+        is_logged_in=check_logged_in(),
+        is_admin_user=check_admin_status(),
+        dark_mode_enabled=session.get("dark_mode", True),
+    )
+
+    environment = dict(
+        GOOGLE_API_KEY=os.environ.get("GOOGLE_API_KEY"),
+    )
+
+    return {**essentials, **utils, **environment}
 
 
 @app.errorhandler(404)
 def error_notfound(error: Exception):
-    print(error)
     return render_template("error.html", error=error)
 
 
 @app.errorhandler(Exception)
 def error_exception(error: Exception):
-    print(error)
     return render_template("error.html", error=error)
 
 
@@ -57,8 +62,27 @@ def toggle_dark_mode():
 @app.route("/")
 @app.route("/home")
 def home():
-    GOOGLE_API_KEY = os.environ.get("GOOGLE_API_KEY")
-    return render_template("home.html", GOOGLE_API_KEY=GOOGLE_API_KEY)
+    articles = []
+    news_api = NewsApiClient(api_key="9b8cdb155e0241bf8a3769991f8aa210")
+
+    try:
+        news = news_api.get_everything(
+            q="(climate change OR global warming OR environmental OR sustainability OR "
+            "renewable energy OR pollution OR biodiversity OR conservation OR "
+            "carbon emissions OR green energy) "
+            "-pope -sex -hospital -death -violence -war -sport -game",
+            language="en",
+            sort_by="publishedAt",
+            page_size=3,
+            domains="reuters.com,theguardian.com,bbc.com,nationalgeographic.com,"
+            "scientificamerican.com,nature.com,sciencedaily.com,"
+            "theconversation.com,sciencenews.org",
+        )
+        articles = news["articles"]
+    except Exception as e:
+        print(f"Error fetching news: {e}")
+
+    return render_template("home.html", articles=articles)
 
 
 @app.route("/events")
