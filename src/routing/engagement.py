@@ -1,9 +1,14 @@
 import io
 
 import matplotlib
+import openmeteo_requests
 import pandas as pd
+import plotly.express as px
+import plotly.io as pio
 import requests
 from flask import flash, redirect, render_template, request, send_file, session, url_for
+from newsapi import NewsApiClient
+from openmeteo_sdk.Variable import Variable
 from PIL import Image
 
 from lib import ai, storage
@@ -14,11 +19,6 @@ from main import app
 from utils import require_login
 
 matplotlib.use("Agg")
-import base64
-
-import matplotlib.pyplot as plt
-import openmeteo_requests
-from openmeteo_sdk.Variable import Variable
 
 
 def is_valid_image(file):
@@ -30,12 +30,6 @@ def is_valid_image(file):
     except Exception:
         return False
 
-
-import seaborn as sns
-import plotly.express as px
-import plotly.io as pio
-
-from newsapi import NewsApiClient
 
 @app.route("/engagement/tasks")
 @require_login
@@ -141,6 +135,7 @@ def points():
     user_id = session.get("user_id")
     user = sql.session.query(User).filter_by(id=user_id).first()
     return render_template("points.html", user=user)
+
 
 """
 @app.route("/engagement/points/add", methods=["POST"])
@@ -369,30 +364,30 @@ def dashboard():
         net_transactions=net_transactions,
     )
 """
+
+
 @app.route("/transactions/dashboard")
 @require_login
 def dashboard():
     user_id = session.get("user_id")
 
-
-# api call for weather app
+    # api call for weather app
     # Fetch user transactions
     transactions = (
-        sql.session.query(Transaction)
-        .filter_by(user_id=user_id)
-        .order_by(Transaction.created_at.asc())
-        .all()
+        sql.session.query(Transaction).filter_by(user_id=user_id).order_by(Transaction.created_at.asc()).all()
     )
 
     # Convert transactions to DataFrame
-    df = pd.DataFrame([
-        {
-            "Date": transaction.created_at.strftime("%Y-%m-%d"),
-            "Type": transaction.type.value,
-            "Amount": transaction.amount,
-        }
-        for transaction in transactions
-    ])
+    df = pd.DataFrame(
+        [
+            {
+                "Date": transaction.created_at.strftime("%Y-%m-%d"),
+                "Type": transaction.type.value,
+                "Amount": transaction.amount,
+            }
+            for transaction in transactions
+        ]
+    )
 
     if df.empty:
         return "No data available for visualization.", 404
@@ -404,55 +399,48 @@ def dashboard():
 
     # Interactive Bar Chart
     bar_fig = px.bar(
-        df, 
-        x="Type", 
+        df,
+        x="Type",
         y="Amount",
         color="Type",
         title="Transaction Analysis by Type",
         color_discrete_map={"earned": "#28a745", "redemption": "#dc3545"},
-        labels={"Amount": "Points", "Type": "Transaction Type"}
+        labels={"Amount": "Points", "Type": "Transaction Type"},
     )
-    bar_fig.update_layout(
-        showlegend=False,
-        plot_bgcolor='white',
-        hovermode='x unified'
-    )
+    bar_fig.update_layout(showlegend=False, plot_bgcolor="white", hovermode="x unified")
     bar_chart_html = pio.to_html(bar_fig, full_html=False)
 
     # Interactive Line Chart
-    df_grouped = df.groupby('Date')['Amount'].sum().reset_index()
+    df_grouped = df.groupby("Date")["Amount"].sum().reset_index()
     line_fig = px.line(
         df_grouped,
         x="Date",
         y="Amount",
         title="Daily Points Activity",
         markers=True,
-        labels={"Amount": "Points", "Date": "Transaction Date"}
+        labels={"Amount": "Points", "Date": "Transaction Date"},
     )
-    line_fig.update_layout(
-        plot_bgcolor='white',
-        hovermode='x unified'
-    )
+    line_fig.update_layout(plot_bgcolor="white", hovermode="x unified")
     line_fig.update_traces(line_color="#0d6efd")
     line_chart_html = pio.to_html(line_fig, full_html=False)
 
     # Pie Chart for Transaction Distribution
     pie_fig = px.pie(
-        df, 
-        names="Type", 
+        df,
+        names="Type",
         values="Amount",
         title="Transaction Distribution",
         color="Type",
-        color_discrete_map={"earned": "#28a745", "redemption": "#dc3545"}
+        color_discrete_map={"earned": "#28a745", "redemption": "#dc3545"},
     )
     pie_chart_html = pio.to_html(pie_fig, full_html=False)
 
     # Calculate statistics
     stats = {
-        'avg_transaction': df['Amount'].mean(),
-        'max_transaction': df['Amount'].max(),
-        'total_transactions': len(df),
-        'daily_average': df.groupby('Date')['Amount'].sum().mean()
+        "avg_transaction": df["Amount"].mean(),
+        "max_transaction": df["Amount"].max(),
+        "total_transactions": len(df),
+        "daily_average": df.groupby("Date")["Amount"].sum().mean(),
     }
 
     return render_template(
@@ -463,12 +451,11 @@ def dashboard():
         total_earned=total_earned,
         total_redeemed=total_redeemed,
         net_transactions=net_transactions,
-        stats=stats
+        stats=stats,
     )
 
 
-
-#api call for weather app
+# api call for weather app
 @app.route("/weather", methods=["GET", "POST"])
 @require_login
 def weather():
@@ -529,26 +516,29 @@ def weather():
 
     return render_template("weather.html", user=user, weather=weather_data)
 
-@app.route('/news')
+
+@app.route("/news")
 def news():
-    newsapi = NewsApiClient(api_key='9b8cdb155e0241bf8a3769991f8aa210')
-    
+    newsapi = NewsApiClient(api_key="9b8cdb155e0241bf8a3769991f8aa210")
+
     try:
         environmental_news = newsapi.get_everything(
-            q=('climate change OR global warming OR environmental OR sustainability OR '
-               'renewable energy OR pollution OR biodiversity OR conservation OR '
-               'carbon emissions OR green energy OR eco-friendly OR recycling OR '
-               'sustainable development OR clean energy OR wildlife OR ocean conservation OR '
-               'green technology OR zero waste OR circular economy OR electric vehicles OR '
-               'solar power OR wind energy OR climate action OR sustainable living OR '
-               'environmental protection OR green initiatives OR ecosystem'),
-            language='en',
-            sort_by='publishedAt',
-            page_size=9
+            q=(
+                "climate change OR global warming OR environmental OR sustainability OR "
+                "renewable energy OR pollution OR biodiversity OR conservation OR "
+                "carbon emissions OR green energy OR eco-friendly OR recycling OR "
+                "sustainable development OR clean energy OR wildlife OR ocean conservation OR "
+                "green technology OR zero waste OR circular economy OR electric vehicles OR "
+                "solar power OR wind energy OR climate action OR sustainable living OR "
+                "environmental protection OR green initiatives OR ecosystem"
+            ),
+            language="en",
+            sort_by="publishedAt",
+            page_size=9,
         )
-        articles = environmental_news['articles']
+        articles = environmental_news["articles"]
     except Exception as e:
         print(f"Error fetching news: {e}")
         articles = []
-    
-    return render_template('news.html', articles=articles)
+
+    return render_template("news.html", articles=articles)
