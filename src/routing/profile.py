@@ -1,7 +1,7 @@
 from flask import flash, redirect, render_template, request, session
 
 from lib.database import sql
-from lib.models import Event, EventAttendee, Post, Transaction, User, UserFollow
+from lib.models import EventAttendee, Post, Transaction, User, UserFollow
 from main import app
 from utils import require_login
 
@@ -12,7 +12,7 @@ def profile():
     user_id = session.get("user_id")
 
     user = sql.session.query(User).filter(User.id == user_id).first()
-    events = sql.session.query(Event).join(EventAttendee).filter(EventAttendee.user_id == user_id).all()
+    attendings = sql.session.query(EventAttendee).filter(EventAttendee.user_id == user_id).all()
     posts = sql.session.query(Post).filter(Post.user_id == user_id).all()
     followers = sql.session.query(UserFollow).filter(UserFollow.user_id == user_id).count()
     followings = sql.session.query(UserFollow).filter(UserFollow.follower_id == user_id).count()
@@ -21,7 +21,7 @@ def profile():
     return render_template(
         "profile.html",
         user=user,
-        events=events,
+        attendings=attendings,
         posts=posts,
         followers=followers,
         followings=followings,
@@ -52,7 +52,7 @@ def profile_other(id):
         return redirect(request.referrer)
 
     user = sql.session.query(User).filter(User.id == id).first()
-    events = sql.session.query(Event).join(EventAttendee).filter(EventAttendee.user_id == id).all()
+    attendings = sql.session.query(EventAttendee).filter(EventAttendee.user_id == id).all()
     posts = sql.session.query(Post).filter(Post.user_id == id).all()
     followers = sql.session.query(UserFollow).filter(UserFollow.user_id == id).count()
     followings = sql.session.query(UserFollow).filter(UserFollow.follower_id == id).count()
@@ -65,7 +65,7 @@ def profile_other(id):
     return render_template(
         "profile.html",
         user=user,
-        events=events,
+        attendings=attendings,
         posts=posts,
         followers=followers,
         followings=followings,

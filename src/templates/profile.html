@@ -104,7 +104,7 @@
             <p class="m-0 text-muted">Signed up on {{ attending.created_at.strftime('%B %d, %Y') }}</p>
           </div>
           <div class="btn-group">
-            <a class="btn btn-primary" href="{{ url_for('admin_events_manage', id=attending.event.id) }}">View</a>
+            <a class="btn btn-primary" href="{{ url_for('event_info', id=attending.event.id) }}">View</a>
           </div>
         </div>
         {% endfor %}
