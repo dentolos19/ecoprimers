@@ -7,9 +7,23 @@
       <div>
         <h4 class="card-title m-0">Profile</h4>
       </div>
+      {% if editable %}
       <form method="get" action="{{ url_for('profile_edit') }}">
         <button class="btn btn-primary" type="submit">Edit Profile</button>
       </form>
+      {% else %}
+      <form method="post" action="{{ url_for('profile_other', id=user.id) }}">
+        {% if following %}
+        <button class="btn btn-danger" type="submit">
+          Unfollow
+        </button>
+        {% else %}
+        <button class="btn btn-primary" type="submit">
+          Follow
+        </button>
+        {% endif %}
+      </form>
+      {% endif %}
     </div>
     <div class="list-group list-group-flush">
       <div class="list-group-item py-3">
@@ -36,7 +50,7 @@
   </div>
   <div class="flex-fill d-flex flex-column gap-2">
     <div class="d-flex gap-2">
-      <div class="card flex-fill">
+      <a class="card flex-fill" style="text-decoration: none;" href="{{ url_for('profile_followers', id=user.id) }}">
         <div class="card-body d-flex justify-content-between align-items-center">
           <div style="width: 50px; height: 50px;">
             <img class="img-fluid" src="{{ static('img/users.png') }}" />
@@ -48,8 +62,8 @@
             <p class="m-0">Followers</p>
           </div>
         </div>
-      </div>
-      <div class="card flex-fill">
+      </a>
+      <a class="card flex-fill" style="text-decoration: none;" href="{{ url_for('profile_followings', id=user.id) }}">
         <div class="card-body d-flex justify-content-between align-items-center">
           <div style="width: 50px; height: 50px;">
             <img class="img-fluid" src="{{ static('img/users.png') }}" />
@@ -61,7 +75,7 @@
             <p class="m-0">Followings</p>
           </div>
         </div>
-      </div>
+      </a>
       <div class="card flex-fill">
         <div class="card-body d-flex justify-content-between align-items-center">
           <div style="width: 50px; height: 50px;">
@@ -112,7 +126,7 @@
         {% if posts %}
         {% for post in posts %}
         <div class="list-group-item p-0 d-flex gap-2">
-          <img class="img-fluid" src="{{ post.image_url }}" style="height: 100px; aspect-ratio: 16 / 9; object-fit: cover;"/>
+          <img class="img-fluid" src="{{ post.image_url }}" style="height: 100px; aspect-ratio: 16 / 9; object-fit: cover;" />
           <div class="flex-fill py-2 d-flex flex-column justify-content-center">
             <h6 class="m-0">{{ post.content }}</h6>
             <p class="m-0 text-muted">Posted on {{ post.created_at.strftime('%B %d, %Y') }}</p>
