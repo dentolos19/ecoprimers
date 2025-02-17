@@ -22,4 +22,5 @@ dependencies = [
     "sendgrid>=6.11.0",
     "sqlalchemy-libsql>=0.1.0",
     "stripe>=11.5.0",
+    "xlsxwriter>=3.2.2",
 ]
