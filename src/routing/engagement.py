@@ -20,7 +20,6 @@ from utils import require_login
 
 matplotlib.use("Agg")
 
-
 def is_valid_image(file):
     try:
         img = Image.open(io.BytesIO(file.read()))
@@ -57,7 +56,7 @@ def tasks_verify(id):
             flash("No image provided.", "danger")
             return redirect(request.url)
 
-        if not storage.check_format(image.filename, storage.image_extensions):
+        if not storage.check_format(image, storage.image_extensions):
             flash("Invalid file type! Only images (PNG, JPG, JPEG, GIF) are allowed.", "danger")
             return redirect(request.url)
 
