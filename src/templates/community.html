@@ -124,7 +124,7 @@
                     {% endfor %}
                   </select>
                 </div>
-                <button type="submit" class="btn btn-primary">Share</button>
+                <button type="submit" class="share-btn btn btn-primary">Share</button>
               </form>
             </div>
           </div>
@@ -217,6 +217,24 @@
     });
   });
 
+
+  const shareButtons = document.querySelectorAll("button.share-btn");
+  shareButtons.forEach(element => {
+    element.addEventListener("click", (event) => {
+      event.preventDefault(); // Stop default form submission
+
+      console.log("share button clicked");
+
+      if (!confirm("Are you sure you want to share?")) {
+        return; // Stop execution if the user clicks "Cancel"
+      }
+
+      const shareForm = element.closest("form");
+      if (shareForm) {
+        shareForm.submit(); // Manually submit only if confirmed
+      }
+    });
+  });
 </script>
 
 {% endblock %}
