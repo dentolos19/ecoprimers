@@ -81,7 +81,7 @@
   <div class="row">
     {% for article in articles %}
     <div class="col-4">
-      <div class="card h-100">
+      <div class="card">
         {% if article.urlToImage %}
         <img class="card-img-top" src="{{ article.urlToImage }}" alt="News Image" style="height: 200px; object-fit: cover;">
         {% else %}
@@ -94,16 +94,16 @@
           <p class="card-text small text-muted">{{ article.source.name }} • {{ article.publishedAt.split('T')[0] }}</p>
           <p class="card-text">{{ article.description[:100] }}...</p>
         </div>
-        <div class="card-footer bg-transparent">
-          <a class="btn btn-success float-end" href="{{ article.url }}" target="_blank">Read More</a>
-        </div>
+        <div class="card-footer bg-transparent border-top-0">
+            <a class="btn btn-success float-end" href="{{ article.url }}" target="_blank">Read More</a>
+          </div>
       </div>
     </div>
     {% endfor %}
   </div>
 
   <div class="text-center mt-4">
-    <a href="{{ url_for('news') }}" class="btn btn-success btn-lg">
+    <a href="{{ url_for('news') }}" class="btn btn-success">
       View All News
     </a>
   </div>

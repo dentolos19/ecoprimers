@@ -43,8 +43,8 @@ document.addEventListener("DOMContentLoaded", function () {
   // Add placeholder images
   document.querySelectorAll("img").forEach((img) => {
     img.onerror = function () {
-      this.onerror = null; // Prevent infinite loop
       this.src = "/static/img/placeholder.png";
+      this.onerror = null; // Prevent infinite loop
     };
   });
 

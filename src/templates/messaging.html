@@ -23,13 +23,13 @@
     {% for user in users %}
     {% if sender_id != user.id %}
     <a class="list-group-item list-group-item-action" href="{{ url_for('messaging', receiver_id=user.id) }}">
-      <div class="d-flex gap-3">
+      <div class="py-1 d-flex gap-3">
         <div class="initials">
           <img class="rounded-circle" src="https://github.com/shadcn.png" alt="Profile Picture" width="32" height="32" />
         </div>
-        <div class="user-info w-100 justify-content-between">
-          <h5 class="mb-1">{{ user.name }}</h5>
-          <small class="text-muted">Read sample</small>
+        <div class="user-info w-100 justify-content-center">
+          <h5 class="m-0">{{ user.name }}</h5>
+          {# <small class="text-muted">Read sample</small> #}
         </div>
       </div>
     </a>
