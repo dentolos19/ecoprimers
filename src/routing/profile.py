@@ -25,6 +25,27 @@ def profile():
         followers=followers,
         followings=followings,
         transactions=transactions,
+        editable=True,
+    )
+
+
+@app.route("/profile/<id>")
+def profile_other(id):
+    user = sql.session.query(User).filter(User.id == id).first()
+    events = sql.session.query(Event).join(EventAttendee).filter(EventAttendee.user_id == id).all()
+    posts = sql.session.query(Post).filter(Post.user_id == id).all()
+    followers = sql.session.query(UserFollow).filter(UserFollow.user_id == id).count()
+    followings = sql.session.query(UserFollow).filter(UserFollow.follower_id == id).count()
+    transactions = sql.session.query(Transaction).filter(Transaction.user_id == id).count()
+
+    return render_template(
+        "profile.html",
+        user=user,
+        events=events,
+        posts=posts,
+        followers=followers,
+        followings=followings,
+        transactions=transactions,
     )
 
 
