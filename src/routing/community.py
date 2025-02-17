@@ -18,10 +18,7 @@ def init_community():
         return any(save.user_id == user_id for save in saves)
 
     def is_followed(follows, user_id, follower_id):
-        return any(
-            follow.user_id == user_id and follow.follower_id == follower_id
-            for follow in follows
-        )
+        return any(follow.user_id == user_id and follow.follower_id == follower_id for follow in follows)
 
     def is_comment(comments, user_id):
         return any(comment.user_id == user_id for comment in comments)
@@ -121,9 +118,7 @@ def community_delete(id):
 @app.route("/community/posts/<post_id>/like", methods=["GET", "POST"])
 def toggle_like(post_id):
     user_id = session.get("user_id")
-    like = (
-        sql.session.query(PostLike).filter_by(post_id=post_id, user_id=user_id).first()
-    )
+    like = sql.session.query(PostLike).filter_by(post_id=post_id, user_id=user_id).first()
 
     if not like:
         like = PostLike(post_id=post_id, user_id=user_id)
@@ -139,11 +134,7 @@ def toggle_like(post_id):
 @app.route("/community/posts/<user_id>/follow", methods=["GET", "POST"])
 def toggle_follow(user_id):
     follower_id = session.get("user_id")
-    follow = (
-        sql.session.query(UserFollow)
-        .filter_by(user_id=user_id, follower_id=follower_id)
-        .first()
-    )
+    follow = sql.session.query(UserFollow).filter_by(user_id=user_id, follower_id=follower_id).first()
 
     if not follow:
         follow = UserFollow(user_id=user_id, follower_id=follower_id)
@@ -167,9 +158,7 @@ def toggle_save(post_id):
     user_id = session.get("user_id")  # Get the current logged-in user's ID
 
     # Check if the post is already saved by the user
-    save = (
-        sql.session.query(PostSaved).filter_by(post_id=post_id, user_id=user_id).first()
-    )
+    save = sql.session.query(PostSaved).filter_by(post_id=post_id, user_id=user_id).first()
 
     if not save:
         # If the post is not already saved, add it to the PostSaved table
@@ -184,6 +173,7 @@ def toggle_save(post_id):
 
     # Redirect back to the community page (or wherever you want)
     return redirect(request.referrer)
+
 
 @app.route("/community/posts/<post_id>/share", methods=["GET", "POST"])
 def share_post(post_id):

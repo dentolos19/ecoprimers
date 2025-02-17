@@ -28,11 +28,11 @@ def init():
         dark_mode_enabled=session.get("dark_mode", True),
     )
 
-    environment = dict(
+    env = dict(
         GOOGLE_API_KEY=os.environ.get("GOOGLE_API_KEY"),
     )
 
-    return {**essentials, **utils, **environment}
+    return {**essentials, **utils, **env}
 
 
 @app.errorhandler(404)
