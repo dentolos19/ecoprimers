@@ -156,7 +156,7 @@ def toggle_like(post_id):
     return redirect(request.referrer)
 
 
-@app.route("/community/posts/<post_id>/save", methods=["POST"])
+@app.route("/community/posts/<post_id>/save", methods=["GET", "POST"])
 @require_login
 def toggle_save(post_id):
     user_id = session.get("user_id")  # Get the current logged-in user's ID
@@ -182,12 +182,11 @@ def toggle_save(post_id):
 @app.route("/community/posts/<post_id>/share", methods=["POST"])
 @require_login
 def share_post(post_id):
+    post = sql.session.query(Post).filter_by(id=post_id).first()
     user = utils.get_current_session()
     receipient_id = request.form.get("recipientId")
 
-    print(post_id)
-    print(receipient_id)
-    print(user)
+    post.shares += 1
 
     message = Message(
         sender_id=user["id"],

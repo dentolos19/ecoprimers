@@ -1,3 +1,5 @@
+import { marked } from "https://cdn.jsdelivr.net/npm/marked/lib/marked.esm.js";
+
 // messages.js
 const socket = io({
 	transports: ["polling"],
@@ -18,7 +20,7 @@ if (message.sender_id == currentSenderId && message.is_visible) {
     <form action="/community/messages/${message.receiver_id}/${message.id}" method="POST">
       <div class="message card rounded-3">
         <div class="card-body">
-          <p class="card-text">${message.message}</p>
+          <p class="card-text">${marked.parse(message.message)}</p>
           <button type="submit" class="btn btn-danger btn-sm float-end">Delete</button>
         </div>
       </div>
@@ -30,7 +32,7 @@ if (message.sender_id == currentSenderId && message.is_visible) {
     <form action="/community/messages/${message.receiver_id}/${message.id}" method="POST">
       <div class="message card rounded-3">
         <div class="card-body">
-          <p class="card-text">${message.message}</p>
+          <p class="card-text">${marked.parse(message.message)}</p>
         </div>
       </div>
     </form>
@@ -122,9 +124,7 @@ socket.on("receive_message", (message) => {
     }
 });
 
-socket.on("message_deleted", (data) => {
-  location.reload();
-});
+
 
 document.addEventListener("DOMContentLoaded", function () {
   const inputElement = document.querySelector("input#message");
@@ -137,6 +137,11 @@ document.addEventListener("DOMContentLoaded", function () {
   });
 });
 
+// CODE OF SHAME
+
+socket.on("message_deleted", (data) => {
+  location.reload();
+});
 
 socket.on("message_restored", () =>  {
   location.reload();

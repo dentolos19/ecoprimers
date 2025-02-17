@@ -20,6 +20,8 @@
     </div>
   </div>
 
+
+  {% if tasks %}
   <!-- Tasks -->
   <div class="tasks gap-2">
     {% for task in tasks %}
@@ -33,5 +35,10 @@
     </div>
     {% endfor %}
   </div>
+  {% else %}
+  <div class="alert alert-info" role="alert">
+    No tasks available
+  </div>
+  {% endif %}
 </div>
 {% endblock %}

@@ -24,6 +24,7 @@
     </div>
   </div>
 
+  {% if products %}
   <!-- Rewards -->
   <div class="rewards gap-2">
     {% for index, product in enumerate(products) %}
@@ -37,7 +38,7 @@
       <!-- Modal -->
       <div id="modal-{{ index }}" class="modal fade" tabindex="-1">
         <div class="modal-dialog">
-          <form class="modal-content" method="post" action="{{ url_for('redeem_reward') }}">
+          <form class="modal-content" method="post" action="{{ url_for('redeem_reward', product_id=product.id) }}">
             <!-- Hidden Fields -->
             <input type="hidden" name="reward_name" value="{{ product.name }}">
             <input type="hidden" name="reward_cost" value="{{ product.points }}">
@@ -53,14 +54,20 @@
             <img class="img-fluid" src="{{ product.image_url }}" alt="{{ product.name }}" />
             <div class="modal-body">
               <div>{{ product.description if product.description else "No description provided." }}</div>
-              {% if user.points >= product.points %}
+              {% if product.stock > 0 and user.points >= product.points %}
               <div class="mt-2 d-flex justify-content-center">
                 <div class="g-recaptcha" data-sitekey="6Ldk8skqAAAAADv8tINcjejBa3JllvFUrNKkxa30" data-theme="dark"></div>
               </div>
               {% endif %}
             </div>
-            <div class="modal-footer">
-              {% if user.points >= product.points %}
+            <div class="modal-footer justify-content-between">
+              <div>
+                <strong>Current Stock: </strong>
+                <span>{{ product.stock }}</span>
+              </div>
+              {% if product.stock <= 0 %}
+              <button class="btn btn-primary" type="button" disabled>Out of Stock</button>
+              {% elif user.points >= product.points %}
               <button class="btn btn-primary" type="submit">Redeem ({{ product.points }} pts)</button>
               {% else %}
               <button class="btn btn-primary" type="button" disabled>Not enough points</button>
@@ -72,5 +79,10 @@
     </div>
     {% endfor %}
   </div>
+  {% else %}
+  <div class="alert alert-info" role="alert">
+    No rewards available
+  </div>
+  {% endif %}
 </div>
 {% endblock %}

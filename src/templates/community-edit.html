@@ -2,7 +2,7 @@
 
 {% block body %}
 <div class="container my-4 d-flex justify-content-center">
-  <form class="card" style="width: 600px;" method="post" action="{{ url_for('community_edit', id=post.id) }}" enctype="multipart/form-data">
+  <form class="card" style="width: 600px;" method="post" action="{{ url_for('community_edit', post_id=post.id) }}" enctype="multipart/form-data">
     <!-- Header -->
     <div class="card-body d-flex justify-content-between align-items-center">
       <h5 class="card-title m-0">Edit Post</h5>

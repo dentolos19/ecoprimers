@@ -81,6 +81,7 @@ class Post(Base):
     likes: Mapped[List["PostLike"]] = relationship(back_populates="post", cascade="all, delete")
     messages: Mapped[List["PostComment"]] = relationship(back_populates="post", cascade="all, delete")
     saves: Mapped[List["PostSaved"]] = relationship(back_populates="post", cascade="all, delete")
+    shares: Mapped[int] = mapped_column(default=0)
 
 
 class PostLike(Base):
@@ -166,7 +167,7 @@ class Message(Base):
     sender_id: Mapped[str] = mapped_column(ForeignKey("users.id"))
     receiver_id: Mapped[str] = mapped_column(ForeignKey("users.id"))
     message: Mapped[str]
-    is_visible: Mapped[bool] = mapped_column(default=False)
+    is_visible: Mapped[bool] = mapped_column(default=True)
 
     sender: Mapped["User"] = relationship(foreign_keys=[sender_id])
     receiver: Mapped["User"] = relationship(foreign_keys=[receiver_id])

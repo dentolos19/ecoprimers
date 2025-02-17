@@ -123,3 +123,7 @@
   flex-grow: 1;
   padding-bottom: 10px; /* Avoid overlap with the input field */
 }
+
+.card-text :last-child {
+  margin-bottom: 0;
+}

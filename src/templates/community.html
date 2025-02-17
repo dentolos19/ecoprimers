@@ -8,6 +8,7 @@
     <span>New Post</span>
   </a>
 
+  {% if posts %}
   {% for index, post in enumerate(posts) %}
   <div class="card shadow" style="width: 600px;">
     <!-- Header -->
@@ -96,7 +97,7 @@
       <form method="post" action="{{ url_for('share_post', post_id=post.id) }}">
         <button class="btn btn-primary" type="button" data-bs-toggle="modal" data-bs-target="#shareModal-{{ index }}">
           <i class="fa-solid fa-share"></i>
-          <span>{{ len(post.shares) }}</span>
+          <span>{{ post.shares }}</span>
         </button>
 
         <!-- Share Modal -->
@@ -140,6 +141,11 @@
     </div>
   </div>
   {% endfor %}
+  {% else %}
+  <div class="alert alert-info mx-auto" style="width: fit-content;" role="alert">
+    No posts available
+  </div>
+  {% endif %}
 </div>
 
 <script>

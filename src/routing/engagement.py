@@ -7,7 +7,6 @@ import plotly.io as pio
 import requests
 from flask import flash, redirect, render_template, request, send_file, session, url_for
 from newsapi import NewsApiClient
-from openmeteo_sdk.Variable import Variable
 from PIL import Image
 
 from lib import ai, storage
@@ -177,9 +176,9 @@ def add_points():
 RECAPTCHA_SECRET_KEY = "6Ldk8skqAAAAAPZgQrYfsfwoOGHQJ5z0q5ZNC4l5"
 
 
-@app.route("/engagement/redeem", methods=["POST"])
+@app.route("/engagement/redeem/<product_id>", methods=["POST"])
 @require_login
-def redeem_reward():
+def redeem_reward(product_id):
     user_id = session.get("user_id")
     reward_name = request.form.get("reward_name")
     reward_cost = int(request.form.get("reward_cost"))
@@ -205,6 +204,18 @@ def redeem_reward():
 
     if user and user.points >= reward_cost:
         try:
+            product = sql.session.query(Product).filter_by(id=product_id).first()
+
+            if not product:
+                flash("Reward not found!", "danger")
+                return redirect(request.referrer)
+
+            if product.stock <= 0:
+                flash("Reward is out of stock!", "danger")
+                return redirect(request.referrer)
+
+            product.stock -= 1
+
             # Deduct points from user
             user.points -= reward_cost
 
@@ -452,6 +463,7 @@ def dashboard():
         net_transactions=net_transactions,
         stats=stats,
     )
+
 
 # entire news section page
 @app.route("/news")
