@@ -4,7 +4,7 @@
 {% block body %}
 <div class="container mt-4">
     <h2 class="text-center">User Dashboard</h2>
-    
+
     <!-- KPI Section -->
     <div class="row text-center">
         <div class="col-md-4">
@@ -43,7 +43,7 @@
     <div class="text-center">
         <a href="{{ url_for('transactions') }}" class="btn btn-primary">Back to Transactions</a>
     </div>
-</div> 
+</div>
 {% endblock %}
 #}
 
@@ -53,7 +53,7 @@
 {% block body %}
 <div class="container mt-4">
     <h2 class="text-center mb-4">User Dashboard</h2>
-    
+
     <!-- KPI Cards -->
     <div class="row mb-4">
         <div class="col-md-4">
@@ -61,7 +61,7 @@
                 <div class="card-body">
                     <h5 class="card-title">Total Earned</h5>
                     <p class="text-success display-4">+{{ total_earned }}</p>
-                    <small class="text-muted">points</small>
+                    <small class="text-body-secondary">points</small>
                 </div>
             </div>
         </div>
@@ -70,7 +70,7 @@
                 <div class="card-body">
                     <h5 class="card-title">Net Balance</h5>
                     <p class="text-primary display-4">{{ net_transactions }}</p>
-                    <small class="text-muted">points</small>
+                    <small class="text-body-secondary">points</small>
                 </div>
             </div>
         </div>
@@ -79,7 +79,7 @@
                 <div class="card-body">
                     <h5 class="card-title">Total Redeemed</h5>
                     <p class="text-danger display-4">-{{ total_redeemed }}</p>
-                    <small class="text-muted">points</small>
+                    <small class="text-body-secondary">points</small>
                 </div>
             </div>
         </div>

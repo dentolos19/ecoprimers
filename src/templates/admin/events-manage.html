@@ -5,7 +5,7 @@
   <div style="width: 40%;">
     <!-- Event Information -->
     <div class="card">
-      <div class="card-body border-bottom">
+      <div class="card-body bg-body-tertiary border-bottom">
         <h5 class="card-title m-0">Event</h5>
       </div>
       <form class="card-body" method="POST" action="{{ url_for('admin_events_manage', id=event.id) }}" enctype="multipart/form-data">
@@ -49,7 +49,7 @@
   <div class="flex-fill">
     <!-- Attendees -->
     <div class="card flex-fill">
-      <div class="card-body flex-grow-0">
+      <div class="card-body bg-body-tertiary">
         <div class="d-flex justify-content-between align-items-center">
           <h5 class="card-title m-0">Attendees</h5>
           <p class="card-text">{{ len(event.attendees) }}</p>
@@ -61,7 +61,7 @@
         <div class="list-group-item py-3 d-flex justify-content-between align-items-center">
           <div>
             <h6 class="m-0">{{ attendee.user.name }}</h6>
-            <p class="m-0 text-muted">Signed up on {{ attendee.created_at.strftime('%B %d, %Y') }}</p>
+            <p class="m-0 text-body-secondary">Signed up on {{ attendee.created_at.strftime('%B %d, %Y') }}</p>
           </div>
           <div class="btn-group">
             <a class="btn btn-primary" href="{{ url_for('admin_users_manage', id=attendee.user.id) }}">View</a>

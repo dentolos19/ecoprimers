@@ -86,12 +86,12 @@
         <img class="card-img-top" src="{{ article.urlToImage }}" alt="News Image" style="height: 200px; object-fit: cover;">
         {% else %}
         <div class="bg-light" style="height: 200px; display: flex; align-items: center; justify-content: center">
-          <i class="fas fa-newspaper fa-3x text-muted"></i>
+          <i class="fas fa-newspaper fa-3x text-body-secondary"></i>
         </div>
         {% endif %}
         <div class="card-body">
           <h5 class="card-title text-truncate">{{ article.title }}</h5>
-          <p class="card-text small text-muted">{{ article.source.name }} • {{ article.publishedAt.split('T')[0] }}</p>
+          <p class="card-text small text-body-secondary">{{ article.source.name }} • {{ article.publishedAt.split('T')[0] }}</p>
           <p class="card-text">{{ article.description[:100] }}...</p>
         </div>
         <div class="card-footer bg-transparent border-top-0">

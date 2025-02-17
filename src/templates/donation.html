@@ -6,13 +6,13 @@
 <div class="container mt-5">
     <div class="card mx-auto shadow-lg p-4" style="max-width: 500px; border-radius: 15px;">
         <h1 class="text-center mb-4 text-success">Support Our Cause</h1>
-        <p class="text-center text-muted">
+        <p class="text-center text-body-secondary">
             Your donation makes a difference! Every contribution helps us achieve our mission.
         </p>
 
         <form id="donation-form" method="post" action="{{ url_for('donation') }}">
             <div class="form-group mt-4">
-                <label for="amount" class="form-label text-secondary">Donation Amount (SGD):</label>
+                <label for="amount" class="form-label text-body-secondary">Donation Amount (SGD):</label>
                 <input type="number" id="amount" name="amount" class="form-control form-control-lg border-primary" min="0.50" max="999999.0" step="0.1" placeholder="Enter amount (e.g., 10.00)" required>
             </div>
             <button type="submit" class="btn btn-success btn-lg w-100 mt-4">

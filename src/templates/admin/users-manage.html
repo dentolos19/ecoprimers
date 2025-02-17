@@ -5,7 +5,7 @@
   <div style="width: 40%;">
     <!-- User Information -->
     <div class="card">
-      <div class="card-body border-bottom d-flex justify-content-between align-items-center">
+      <div class="card-body bg-body-tertiary border-bottom d-flex justify-content-between align-items-center">
         <div>
           <h5 class="card-title m-0">User</h5>
         </div>
@@ -47,7 +47,7 @@
   <div class="flex-fill d-flex flex-column gap-2">
     <!-- Attendings -->
     <div class="card">
-      <div class="card-body d-flex justify-content-between align-items-center">
+      <div class="card-body bg-body-tertiary d-flex justify-content-between align-items-center">
         <h5 class="m-0 card-title">Attendings</h5>
         <p class="card-text">{{ len(attendings) }}</p>
       </div>
@@ -57,7 +57,7 @@
         <div class="list-group-item py-3 d-flex justify-content-between align-items-center">
           <div>
             <h6 class="m-0">{{ attending.event.title }}</h6>
-            <p class="m-0 text-muted">Signed up on {{ attending.created_at.strftime('%B %d, %Y') }}</p>
+            <p class="m-0 text-body-secondary">Signed up on {{ attending.created_at.strftime('%B %d, %Y') }}</p>
           </div>
           <div class="btn-group">
             <a class="btn btn-primary" href="{{ url_for('admin_events_manage', id=attending.event.id) }}">View</a>
@@ -76,7 +76,7 @@
 
     <!-- Transactions -->
     <div class="card">
-      <div class="card-body d-flex justify-content-between align-items-center">
+      <div class="card-body bg-body-tertiary d-flex justify-content-between align-items-center">
         <h5 class="card-title m-0">Transactions</h5>
         <p class="card-text">{{ len(transactions) }}</p>
       </div>
@@ -86,7 +86,7 @@
         <div class="list-group-item py-3 d-flex justify-content-between align-items-center">
           <div>
             <h6 class="m-0">{{ transaction.description }}</h6>
-            <p class="m-0 text-muted">Made on {{ transaction.created_at.strftime('%B %d, %Y') }}</p>
+            <p class="m-0 text-body-secondary">Made on {{ transaction.created_at.strftime('%B %d, %Y') }}</p>
           </div>
           <div class="btn-group">
             <a class="btn btn-primary" href="{{ url_for('admin_transactions_view', id=transaction.id) }}">View</a>
