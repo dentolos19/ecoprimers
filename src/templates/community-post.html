@@ -2,7 +2,7 @@
 
 {% block body %}
 <div class="container py-3">
-  <div class="card shadow" style="width: 600px;">
+  <div class="card shadow mx-auto" style="width: 600px;">
     <!-- Header -->
     <div class="card-body bg-body-tertiary border-bottom d-flex justify-content-between align-items-center">
       <h5 class="card-title m-0">{{ post.user.name }}</h5>
@@ -89,7 +89,7 @@
       <form method="post" action="{{ url_for('share_post', post_id=post.id) }}">
         <button class="btn btn-primary" type="button" data-bs-toggle="modal" data-bs-target="#shareModal-{{ index }}">
           <i class="fa-solid fa-share"></i>
-          <span>{{ len(post.shares) }}</span>
+          <span>{{ post.shares }}</span>
         </button>
 
         <!-- Share Modal -->

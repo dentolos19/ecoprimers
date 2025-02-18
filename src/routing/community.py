@@ -191,7 +191,7 @@ def share_post(post_id):
     message = Message(
         sender_id=user["id"],
         receiver_id=receipient_id,
-        message=f"Check out this post: {url_for('community_post', post_id=post_id, _external=True)}",
+        message=f"Check out this post: {url_for('community_posted', post_id=post_id, _external=True)}",
     )
 
     sql.session.add(message)
