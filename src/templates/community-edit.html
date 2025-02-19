@@ -53,21 +53,21 @@
   //});
 
   const UpdateButtons = document.querySelectorAll("button.update-btn");
-UpdateButtons.forEach(element => {
-  element.addEventListener("click", (event) => {
-    event.preventDefault(); // Stop default form submission
+  UpdateButtons.forEach(element => {
+    element.addEventListener("click", (event) => {
+      event.preventDefault(); // Stop default form submission
 
-    console.log("Comment button clicked");
+      console.log("Comment button clicked");
 
-    if (!confirm("Are you sure you want to Update?")) {
-      return; // Stop execution if the user clicks "Cancel"
-    }
+      if (!confirm("Are you sure you want to Update?")) {
+        return; // Stop execution if the user clicks "Cancel"
+      }
 
-    const commentForm = element.closest("form");
-    if (commentForm) {
-      commentForm.submit(); // Manually submit only if confirmed
-    }
+      const commentForm = element.closest("form");
+      if (commentForm) {
+        commentForm.submit(); // Manually submit only if confirmed
+      }
+    });
   });
-});
 </script>
 {% endblock %}

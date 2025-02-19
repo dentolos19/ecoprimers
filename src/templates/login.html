@@ -5,28 +5,28 @@
 {% block body %}
 
 <div class="d-flex justify-content-center align-items-center mt-5">
-    <div class="card shadow p-4" style="max-width: 400px; width: 100%;">
-        <div class="card-body text-center">
-            <h1 class="mb-4">Log In</h1>
-            <form method="POST" action="/login">
-                <div class="form-group">
-                    <label for="email" class="sr-only">Email</label>
-                    <input type="email" id="email" name="email" placeholder="Email Address" required class="form-control mb-3">
-                </div>
-                <div class="form-group">
-                    <label for="password" class="sr-only">Password</label>
-                    <input type="password" id="password" name="password" placeholder="Password" required class="form-control mb-3">
-                </div>
-                <button type="submit" class="w-100 rounded-lg mb-3 btn btn-success">Log In</button>
-                <a href="{{ url_for('login_google') }}" class="btn btn-outline-info d-flex align-items-center justify-content-center mb-3 w-100">
-                    <i class="fab fa-google" style="font-size: 20px; margin-right: 10px;"></i>
-                    <span>Login With Google</span>
-                </a>
-                <p>Don't have an account? <a href="/signup">Create an account!</a></p>
-                <p><a href="{{ url_for('reset_password') }}">Forgot Password?</a></p>  <!-- Forgot Password Link -->
-            </form>
+  <div class="card shadow p-4" style="max-width: 400px; width: 100%;">
+    <div class="card-body text-center">
+      <h1 class="mb-4">Log In</h1>
+      <form method="POST" action="/login">
+        <div class="form-group">
+          <label for="email" class="sr-only">Email</label>
+          <input type="email" id="email" name="email" placeholder="Email Address" required class="form-control mb-3">
         </div>
+        <div class="form-group">
+          <label for="password" class="sr-only">Password</label>
+          <input type="password" id="password" name="password" placeholder="Password" required class="form-control mb-3">
+        </div>
+        <button type="submit" class="w-100 rounded-lg mb-3 btn btn-success">Log In</button>
+        <a href="{{ url_for('login_google') }}" class="btn btn-outline-info d-flex align-items-center justify-content-center mb-3 w-100">
+          <i class="fab fa-google" style="font-size: 20px; margin-right: 10px;"></i>
+          <span>Login With Google</span>
+        </a>
+        <p>Don't have an account? <a href="/signup">Create an account!</a></p>
+        <p><a href="{{ url_for('reset_password') }}">Forgot Password?</a></p> <!-- Forgot Password Link -->
+      </form>
     </div>
+  </div>
 </div>
 
 {% endblock %}

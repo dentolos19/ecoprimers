@@ -11,15 +11,19 @@ from utils import require_login
 
 @socketio.on("join")
 def on_join(data):
-    room = sql.session.query(Rooms).filter(
-    or_(
-        and_(Rooms.user_1 == session["user_id"], Rooms.user_2 == data.get("receiver_id")),
-        and_(Rooms.user_1 == data.get("receiver_id"), Rooms.user_2 == session["user_id"])
+    room = (
+        sql.session.query(Rooms)
+        .filter(
+            or_(
+                and_(Rooms.user_1 == session["user_id"], Rooms.user_2 == data.get("receiver_id")),
+                and_(Rooms.user_1 == data.get("receiver_id"), Rooms.user_2 == session["user_id"]),
+            )
+        )
+        .first()
     )
-    ).first()
 
     if not room:
-        room = Rooms(user_1 = session["user_id"], user_2 = data.get("receiver_id"))
+        room = Rooms(user_1=session["user_id"], user_2=data.get("receiver_id"))
 
         sql.session.add(room)
         sql.session.commit()
@@ -28,6 +32,7 @@ def on_join(data):
     join_room(room.id)
 
     print(f"joined room between {room.user_1} and {room.user_2}")
+
 
 @app.route("/community/messages")
 @app.route("/community/messages/<receiver_id>", methods=["GET", "POST"])
@@ -74,12 +79,16 @@ def handle_send_message(data):
     sql.session.commit()
 
     # Find the room for these users
-    room = sql.session.query(Rooms).filter(
-        or_(
-            and_(Rooms.user_1 == sender_id, Rooms.user_2 == receiver_id),
-            and_(Rooms.user_1 == receiver_id, Rooms.user_2 == sender_id)
+    room = (
+        sql.session.query(Rooms)
+        .filter(
+            or_(
+                and_(Rooms.user_1 == sender_id, Rooms.user_2 == receiver_id),
+                and_(Rooms.user_1 == receiver_id, Rooms.user_2 == sender_id),
+            )
         )
-    ).first()
+        .first()
+    )
 
     if room:
         # Emit to the room instead of individual receiver
@@ -87,65 +96,71 @@ def handle_send_message(data):
     else:
         print("No room found for these users")
 
+
 @app.route("/community/search-results")
 @app.route("/community/messages/<receiver_id>", methods=["GET", "POST"])
 def search_messages():
     search_query = request.args.get("search_query")
     users = sql.session.query(User).all()
     valid_messages = (
-    sql.session.query(Message)
-    .filter(Message.is_visible == True)
-    .filter(Message.message.like(f"%{search_query}%"))
-    .filter(
-        or_(
-            Message.receiver_id == session["user_id"],
-            Message.sender_id == session["user_id"]
-        )
+        sql.session.query(Message)
+        .filter(Message.is_visible == True)
+        .filter(Message.message.like(f"%{search_query}%"))
+        .filter(or_(Message.receiver_id == session["user_id"], Message.sender_id == session["user_id"]))
+        .order_by(Message.created_at)
+        .limit(50)
+        .all()
     )
-    .order_by(Message.created_at)
-    .limit(50)
-    .all()
-)
 
-    return render_template("search-results.html", messages=valid_messages, users = users)
+    return render_template("search-results.html", messages=valid_messages, users=users)
+
 
 @app.route("/community/messages", methods=["GET"])
 def edit_message(id):
     content = request.args.get("new_content")
 
+
 @app.route("/community/messages/<receiver_id>/<message_id>", methods=["POST"])
 def delete_message(receiver_id, message_id):
     print(receiver_id, message_id)
 
-    message = sql.session.query(Message).filter(
-        and_(Message.receiver_id == receiver_id, Message.id == message_id)
-    ).first()
+    message = (
+        sql.session.query(Message).filter(and_(Message.receiver_id == receiver_id, Message.id == message_id)).first()
+    )
 
     if message:
         message.is_visible = False
         sql.session.commit()
 
     # Get the room before deleting the message
-    room = sql.session.query(Rooms).filter(
-        or_(
-            and_(Rooms.user_1 == message.sender_id, Rooms.user_2 == message.receiver_id),
-            and_(Rooms.user_1 == message.receiver_id, Rooms.user_2 == message.sender_id)
+    room = (
+        sql.session.query(Rooms)
+        .filter(
+            or_(
+                and_(Rooms.user_1 == message.sender_id, Rooms.user_2 == message.receiver_id),
+                and_(Rooms.user_1 == message.receiver_id, Rooms.user_2 == message.sender_id),
+            )
         )
-    ).first()
+        .first()
+    )
 
     # Emit delete event to the room if found
     if room:
         socket.io.emit("message_deleted", {"message_id": message_id}, room=room.id)
 
-    return redirect(url_for("messaging", receiver_id=receiver_id if receiver_id != session["user_id"] else message.sender_id))
+    return redirect(
+        url_for("messaging", receiver_id=receiver_id if receiver_id != session["user_id"] else message.sender_id)
+    )
 
 
 @app.route("/community/messages/deleted")
 def deleted_messages():
-    messages = sql.session.query(Message).filter(and_(Message.sender_id == session["user_id"], Message.is_visible != True))
+    messages = sql.session.query(Message).filter(
+        and_(Message.sender_id == session["user_id"], Message.is_visible != True)
+    )
     for message in messages:
         print(message.message)
-    return render_template("deleted_messages.html", messages = messages)
+    return render_template("deleted_messages.html", messages=messages)
 
 
 @app.route("/community/messages/deleted/restore", methods=["POST"])
@@ -154,9 +169,7 @@ def restore_message():
     if not message_id:
         return "No message ID provided", 400  # Handle missing message ID
 
-    message = sql.session.query(Message).filter(
-        Message.id == message_id
-    ).first()
+    message = sql.session.query(Message).filter(Message.id == message_id).first()
 
     if not message:
         return "Message not found", 404  # Handle missing message
@@ -166,4 +179,3 @@ def restore_message():
 
     socket.io.emit("message_restored")
     return redirect(url_for("deleted_messages"))  # Redirect after restoring
-

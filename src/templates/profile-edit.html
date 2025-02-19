@@ -5,57 +5,57 @@
 {% block body %}
 
 <div class="container my-5">
-    <div class="row justify-content-center">
-        <div class="col-lg-6 col-md-8 col-sm-12">
-            <div class="card shadow-lg p-4">
-                <div class="card-body">
-                    <h2 class="text-center mb-4">Edit Your Profile</h2>
-                    <form method="POST" action="{{ url_for('profile_edit') }}" onsubmit="return validateForm()">
-                        <div class="form-group">
-                            <label for="email" class="form-label">Email</label>
-                            <input type="email" id="email" name="email" value="{{ user.email }}" required class="form-control mb-3">
-                        </div>
-                        <div class="form-group">
-                            <label for="name" class="form-label">Name</label>
-                            <input type="text" id="name" name="name" value="{{ user.name }}" required class="form-control mb-3">
-                        </div>
-                        <div class="form-group">
-                            <label for="bio" class="form-label">Bio</label>
-                            <textarea id="bio" name="bio" class="form-control mb-3">{{ user.bio }}</textarea>
-                        </div>
-                        <div class="form-group">
-                            <label for="birthday" class="form-label">Birthday</label>
-                            <input type="date" id="birthday" name="birthday" max="{{ current_date }}" value="{{ user.birthday }}" class="form-control mb-3">
-                        </div>
-                        <div class="form-group">
-                            <label for="security" class="form-label">Security Code</label>
-                            <input type="text" id="security" name="security" value="{{ user.security }}" class="form-control mb-3">
-                        </div>
-                        <button type="submit" class="btn btn-success btn-lg w-100 mt-4">Update Profile</button>
-                    </form>
-                </div>
+  <div class="row justify-content-center">
+    <div class="col-lg-6 col-md-8 col-sm-12">
+      <div class="card shadow-lg p-4">
+        <div class="card-body">
+          <h2 class="text-center mb-4">Edit Your Profile</h2>
+          <form method="POST" action="{{ url_for('profile_edit') }}" onsubmit="return validateForm()">
+            <div class="form-group">
+              <label for="email" class="form-label">Email</label>
+              <input type="email" id="email" name="email" value="{{ user.email }}" required class="form-control mb-3">
             </div>
+            <div class="form-group">
+              <label for="name" class="form-label">Name</label>
+              <input type="text" id="name" name="name" value="{{ user.name }}" required class="form-control mb-3">
+            </div>
+            <div class="form-group">
+              <label for="bio" class="form-label">Bio</label>
+              <textarea id="bio" name="bio" class="form-control mb-3">{{ user.bio }}</textarea>
+            </div>
+            <div class="form-group">
+              <label for="birthday" class="form-label">Birthday</label>
+              <input type="date" id="birthday" name="birthday" max="{{ current_date }}" value="{{ user.birthday }}" class="form-control mb-3">
+            </div>
+            <div class="form-group">
+              <label for="security" class="form-label">Security Code</label>
+              <input type="text" id="security" name="security" value="{{ user.security }}" class="form-control mb-3">
+            </div>
+            <button type="submit" class="btn btn-success btn-lg w-100 mt-4">Update Profile</button>
+          </form>
         </div>
+      </div>
     </div>
+  </div>
 </div>
 
 <script>
-    function validateForm() {
-        const email = document.getElementById("email").value;
-        const name = document.getElementById("name").value;
-        const bio = document.getElementById("bio").value;
-        const birthday = document.getElementById("birthday").value;
-        const security = document.getElementById("security").value;
+  function validateForm() {
+    const email = document.getElementById("email").value;
+    const name = document.getElementById("name").value;
+    const bio = document.getElementById("bio").value;
+    const birthday = document.getElementById("birthday").value;
+    const security = document.getElementById("security").value;
 
-        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
-        if (email.length < 10 || !emailRegex.test(email)) {
-            alert("Email must be a valid address and at least 10 characters long.");
-            return false;
-        }
-
-        return true;
+    if (email.length < 10 || !emailRegex.test(email)) {
+      alert("Email must be a valid address and at least 10 characters long.");
+      return false;
     }
+
+    return true;
+  }
 </script>
 
 {% endblock %}

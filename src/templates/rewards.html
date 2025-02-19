@@ -65,13 +65,12 @@
                 <strong>Current Stock: </strong>
                 <span>{{ product.stock }}</span>
               </div>
-              {% if product.stock <= 0 %}
-              <button class="btn btn-primary" type="button" disabled>Out of Stock</button>
-              {% elif user.points >= product.points %}
-              <button class="btn btn-primary" type="submit">Redeem ({{ product.points }} pts)</button>
-              {% else %}
-              <button class="btn btn-primary" type="button" disabled>Not enough points</button>
-              {% endif %}
+              {% if product.stock <= 0 %} <button class="btn btn-primary" type="button" disabled>Out of Stock</button>
+                {% elif user.points >= product.points %}
+                <button class="btn btn-primary" type="submit">Redeem ({{ product.points }} pts)</button>
+                {% else %}
+                <button class="btn btn-primary" type="button" disabled>Not enough points</button>
+                {% endif %}
             </div>
           </form>
         </div>

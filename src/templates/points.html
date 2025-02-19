@@ -52,59 +52,59 @@
     padding: 10px;
     margin: 10px 0;
     border-radius: 5px;
-}
+  }
 
-.flash-message.danger {
+  .flash-message.danger {
     color: #fff;
     background-color: #f44336;
     padding: 10px;
     margin: 10px 0;
     border-radius: 5px;
-}
+  }
 </style>
 {% endblock %}
 
 {% block body %}
 <div class="container mt-4">
-    {% with messages = get_flashed_messages(with_categories=true) %}
-    {% if messages %}
-        <div>
-            {% for category, message in messages %}
-                <div class="flash-message {{ category }}">{{ message }}</div>
-            {% endfor %}
-        </div>
-    {% endif %}
-{% endwith %}
+  {% with messages = get_flashed_messages(with_categories=true) %}
+  {% if messages %}
+  <div>
+    {% for category, message in messages %}
+    <div class="flash-message {{ category }}">{{ message }}</div>
+    {% endfor %}
+  </div>
+  {% endif %}
+  {% endwith %}
 
-    <!-- Points Box -->
-    <div class="points-box mb-4">
-        <span class="icon-star" style="font-size: 2em; color: #ff6f61;">⭐</span>
-        Points: {{ user.points }}
-    </div>
+  <!-- Points Box -->
+  <div class="points-box mb-4">
+    <span class="icon-star" style="font-size: 2em; color: #ff6f61;">⭐</span>
+    Points: {{ user.points }}
+  </div>
 
-    <!-- Referral Code Section -->
-    <div class="referral-section mb-4">
-        <div class="d-flex justify-content-center align-items-center mb-3">
-            <div class="referral-code bg-light px-3 py-2 rounded-start">
-                ab12-cd34-ef56-gh78
-            </div>
-            <button class="btn btn-secondary rounded-end ms-2">
-                Copy <i class="bi bi-clipboard"></i>
-            </button>
-        </div>
-        <button class="btn btn-dark w-100">Share & earn 100 points</button>
+  <!-- Referral Code Section -->
+  <div class="referral-section mb-4">
+    <div class="d-flex justify-content-center align-items-center mb-3">
+      <div class="referral-code bg-light px-3 py-2 rounded-start">
+        ab12-cd34-ef56-gh78
+      </div>
+      <button class="btn btn-secondary rounded-end ms-2">
+        Copy <i class="bi bi-clipboard"></i>
+      </button>
     </div>
+    <button class="btn btn-dark w-100">Share & earn 100 points</button>
+  </div>
 
-    <!-- Rewards Buttons Section -->
-    <div class="d-flex justify-content-around">
-        <a href="{{ url_for('transactions') }}" class="btn btn-secondary d-flex align-items-center gap-2 p-3">
-            <i class="bi bi-arrow-clockwise" style="font-size: 1.5em;"></i>
-            <span>Rewards Transaction</span>
-        </a>
-        <button class="btn btn-secondary d-flex align-items-center gap-2 p-3">
-            <i class="bi bi-calculator" style="font-size: 1.5em;"></i>
-            <span>Check Nearest Location</span>
-        </button>
-    </div>
+  <!-- Rewards Buttons Section -->
+  <div class="d-flex justify-content-around">
+    <a href="{{ url_for('transactions') }}" class="btn btn-secondary d-flex align-items-center gap-2 p-3">
+      <i class="bi bi-arrow-clockwise" style="font-size: 1.5em;"></i>
+      <span>Rewards Transaction</span>
+    </a>
+    <button class="btn btn-secondary d-flex align-items-center gap-2 p-3">
+      <i class="bi bi-calculator" style="font-size: 1.5em;"></i>
+      <span>Check Nearest Location</span>
+    </button>
+  </div>
 </div>
 {% endblock %}

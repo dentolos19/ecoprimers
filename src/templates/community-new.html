@@ -30,26 +30,26 @@
 
 <script>
   const PostButtons = document.querySelectorAll("button.post-btn");
-PostButtons.forEach(element => {
-  element.addEventListener("click", (event) => {
-    event.preventDefault(); // Stop default form submission
+  PostButtons.forEach(element => {
+    element.addEventListener("click", (event) => {
+      event.preventDefault(); // Stop default form submission
 
-    console.log("Hello");
+      console.log("Hello");
 
-    if (!confirm("Are you sure you want to Post?")) {
-      return; // Stop execution if the user clicks "Cancel"
-    }
+      if (!confirm("Are you sure you want to Post?")) {
+        return; // Stop execution if the user clicks "Cancel"
+      }
 
-    if (!element.closest("form").checkValidity()) {
-      alert("Please fill out the description field.");
-      return;
-    }
+      if (!element.closest("form").checkValidity()) {
+        alert("Please fill out the description field.");
+        return;
+      }
 
-    const PostForm = element.closest("form");
-    if (PostForm) {
-      PostForm.submit(); // Manually submit only if confirmed
-    }
+      const PostForm = element.closest("form");
+      if (PostForm) {
+        PostForm.submit(); // Manually submit only if confirmed
+      }
+    });
   });
-});
 </script>
 {% endblock %}

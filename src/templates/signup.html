@@ -5,50 +5,47 @@
 {% block body %}
 
 <div class="d-flex justify-content-center align-items-center mt-5">
-    <div class="card shadow p-4" style="max-width: 400px; width: 100%;">
-        <div class="card-body text-center">
-            <h1 class="mb-4">Create Your Account</h1>
-            <form method="POST" action="/signup" onsubmit="return validateForm()">
-                <div class="form-group">
-                    <label for="email" class="sr-only">Email</label>
-                    <input type="email" id="email" name="email" placeholder="Email Address" required class="form-control mb-3"
-                           title="Email must be a valid address and at least 5 characters long.">
-                </div>
-                <div class="form-group">
-                    <label for="name" class="sr-only">Name</label>
-                    <input type="text" id="name" name="name" placeholder="Name" required class="form-control mb-3"
-                           title="Name must be at least 5 characters long.">
-                </div>
-                <div class="form-group">
-                    <label for="password" class="sr-only">Password</label>
-                    <input type="password" id="password" name="password" placeholder="Password" required class="form-control mb-3"
-                           title="Password must be at least 8 characters long, contain at least one uppercase letter, one lowercase letter, and one special character.">
-                </div>
-                <div class="form-group">
-                    <label for="bio" class="sr-only">Bio</label>
-                    <textarea id="bio" name="bio" placeholder="Tell us about yourself" class="form-control mb-3"></textarea>
-                </div>
-                <div class="form-group">
-                    <label for="birthday" class="sr-only">Birthday</label>
-                    <input type="date" id="birthday" name="birthday" max="{{ current_date }}" class="form-control mb-3">
-                </div>
-                <div class="form-group">
-                    <label for="security" class="sr-only">Security Question</label>
-                    <input type="text" id="security" name="security" placeholder="Enter security code" required class="form-control mb-3">
-                </div>
-                <button type="submit" class="w-100 rounded-lg mb-3 btn btn-success">Sign Up</button>
-                <a href="{{ url_for('login_google') }}" class="btn btn-outline-info d-flex align-items-center justify-content-center mb-3 w-100">
-                    <i class="fab fa-google" style="font-size: 20px; margin-right: 10px;"></i>
-                    <span>Sign Up With Google</span>
-                </a>
-                <p>Already have an account? <a href="/login">Log in here!</a></p>
-            </form>
+  <div class="card shadow p-4" style="max-width: 400px; width: 100%;">
+    <div class="card-body text-center">
+      <h1 class="mb-4">Create Your Account</h1>
+      <form method="POST" action="/signup" onsubmit="return validateForm()">
+        <div class="form-group">
+          <label for="email" class="sr-only">Email</label>
+          <input type="email" id="email" name="email" placeholder="Email Address" required class="form-control mb-3" title="Email must be a valid address and at least 5 characters long.">
         </div>
+        <div class="form-group">
+          <label for="name" class="sr-only">Name</label>
+          <input type="text" id="name" name="name" placeholder="Name" required class="form-control mb-3" title="Name must be at least 5 characters long.">
+        </div>
+        <div class="form-group">
+          <label for="password" class="sr-only">Password</label>
+          <input type="password" id="password" name="password" placeholder="Password" required class="form-control mb-3" title="Password must be at least 8 characters long, contain at least one uppercase letter, one lowercase letter, and one special character.">
+        </div>
+        <div class="form-group">
+          <label for="bio" class="sr-only">Bio</label>
+          <textarea id="bio" name="bio" placeholder="Tell us about yourself" class="form-control mb-3"></textarea>
+        </div>
+        <div class="form-group">
+          <label for="birthday" class="sr-only">Birthday</label>
+          <input type="date" id="birthday" name="birthday" max="{{ current_date }}" class="form-control mb-3">
+        </div>
+        <div class="form-group">
+          <label for="security" class="sr-only">Security Question</label>
+          <input type="text" id="security" name="security" placeholder="Enter security code" required class="form-control mb-3">
+        </div>
+        <button type="submit" class="w-100 rounded-lg mb-3 btn btn-success">Sign Up</button>
+        <a href="{{ url_for('login_google') }}" class="btn btn-outline-info d-flex align-items-center justify-content-center mb-3 w-100">
+          <i class="fab fa-google" style="font-size: 20px; margin-right: 10px;"></i>
+          <span>Sign Up With Google</span>
+        </a>
+        <p>Already have an account? <a href="/login">Log in here!</a></p>
+      </form>
     </div>
+  </div>
 </div>
 
 <script>
-function validateForm() {
+  function validateForm() {
     const email = document.getElementById("email").value;
     const name = document.getElementById("name").value;
     const password = document.getElementById("password").value;
@@ -61,18 +58,18 @@ function validateForm() {
 
     // Email validation: at least 5 characters and valid email format
     if (email.length < 10 || !emailRegex.test(email)) {
-        alert("Email must be a valid address and at least 10 characters long.");
-        return false;
+      alert("Email must be a valid address and at least 10 characters long.");
+      return false;
     }
 
     // Password validation: at least 8 characters, one uppercase, one lowercase, and one special character
     if (!passwordRegex.test(password)) {
-        alert("Password must be at least 8 characters long, contain at least one uppercase letter, one lowercase letter, and one special character.");
-        return false;
+      alert("Password must be at least 8 characters long, contain at least one uppercase letter, one lowercase letter, and one special character.");
+      return false;
     }
 
     return true;
-}
+  }
 </script>
 
 {% endblock %}

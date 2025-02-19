@@ -1,20 +1,20 @@
 {% extends 'base.html' %}
 
 {% block body %}
-  {% if messages %}
-    <div class="list-group">
-      {% for message in messages %}
-      <form action="/community/messages/deleted/restore", method="POST">
-      <div class="message card bg text-light rounded-3">
-        <div class="card-body">
-          <h5 class="card-title">(sent to {{ message.receiver.name }})</h5>
-          <p class="card-text">{{message.message}}</p>
-          <button type="submit" name="message_restoration" value ="{{message.id}}" class="btn btn-success btn-sm float-end">Restore</button>
-        </div>
+{% if messages %}
+<div class="list-group">
+  {% for message in messages %}
+  <form action="/community/messages/deleted/restore" , method="POST">
+    <div class="message card bg text-light rounded-3">
+      <div class="card-body">
+        <h5 class="card-title">(sent to {{ message.receiver.name }})</h5>
+        <p class="card-text">{{message.message}}</p>
+        <button type="submit" name="message_restoration" value="{{message.id}}" class="btn btn-success btn-sm float-end">Restore</button>
       </div>
-         {% endfor %}
     </div>
-  {% else %}
-    <p class="text-body-secondary">You do not have any deleted messages</p>
-  {% endif %}
+    {% endfor %}
+</div>
+{% else %}
+<p class="text-body-secondary">You do not have any deleted messages</p>
+{% endif %}
 {% endblock %}

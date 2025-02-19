@@ -6,19 +6,19 @@ Search results
 
 {% block body %}
 
-  {% if messages %}
-    <div class="list-group">
-      {% for message in messages %}
-          <div class="message card bg text rounded-3">
-            <div class="card-body">
-              <h5 class="card-title">{{ message.sender.name }}</h5>
-              <p class="card-text">{{message.message}}</p>
-            </div>
-          </div>
-         {% endfor %}
+{% if messages %}
+<div class="list-group">
+  {% for message in messages %}
+  <div class="message card bg text rounded-3">
+    <div class="card-body">
+      <h5 class="card-title">{{ message.sender.name }}</h5>
+      <p class="card-text">{{message.message}}</p>
     </div>
-  {% else %}
-    <p class="text-body-secondary">No messages found matching your search query.</p>
-  {% endif %}
+  </div>
+  {% endfor %}
+</div>
+{% else %}
+<p class="text-body-secondary">No messages found matching your search query.</p>
+{% endif %}
 </div>
 {% endblock %}

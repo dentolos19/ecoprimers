@@ -2,41 +2,41 @@
 
 {% block body %}
 <div class="container mt-5">
-    <div class="mb-4 text-center">
-        <h2>Environmental News</h2>
-        <p class="lead">Stay informed about the latest environmental developments and sustainability initiatives</p>
-    </div>
+  <div class="mb-4 text-center">
+    <h2>Environmental News</h2>
+    <p class="lead">Stay informed about the latest environmental developments and sustainability initiatives</p>
+  </div>
 
-    <div class="row row-cols-1 row-cols-md-3 g-4">
-        {% if articles %}
-            {% for article in articles %}
-            <div class="col">
-                <div class="card h-100 shadow-sm">
-                    {% if article.urlToImage %}
-                    <img src="{{ article.urlToImage }}" class="card-img-top" alt="News Image" style="height: 200px; object-fit: cover;">
-                    {% else %}
-                    <div class="bg-light d-flex align-items-center justify-content-center" style="height: 200px;">
-                        <i class="fas fa-newspaper fa-3x text-body-secondary"></i>
-                    </div>
-                    {% endif %}
-                    <div class="card-body">
-                        <h5 class="card-title">{{ article.title }}</h5>
-                        <p class="card-text text-body-secondary small">
-                            {{ article.source.name }} • {{ article.publishedAt.split('T')[0] }}
-                        </p>
-                        <p class="card-text">{{ article.description[:150] }}...</p>
-                    </div>
-                    <div class="card-footer bg-transparent border-top-0">
-                        <a href="{{ article.url }}" class="btn btn-success btn-sm float-end" target="_blank">Read More</a>
-                    </div>
-                </div>
-            </div>
-            {% endfor %}
+  <div class="row row-cols-1 row-cols-md-3 g-4">
+    {% if articles %}
+    {% for article in articles %}
+    <div class="col">
+      <div class="card h-100 shadow-sm">
+        {% if article.urlToImage %}
+        <img src="{{ article.urlToImage }}" class="card-img-top" alt="News Image" style="height: 200px; object-fit: cover;">
         {% else %}
-            <div class="col-12 text-center">
-                <p>No news articles available at the moment. Please check back later.</p>
-            </div>
+        <div class="bg-light d-flex align-items-center justify-content-center" style="height: 200px;">
+          <i class="fas fa-newspaper fa-3x text-body-secondary"></i>
+        </div>
         {% endif %}
+        <div class="card-body">
+          <h5 class="card-title">{{ article.title }}</h5>
+          <p class="card-text text-body-secondary small">
+            {{ article.source.name }} • {{ article.publishedAt.split('T')[0] }}
+          </p>
+          <p class="card-text">{{ article.description[:150] }}...</p>
+        </div>
+        <div class="card-footer bg-transparent border-top-0">
+          <a href="{{ article.url }}" class="btn btn-success btn-sm float-end" target="_blank">Read More</a>
+        </div>
+      </div>
     </div>
+    {% endfor %}
+    {% else %}
+    <div class="col-12 text-center">
+      <p>No news articles available at the moment. Please check back later.</p>
+    </div>
+    {% endif %}
+  </div>
 </div>
 {% endblock %}

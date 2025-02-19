@@ -36,27 +36,23 @@ This platform integrates **secure authentication**, **volunteer management**, **
 - **Gamified Engagement**: 50% increase in eco-friendly actions via points/badges.
 - **Trackable Progress**: Users earn rewards for recycling, energy savings, etc.
 
-#### 5. **Eco-Impact Tracker**
-- **Data Visualization**: Displays CO₂ reduction, waste diverted, and energy saved.
-- **Milestone Celebrations**: Integrated with rewards and social sharing.
-
 ### 🌐 Community & Collaboration
 
-#### 6. **Social Media Platform (SDG 11)**
+#### 5. **Social Media Platform (SDG 11)**
 - **Centralized Hub**: Share tips, experiences, and achievements.
 - **Group Discussions**: Topic-specific forums (recycling, energy conservation).
 
-#### 7. **Real-Time Messaging (SDG 11)**
+#### 6. **Real-Time Messaging (SDG 11)**
 - **Chat Functionality**: 40% higher retention with instant collaboration.
 - **Public/Private Groups**: Foster peer support and project coordination.
 
 ### 🛠️ Management & Support
 
-#### 8. **AI Customer Service (SDG 9)**
+#### 7. **AI Customer Service (SDG 9)**
 - **24/7 Support**: AI chatbots reduce operational costs by 30%.
 - **Eco-Tips & Troubleshooting**: Instant answers to common queries.
 
-#### 9. **Administration Dashboard (SDG 17)**
+#### 8. **Administration Dashboard (SDG 17)**
 - **Analytics & Reporting**: Track user engagement and campaign effectiveness.
 - **Paperless Operations**: Reduces paper use by 80%.
 

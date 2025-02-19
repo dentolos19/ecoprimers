@@ -50,7 +50,6 @@
   border-radius: 50%;
 }
 
-
 #input-space {
   height: 80px;
 }
@@ -86,11 +85,12 @@
   overflow-y: auto;
 }
 
-#users .list-group-item, #users .form-control {
-  border: none !important
+#users .list-group-item,
+#users .form-control {
+  border: none !important;
 }
 
-.message{
+.message {
   max-width: 100px;
   height: auto;
 }
