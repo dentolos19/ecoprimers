@@ -1,3 +1,9 @@
+This business is about getting people to sign up for events that promote sustainably and eco-friendly habits.
+
 Generate a business recommendations based on the following JSON data.
+
+monthlyUsers = number of users who signed up every month
+monthlySignups = number of users who signed up for an event every month
+monthlyTransactions = number of transactions made every month
 
 {content}

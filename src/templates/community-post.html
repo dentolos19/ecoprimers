@@ -5,7 +5,9 @@
   <div class="card shadow mx-auto" style="width: 600px;">
     <!-- Header -->
     <div class="card-body bg-body-tertiary border-bottom d-flex justify-content-between align-items-center">
-      <h5 class="card-title m-0">{{ post.user.name }}</h5>
+      <h5 class="card-title m-0">
+        <a style="color: inherit; text-decoration: none;" href="{{ url_for('profile_other', id=post.user.id) }}">{{ post.user.name }}</a>
+      </h5>
       {% if post.user_id == user_id %}
       <div class="btn-group">
         <a class="btn btn-sm btn-primary" href="{{ url_for('community_edit', post_id=post.id) }}">
