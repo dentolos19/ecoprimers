@@ -56,7 +56,7 @@
               <div>{{ product.description if product.description else "No description provided." }}</div>
               {% if product.stock > 0 and user.points >= product.points %}
               <div class="mt-2 d-flex justify-content-center">
-                <div class="g-recaptcha" data-sitekey="6Ldk8skqAAAAADv8tINcjejBa3JllvFUrNKkxa30" data-theme="dark"></div>
+                <div class="g-recaptcha" data-sitekey="{{ env.get('GOOGLE_RECAPTCHA_SITE_KEY') }}" data-theme="dark"></div>
               </div>
               {% endif %}
             </div>

@@ -18,6 +18,8 @@ def init(app: Flask):
 
     app.config["GOOGLE_CLIENT_ID"] = os.environ.get("GOOGLE_CLIENT_ID")
     app.config["GOOGLE_CLIENT_SECRET"] = os.environ.get("GOOGLE_CLIENT_SECRET")
+    app.config["GOOGLE_RECAPTCHA_SITE_KEY"] = os.environ.get("GOOGLE_RECAPTCHA_SITE_KEY")
+    app.config["GOOGLE_RECAPTCHA_SECRET_KEY"] = os.environ.get("GOOGLE_RECAPTCHA_SECRET_KEY")
 
     oauth = OAuth(app)
 

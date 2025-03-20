@@ -19,11 +19,11 @@ def init(app: Flask):
         return
 
     # Load environment variables
-    app.config["GEMINI_API_KEY"] = os.environ.get("GEMINI_API_KEY")
-    app.config["GEMINI_AI_MODEL"] = "gemini-1.5-flash"
+    app.config["GOOGLE_API_KEY"] = os.environ.get("GOOGLE_API_KEY")
+    app.config["GOOGLE_AI_MODEL"] = os.environ.get("GOOGLE_AI_MODEL")
 
     # Initialize the AI model
-    agent = genai.Client(api_key=app.config["GEMINI_API_KEY"])
+    agent = genai.Client(api_key=app.config["GOOGLE_API_KEY"])
 
     initialized = True
 
@@ -33,7 +33,7 @@ def generate_text(prompt: str, return_json: bool = False):
 
     from main import app
 
-    model = app.config["GEMINI_AI_MODEL"]
+    model = app.config["GOOGLE_AI_MODEL"]
     response = agent.models.generate_content(
         model=model, contents=[prompt], config={"response_mime_type": "application/json"} if return_json else None
     )
@@ -50,7 +50,7 @@ def generate_structured(prompt: str):
 
     from main import app
 
-    model = app.config["GEMINI_AI_MODEL"]
+    model = app.config["GOOGLE_AI_MODEL"]
     response = agent.models.generate_content(
         model=model,
         contents=[prompt],
@@ -67,7 +67,7 @@ def analyze_image(prompt: str, image_path: str, return_json: bool = False):
 
     from main import app
 
-    model = app.config["GEMINI_AI_MODEL"]
+    model = app.config["GOOGLE_AI_MODEL"]
     image = PIL.Image.open(image_path)
     response = agent.models.generate_content(
         model=model,

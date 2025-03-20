@@ -18,6 +18,8 @@ from utils import require_login
 
 matplotlib.use("Agg")
 
+RECAPTCHA_SECRET_KEY = app.config["GOOGLE_RECAPTCHA_SECRET_KEY"]
+
 
 def is_valid_image(file):
     try:
@@ -172,8 +174,6 @@ def add_points():
 
     return redirect(url_for("rewards"))
 """
-
-RECAPTCHA_SECRET_KEY = "6Ldk8skqAAAAAPZgQrYfsfwoOGHQJ5z0q5ZNC4l5"
 
 
 @app.route("/engagement/redeem/<product_id>", methods=["POST"])
