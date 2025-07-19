@@ -1,28 +1,21 @@
-name: Fly Production Deployment
-run-name: "${{ github.workflow }} #${{ github.run_number }}"
+name: Fly Deployment
 on:
   push:
-    branches:
-      - main
-    paths:
-      - src/**
-      - Dockerfile
-      - fly.toml
-      - pyproject.toml
-      - uv.lock
   workflow_dispatch:
 concurrency:
   group: ${{ github.workflow }}
   cancel-in-progress: true
 jobs:
   deploy:
-    name: Deploy Production
+    name: Deploy
     runs-on: ubuntu-latest
     steps:
       - name: Checkout Source
         uses: actions/checkout@v4
-      - name: Setup Fly CLI
+
+      - name: Setup flyctl
         uses: superfly/flyctl-actions/setup-flyctl@v1
+
       - name: Deploy to Fly.io
         run: flyctl deploy
         env:
