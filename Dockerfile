@@ -1,21 +1,20 @@
-FROM python:3.13-slim-bookworm
+FROM python:3.13-slim
 
-# Install uv
 COPY --from=ghcr.io/astral-sh/uv:latest /uv /uvx /bin/
 
-# Set working directory
 WORKDIR /app
 
-# Install dependencies
-COPY pyproject.toml .
-COPY uv.lock .
-RUN uv sync --frozen --compile-bytecode --no-editable
+COPY pyproject.toml uv.lock ./
+RUN uv pip install --system -r pyproject.toml
 
-# Copy source code
 COPY . .
 
-# Expose port
-EXPOSE 5000
+RUN adduser -u 5678 --disabled-password --gecos "" app && chown -R app /app
+USER app
 
-# Run the application
-CMD ["uv", "run", "gunicorn", "--conf", "src/gunicorn.py", "--chdir", "src", "--bind", "0.0.0.0:5000", "main:app"]
+ENV PYTHONDONTWRITEBYTECODE=1
+ENV PYTHONUNBUFFERED=1
+
+EXPOSE 3000
+
+CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "3000", "--interface", "wsgi"]

@@ -1,23 +1,27 @@
-# IDE configurations
+# Editor configurations
 .vs/
 .idea/
+*.iml
 
 # Environment files
+.pytest_cache/
+.ruff_cache/
 .venv/
-venv/
-
-# User-specific files
-.env*
-!.env*.template
-*.db
-src/static/uploads/
-
-# Output files
+*.egg-info/
+__pycache__/
 build/
 dist/
-__pycache__/
+
+# User files
+.env*
+!.env*.template
+
+# Project files
+/static/uploads
+/data.db
 
 # Miscellaneous files
 .DS_Store
 Desktop.ini
 Thumbs.db
+!.gitkeep

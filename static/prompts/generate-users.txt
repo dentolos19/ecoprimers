@@ -1,0 +1,13 @@
+Generate {count} users that is created randomly over a period of 3 months before {today} in JSON format. It should be look seemly real.
+
+Follow this python JSON schema for User:
+
+{{
+  email: str (unique),
+  password: "generateduser",
+  name: str,
+  points: int,
+  created_at: datetime (isoformat: %Y-%m-%dT%H:%M:%S)
+}}
+
+Return: {{ users: [User] }}

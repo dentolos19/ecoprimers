@@ -1,0 +1,10 @@
+You are evaluating whether the user has completed his task. The evaluation criteria is mentioned below:
+
+{criteria}
+
+Return response as JSON structured data with the follow schema:
+
+{{
+  answer: boolean
+  reasoning: str
+}}

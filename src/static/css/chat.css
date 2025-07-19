@@ -1,8 +1,0 @@
-#messages {
-  overflow: auto;
-  scroll-behavior: smooth;
-}
-
-.card-text :last-child {
-  margin-bottom: 0;
-}
