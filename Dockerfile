@@ -1,12 +1,13 @@
 FROM python:3.13-slim
 
-# Install uv
+# Install system dependencies
+RUN apt-get update && apt-get install -y libpq-dev gcc && rm -rf /var/lib/apt/lists/*
 COPY --from=ghcr.io/astral-sh/uv:latest /uv /uvx /bin/
 
 # Set working directory
 WORKDIR /app
 
-# Install dependencies
+# Install project dependencies
 COPY pyproject.toml .
 COPY uv.lock .
 RUN uv sync --compile-bytecode

@@ -24,8 +24,7 @@ def init(app: Flask, local: bool = True):
     first_setup = False
 
     # Load environment variables
-    app.config["TURSO_DATABASE_URL"] = os.environ.get("TURSO_DATABASE_URL")
-    app.config["TURSO_AUTH_TOKEN"] = os.environ.get("TURSO_AUTH_TOKEN")
+    app.config["DATABASE_URL"] = os.environ.get("DATABASE_URL")
 
     if local:
         # Setup the local database folder
@@ -42,7 +41,7 @@ def init(app: Flask, local: bool = True):
 
         url = "sqlite:///" + database_file
     else:
-        url = f"sqlite+{app.config['TURSO_DATABASE_URL']}?/secure=true&authToken={app.config['TURSO_AUTH_TOKEN']}"
+        url = app.config["DATABASE_URL"]
 
     # Set the database environment
     app.config["SQLALCHEMY_DATABASE_URI"] = url
