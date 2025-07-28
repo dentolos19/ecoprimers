@@ -15,6 +15,10 @@ RUN uv sync --compile-bytecode
 # Copy source
 COPY . .
 
+# Set environment variables
+ENV FLASK_APP=src/main.py
+ENV FLASK_DEBUG=0
+
 # Expose port
 EXPOSE 5000
 
