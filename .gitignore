@@ -1,21 +1,16 @@
-# IDE configurations
+# Editor configurations
 .vs/
 .idea/
 
-# Environment files
+# Project files
 .venv/
-venv/
+__pycache__/
+src/static/uploads/
+*.db
 
-# User-specific files
+# User files
 .env*
 !.env*.template
-*.db
-src/static/uploads/
-
-# Output files
-build/
-dist/
-__pycache__/
 
 # Miscellaneous files
 .DS_Store
