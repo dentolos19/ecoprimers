@@ -32,7 +32,7 @@ jobs:
         working-directory: src-worker
         run: pnpm install
 
-      - name: Generate Types for App
+      - name: Generate Types
         working-directory: src-worker
         run: pnpm run cf:gen
 
@@ -41,5 +41,5 @@ jobs:
         with:
           accountId: ${{ secrets.CLOUDFLARE_ID }}
           apiToken: ${{ secrets.CLOUDFLARE_TOKEN }}
-          command: deploy --containers-rollout immediate
+          command: deploy
           workingDirectory: src-worker
