@@ -1,0 +1,16 @@
+# Editor configurations
+.vs/
+.idea/
+
+# Project files
+node_modules/
+*.d*
+
+# User files
+.env*
+!.env*.template
+
+# Miscellaneous files
+.DS_Store
+Desktop.ini
+Thumbs.db
