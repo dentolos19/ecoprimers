@@ -3,10 +3,8 @@
 .idea/
 
 # Project files
-.venv/
-__pycache__/
-src/static/uploads/
-*.db
+node_modules/
+*.d*
 
 # User files
 .env*

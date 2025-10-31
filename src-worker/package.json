@@ -1,0 +1,17 @@
+{
+  "name": "ecoprimers",
+  "private": true,
+  "scripts": {
+    "dev": "wrangler dev",
+    "cf:gen": "wrangler types --env-interface CloudflareEnv cloudflare-env.d.ts"
+  },
+  "devDependencies": {
+    "@types/node": "^24.9.2",
+    "typescript": "^5.9.3",
+    "wrangler": "^4.45.3"
+  },
+  "dependencies": {
+    "@cloudflare/containers": "^0.0.28",
+    "hono": "^4.10.4"
+  }
+}
