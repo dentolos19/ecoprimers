@@ -3,9 +3,8 @@ import os
 from flask import Flask
 from flask import session as flask_session
 from flask_sqlalchemy import SQLAlchemy
-from sqlalchemy.orm import Session
-
 from lib.models import Base, Event, Product, Task
+from sqlalchemy.orm import Session
 
 initialized: bool = False
 sql: SQLAlchemy = None
@@ -42,9 +41,13 @@ def init(app: Flask, local: bool = True):
         url = "sqlite:///" + database_file
     else:
         url = app.config["DATABASE_URL"]
+        if not url:
+            raise RuntimeError("DATABASE_URL environment variable is not set")
+        if url.startswith("postgres://"):
+            url = url.replace("postgres://", "postgresql://", 1)
 
     # Set the database environment
-    app.config["SQLALCHEMY_DATABASE_URI"] = url
+    app.config["SQLALCHEMY_DATABASE_URI"] = url.replace('"', "")
     app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = True
 
     # Initialize the database extension

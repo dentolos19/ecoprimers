@@ -2,37 +2,19 @@ import { Container as CloudflareContainer, getContainer } from "@cloudflare/cont
 import { Hono } from "hono";
 
 export class Container extends CloudflareContainer<CloudflareEnv> {
-  // Port the container listens on (default: 8080)
   defaultPort = 5000;
-
-  // Time before container sleeps due to inactivity (default: 30s)
-  sleepAfter = "1m";
-
-  // Environment variables passed to the container
-  envVars = {
-    ...(Object.fromEntries(Object.entries(process.env).filter(([, value]) => value !== undefined)) as Record<
-      string,
-      string
-    >),
-  };
-
-  override onStart() {
-    console.log("Container successfully started!");
-  }
-
-  override onStop() {
-    console.log("Container successfully stopped!");
-  }
-
-  override onError(error: any) {
-    console.error(error);
-  }
+  sleepAfter = "10m";
+  // @ts-ignore
+  envVars = Object.fromEntries(
+    Object.entries(this.env).filter(([, value]) => typeof value === "string" && !!value),
+  ) as Record<string, string>;
 }
 
 const app = new Hono<{ Bindings: CloudflareEnv }>();
 
 app.all("*", async (c) => {
-  return await getContainer(c.env.CONTAINER).fetch(c.req.raw);
+  const instance = getContainer<Container>(c.env.CONTAINER, "singleton");
+  return instance.fetch(c.req.raw);
 });
 
 export default app;

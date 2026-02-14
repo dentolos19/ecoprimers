@@ -14,8 +14,11 @@ dist/
 !.env*.template
 
 # Project files
-/src/static/uploads/**
+/src/static/uploads/
 *.db*
+
+# Container files
+src-worker/
 
 # Miscellaneous files
 .DS_Store

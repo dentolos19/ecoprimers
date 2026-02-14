@@ -1,26 +1,21 @@
 FROM python:3.13-slim
 
-# Install system dependencies
-RUN apt-get update && apt-get install -y libpq-dev gcc && rm -rf /var/lib/apt/lists/*
 COPY --from=ghcr.io/astral-sh/uv:latest /uv /uvx /bin/
 
-# Set working directory
 WORKDIR /app
 
-# Install project dependencies
 COPY pyproject.toml .
 COPY uv.lock .
-RUN uv sync --compile-bytecode
+RUN uv pip install --system -r pyproject.toml
 
-# Copy source
 COPY . .
 
-# Set environment variables
-ENV FLASK_APP=src/main.py
-ENV FLASK_DEBUG=0
+RUN adduser -u 5678 --disabled-password --gecos "" app && chown -R app /app
+USER app
 
-# Expose port
+ENV PYTHONDONTWRITEBYTECODE=1
+ENV PYTHONUNBUFFERED=1
+
 EXPOSE 5000
 
-# Run application
-CMD ["uv", "run", "gunicorn", "--conf", "src/gunicorn.py", "--chdir", "src", "--bind", "0.0.0.0:5000", "main:app"]
+CMD ["uvicorn", "main:app", "--app-dir", "src", "--host", "0.0.0.0", "--port", "5000", "--interface", "wsgi"]

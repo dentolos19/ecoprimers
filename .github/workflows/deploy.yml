@@ -1,4 +1,4 @@
-name: Cloudflare Deployment
+name: Web Deployment
 on:
   push:
     branches:
@@ -16,18 +16,12 @@ jobs:
       - name: Checkout Source
         uses: actions/checkout@v4
 
-      - name: Setup pnpm
-        uses: pnpm/action-setup@v4
-        with:
-          version: 10
+      - name: Setup Bun
+        uses: oven-sh/setup-bun@v2
 
       - name: Install Dependencies
         working-directory: src-worker
-        run: pnpm install --frozen-lockfile
-
-      - name: Generate Types
-        working-directory: src-worker
-        run: pnpm run cf:gen
+        run: bun install --frozen-lockfile
 
       - name: Deploy to Cloudflare
         uses: cloudflare/wrangler-action@v3

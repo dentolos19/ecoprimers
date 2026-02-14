@@ -1,16 +1,10 @@
-# Editor configurations
-.vs/
-.idea/
-
-# Project files
+# Environment files
+.wrangler/
 node_modules/
 *.d*
-
-# User files
-.env*
-!.env*.template
 
 # Miscellaneous files
 .DS_Store
 Desktop.ini
 Thumbs.db
+!.gitkeep

@@ -2,9 +2,9 @@
   "version": "0.2.0",
   "configurations": [
     {
-      "name": "Debug",
-      "type": "debugpy",
+      "name": "App",
       "request": "launch",
+      "type": "debugpy",
       "module": "flask",
       "args": ["run"],
       "env": {
@@ -13,6 +13,21 @@
       },
       "jinja": true,
       "autoStartBrowser": true
+    },
+    {
+      "name": "App (Docker)",
+      "request": "launch",
+      "type": "docker",
+      "preLaunchTask": "docker-run",
+      "python": {
+        "projectType": "flask",
+        "pathMappings": [
+          {
+            "localRoot": "${workspaceFolder}",
+            "remoteRoot": "/app"
+          }
+        ]
+      }
     }
   ]
 }

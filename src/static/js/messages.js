@@ -27,7 +27,7 @@ function displayMessage(message) {
     </form>
     `;
     console.log(
-      `test: logged in user = sender, sender id = ${message.sender_id}, current sender id = ${currentSenderId}`
+      `test: logged in user = sender, sender id = ${message.sender_id}, current sender id = ${currentSenderId}`,
     );
   } else if (message.receiver_id == currentSenderId && message.is_visible) {
     messageBlock.innerHTML = `
@@ -40,7 +40,7 @@ function displayMessage(message) {
     </form>
     `;
     console.log(
-      `test: logged in user = receiver, sender id = ${message.sender_id}, current sender id = ${currentSenderId}`
+      `test: logged in user = receiver, sender id = ${message.sender_id}, current sender id = ${currentSenderId}`,
     );
   }
   messageSpace.appendChild(messageBlock);
