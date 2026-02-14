@@ -192,7 +192,7 @@
   });
 
   // JavaScript to toggle the dropdown menu and hide it when clicking outside
-  document.addEventListener("click", function (event) {
+  document.addEventListener("click", (event) => {
     document.querySelectorAll(".dots-btn").forEach((button) => {
       const dropdown = button.nextElementSibling;
       if (button.contains(event.target)) {

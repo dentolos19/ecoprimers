@@ -35,7 +35,7 @@ export function toast(message, category) {
   }
 }
 
-document.addEventListener("DOMContentLoaded", function () {
+document.addEventListener("DOMContentLoaded", () => {
   // Enable Bootstrap Tooltips
   const tooltipTriggers = document.querySelectorAll("[data-bs-toggle='tooltip']");
   const tooltipList = [...tooltipTriggers].map((tooltipTrigger) => new bootstrap.Tooltip(tooltipTrigger));

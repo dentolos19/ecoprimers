@@ -2,9 +2,9 @@
   "version": "0.2.0",
   "configurations": [
     {
-      "name": "Debug",
-      "type": "debugpy",
+      "name": "App",
       "request": "launch",
+      "type": "debugpy",
       "module": "flask",
       "args": ["run"],
       "env": {

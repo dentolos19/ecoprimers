@@ -1,6 +1,5 @@
 import os
 
-import sentry_sdk
 from flask import Flask
 
 from lib import ai, database, google, payments, socket, storage
@@ -9,12 +8,6 @@ from utils import load_environment
 
 # Load environment variables
 load_environment()
-
-# Initialize Sentry monitoring
-sentry_sdk.init(
-    dsn="https://a9f0e36f0f4211d6ae869a69fbf94d1a@o4509741698121728.ingest.us.sentry.io/4509741698383872",
-    send_default_pii=True,
-)
 
 # Initialize Flask app
 app = Flask(__name__)

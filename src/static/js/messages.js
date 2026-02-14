@@ -27,7 +27,7 @@ function displayMessage(message) {
     </form>
     `;
     console.log(
-      `test: logged in user = sender, sender id = ${message.sender_id}, current sender id = ${currentSenderId}`
+      `test: logged in user = sender, sender id = ${message.sender_id}, current sender id = ${currentSenderId}`,
     );
   } else if (message.receiver_id == currentSenderId && message.is_visible) {
     messageBlock.innerHTML = `
@@ -40,14 +40,14 @@ function displayMessage(message) {
     </form>
     `;
     console.log(
-      `test: logged in user = receiver, sender id = ${message.sender_id}, current sender id = ${currentSenderId}`
+      `test: logged in user = receiver, sender id = ${message.sender_id}, current sender id = ${currentSenderId}`,
     );
   }
   messageSpace.appendChild(messageBlock);
   messageSpace.scrollTop = messageSpace.scrollHeight;
 }
 
-document.addEventListener("DOMContentLoaded", function () {
+document.addEventListener("DOMContentLoaded", () => {
   currentSenderId = document.querySelector("#sender-id").value;
   currentRecipientId = window.location.pathname.split("/")[3];
   console.log(currentRecipientId);
@@ -126,10 +126,10 @@ socket.on("receive_message", (message) => {
   }
 });
 
-document.addEventListener("DOMContentLoaded", function () {
+document.addEventListener("DOMContentLoaded", () => {
   const inputElement = document.querySelector("input#message");
 
-  inputElement.addEventListener("keypress", function (event) {
+  inputElement.addEventListener("keypress", (event) => {
     if (event.key === "Enter") {
       event.preventDefault(); // Prevent the default form submission
       sendMessage(); // Trigger the sendMessage function

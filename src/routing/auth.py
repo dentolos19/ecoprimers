@@ -1,8 +1,7 @@
 import os
 
 from flask import flash, redirect, render_template, request, session, url_for
-from sendgrid import SendGridAPIClient
-from sendgrid.helpers.mail import Mail
+import resend
 from werkzeug.security import check_password_hash, generate_password_hash
 
 from lib import google
@@ -10,27 +9,26 @@ from lib.database import sql
 from lib.models import User
 from main import app
 
-app.config["MAIL_SERVER"] = "smtp.sendgrid.net"
-app.config["MAIL_PORT"] = 587
-app.config["MAIL_USE_TLS"] = True
-app.config["MAIL_USERNAME"] = "apikey"
-app.config["MAIL_PASSWORD"] = os.environ.get("SENDGRID_API_KEY")
-app.config["MAIL_DEFAULT_SENDER"] = os.environ.get("MAIL_DEFAULT_SENDER")
-mail = Mail(app)
+resend.api_key = os.environ.get("RESEND_API_KEY")
 
 
 def send_welcome_email(user_email):
-    message = Mail(
-        from_email=os.environ.get("MAIL_DEFAULT_SENDER"),
-        to_emails=user_email,
-        subject="Welcome to Eco Primers!",
-        html_content="<strong>Thank you for signing up for Eco Primers. We are excited to have you on board!</strong>\n<p>Remember to set up your security code in case you forget your password</p>",
-    )
+    resend_from_email = os.environ.get("RESEND_FROM_EMAIL")
+
+    if not resend.api_key or not resend_from_email:
+        print("Error sending email: RESEND_API_KEY or RESEND_FROM_EMAIL is missing.")
+        return
+
+    params: resend.Emails.SendParams = {
+        "from": resend_from_email,
+        "to": [user_email],
+        "subject": "Welcome to Eco Primers!",
+        "html": "<strong>Thank you for signing up for Eco Primers. We are excited to have you on board!</strong>\n<p>Remember to set up your security code in case you forget your password</p>",
+    }
 
     try:
-        sg = SendGridAPIClient(os.environ.get("SENDGRID_API_KEY"))
-        response = sg.send(message)
-        print(f"Email sent with status code: {response.status_code}")
+        response: resend.Emails.SendResponse = resend.Emails.send(params)
+        print(f"Email sent with ID: {response['id']}")
     except Exception as e:
         print(f"Error sending email: {str(e)}")
 

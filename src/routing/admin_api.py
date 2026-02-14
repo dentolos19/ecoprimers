@@ -10,9 +10,14 @@ from main import app
 
 @app.route("/api/analysis")
 def api_analysis():
+    is_postgres = sql.engine.dialect.name == "postgresql"
+
     def get_monthly_data(model, data_limit):
+        month_expr = (
+            func.to_char(model.created_at, "YYYY-MM") if is_postgres else func.strftime("%Y-%m", model.created_at)
+        )
         monthly_data = (
-            sql.session.query(func.strftime("%Y-%m", model.created_at).label("month"), func.count(model.id))
+            sql.session.query(month_expr.label("month"), func.count(model.id))
             .filter(model.created_at >= data_limit)
             .group_by("month")
             .order_by("month")
