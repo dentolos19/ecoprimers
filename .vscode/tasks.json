@@ -1,0 +1,37 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "docker-build",
+      "type": "docker-build",
+      "platform": "python",
+      "dockerBuild": {
+        "tag": "ecoprimers:latest",
+        "dockerfile": "${workspaceFolder}/Dockerfile",
+        "context": "${workspaceFolder}",
+        "pull": true
+      }
+    },
+    {
+      "label": "docker-run",
+      "type": "docker-run",
+      "dependsOn": ["docker-build"],
+      "dockerRun": {
+        "env": {
+          "FLASK_APP": "src/main.py",
+          "FLASK_DEBUG": "1"
+        },
+        "ports": [
+          {
+            "hostPort": 5000,
+            "containerPort": 5000
+          }
+        ]
+      },
+      "python": {
+        "module": "flask",
+        "args": ["run", "--no-debugger", "--no-reload", "--host", "0.0.0.0", "--port", "5000"]
+      }
+    }
+  ]
+}

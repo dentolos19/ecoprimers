@@ -22,7 +22,8 @@
     hsla(0, 0%, 2%, 1) 1turn
   );
 
-  mask: radial-gradient(circle at 50% 50%, black 2px, transparent 2.5px) 50% 50% / var(--size) var(--size),
+  mask:
+    radial-gradient(circle at 50% 50%, black 2px, transparent 2.5px) 50% 50% / var(--size) var(--size),
     url("https://assets.codepen.io/605876/noise-mask.png") 256px 50% / 256px 256px;
   mask-composite: intersect;
   animation: flicker 20s infinite linear;
@@ -30,6 +31,8 @@
 
 @keyframes flicker {
   to {
-    mask-position: 50% 50%, 0 50%;
+    mask-position:
+      50% 50%,
+      0 50%;
   }
 }
