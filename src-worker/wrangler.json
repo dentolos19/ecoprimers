@@ -2,20 +2,15 @@
   "$schema": "node_modules/wrangler/config-schema.json",
   "name": "ecoprimers",
   "main": "index.ts",
-  "compatibility_date": "2025-10-01",
+  "compatibility_date": "2026-01-01",
   "compatibility_flags": ["nodejs_compat"],
   "keep_vars": true,
   "observability": {
     "logs": {
-      "enabled": true,
-      "persist": true,
-      "invocation_logs": true,
-      "head_sampling_rate": 1
+      "enabled": true
     },
     "traces": {
-      "enabled": true,
-      "persist": true,
-      "head_sampling_rate": 1
+      "enabled": true
     }
   },
   "routes": [
@@ -26,24 +21,24 @@
   ],
   "containers": [
     {
-      "class_name": "Container",
+      "class_name": "Server",
       "image": "../Dockerfile",
-      "max_instances": 5,
+      "max_instances": 1,
       "instance_type": "basic"
     }
   ],
   "durable_objects": {
     "bindings": [
       {
-        "name": "CONTAINER",
-        "class_name": "Container"
+        "name": "SERVER",
+        "class_name": "Server"
       }
     ]
   },
   "migrations": [
     {
       "tag": "v1",
-      "new_sqlite_classes": ["Container"]
+      "new_sqlite_classes": ["Server"]
     }
   ]
 }

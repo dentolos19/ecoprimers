@@ -2,17 +2,23 @@
 .vs/
 .idea/
 
-# Project files
+# Environment files
 .venv/
 __pycache__/
-src/static/uploads/
-*.db
+build/
+dist/
+*.spec
 
 # User files
 .env*
 !.env*.template
 
+# Project files
+/src/static/uploads/**
+*.db*
+
 # Miscellaneous files
 .DS_Store
 Desktop.ini
 Thumbs.db
+!.gitkeep
