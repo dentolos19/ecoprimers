@@ -1,29 +1,3 @@
-# Editor configurations
-.vs/
-.idea/
-*.iml
-
-# Environment files
-.venv/
-.pytest_cache/
-.ruff_cache/
-__pycache__/
-build/
-dist/
-
-# Environment files (Web)
-.wrangler/
-node_modules/
-*.d.ts
-
-# User files
-.env*
-!.env*.template
-
-# Project files
-/src/static/uploads/
-*.db*
-
 # Miscellaneous files
 .DS_Store
 Desktop.ini

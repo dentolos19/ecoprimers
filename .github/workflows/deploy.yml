@@ -12,19 +12,44 @@ jobs:
     name: Deploy
     environment: Production
     runs-on: ubuntu-latest
+    env:
+      CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+      CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
     steps:
       - name: Checkout Source
         uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v6
+        with:
+          node-version: latest
 
       - name: Setup Bun
         uses: oven-sh/setup-bun@v2
 
       - name: Install Dependencies
+        working-directory: src/server
         run: bun install --frozen-lockfile
 
+      - name: Upload Secrets
+        working-directory: src/server
+        run: |
+          echo "${{ secrets.SECRET_KEY }}" | bun wrangler secret put SECRET_KEY
+          echo "${{ secrets.DATABASE_URL }}" | bun wrangler secret put DATABASE_URL
+          echo "${{ secrets.STRIPE_SECRET_KEY }}" | bun wrangler secret put STRIPE_SECRET_KEY
+          echo "${{ secrets.STRIPE_PUBLIC_KEY }}" | bun wrangler secret put STRIPE_PUBLIC_KEY
+          echo "${{ secrets.GOOGLE_CLIENT_ID }}" | bun wrangler secret put GOOGLE_CLIENT_ID
+          echo "${{ secrets.GOOGLE_CLIENT_SECRET }}" | bun wrangler secret put GOOGLE_CLIENT_SECRET
+          echo "${{ secrets.GOOGLE_RECAPTCHA_SITE_KEY }}" | bun wrangler secret put GOOGLE_RECAPTCHA_SITE_KEY
+          echo "${{ secrets.GOOGLE_RECAPTCHA_SECRET_KEY }}" | bun wrangler secret put GOOGLE_RECAPTCHA_SECRET_KEY
+          echo "${{ secrets.OPENROUTER_API_KEY }}" | bun wrangler secret put OPENROUTER_API_KEY
+          echo "${{ vars.OPENROUTER_TITLE }}" | bun wrangler secret put OPENROUTER_TITLE
+          echo "${{ vars.OPENROUTER_REFERER }}" | bun wrangler secret put OPENROUTER_REFERER
+          echo "${{ vars.OPENROUTER_MODEL }}" | bun wrangler secret put OPENROUTER_MODEL
+          echo "${{ secrets.RESEND_API_KEY }}" | bun wrangler secret put RESEND_API_KEY
+          echo "${{ vars.RESEND_FROM_EMAIL }}" | bun wrangler secret put RESEND_FROM_EMAIL
+          echo "${{ secrets.OPENWEATHER_API_KEY }}" | bun wrangler secret put OPENWEATHER_API_KEY
+
       - name: Deploy to Cloudflare
-        uses: cloudflare/wrangler-action@v3
-        with:
-          accountId: ${{ secrets.CLOUDFLARE_ID }}
-          apiToken: ${{ secrets.CLOUDFLARE_TOKEN }}
-          command: deploy
+        working-directory: src/server
+        run: bun run deploy

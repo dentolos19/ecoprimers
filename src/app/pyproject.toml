@@ -1,0 +1,33 @@
+[project]
+name = "ecoprimers"
+version = "1.0.0"
+requires-python = ">=3.12,<3.14"
+dependencies = [
+  "authlib",
+  "flask-socketio",
+  "flask-sqlalchemy",
+  "flask",
+  "matplotlib",
+  "newsapi-python",
+  "openai",
+  "openmeteo-requests",
+  "openmeteo-sdk",
+  "pandas",
+  "pillow",
+  "plotly",
+  "psycopg2-binary",
+  "python-dotenv",
+  "resend",
+  "seaborn",
+  "sqlalchemy-libsql",
+  "stripe",
+  "urllib3-future<2.12",
+  "uvicorn",
+  "xlsxwriter",
+]
+
+[dependency-groups]
+dev = ["ruff"]
+
+[tool.ruff]
+line-length = 120

@@ -1,0 +1,42 @@
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "ecoprimers",
+  "main": "server.ts",
+  "account_id": "d910f54eba4cf3d1634aa41c3d9a93bc",
+  "compatibility_date": "2026-05-01",
+  "logpush": true,
+  "observability": {
+    "logs": {
+      "enabled": true
+    },
+    "traces": {
+      "enabled": true
+    }
+  },
+  "route": {
+    "pattern": "ecoprimers.dennise.me",
+    "custom_domain": true
+  },
+  "containers": [
+    {
+      "class_name": "Server",
+      "image": "../app/Dockerfile",
+      "max_instances": 1,
+      "instance_type": "basic"
+    }
+  ],
+  "durable_objects": {
+    "bindings": [
+      {
+        "name": "SERVER",
+        "class_name": "Server"
+      }
+    ]
+  },
+  "migrations": [
+    {
+      "tag": "v1",
+      "new_sqlite_classes": ["Server"]
+    }
+  ]
+}

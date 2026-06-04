@@ -1,0 +1,23 @@
+# Editor configurations
+.vs/
+.idea/
+*.iml
+
+# Environment files
+.wrangler/
+node_modules/
+dist/
+build/
+out/
+*.d.ts
+*.tsbuildinfo
+
+# User files
+.env*
+!.env*.template
+
+# Miscellaneous files
+.DS_Store
+Desktop.ini
+Thumbs.db
+!.gitkeep
