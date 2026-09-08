@@ -14,13 +14,15 @@ resend.api_key = os.environ.get("RESEND_API_KEY")
 
 def send_welcome_email(user_email):
     resend_from_email = os.environ.get("RESEND_FROM_EMAIL")
+    resend_from_name = os.environ.get("RESEND_FROM_NAME")
 
     if not resend.api_key or not resend_from_email:
         print("Error sending email: RESEND_API_KEY or RESEND_FROM_EMAIL is missing.")
         return
 
+    sender = f"{resend_from_name} <{resend_from_email}>" if resend_from_name else resend_from_email
     params: resend.Emails.SendParams = {
-        "from": resend_from_email,
+        "from": sender,
         "to": [user_email],
         "subject": "Welcome to Eco Primers!",
         "html": "<strong>Thank you for signing up for Eco Primers. We are excited to have you on board!</strong>\n<p>Remember to set up your security code in case you forget your password</p>",

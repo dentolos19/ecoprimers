@@ -2,7 +2,7 @@ import os
 
 from flask import Flask
 
-from lib import ai, database, google, payments, socket, storage
+from lib import ai, database, google, socket, storage
 from lib.socket import io as socketio
 from utils import load_environment
 
@@ -10,15 +10,14 @@ from utils import load_environment
 load_environment()
 
 # Initialize Flask app
-app = Flask(__name__)
+app = Flask(__name__, static_folder="../public", static_url_path="/static", template_folder="../templates")
 app.config["SECRET_KEY"] = os.environ.get("SECRET_KEY")
 app_debug = app.config["DEBUG"]
 
 # Initialize internal systems
-database.init(app, local=app_debug)
-storage.init(app, local=app_debug)
+database.init(app)
+storage.init(app)
 ai.init(app)
-payments.init(app)
 google.init(app)
 socket.init(app)
 

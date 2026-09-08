@@ -1,6 +1,5 @@
 import io
 
-import matplotlib
 import pandas as pd
 import plotly.express as px
 import plotly.io as pio
@@ -15,10 +14,6 @@ from lib.enums import TransactionType
 from lib.models import Product, Task, Transaction, User
 from main import app
 from utils import require_login
-
-matplotlib.use("Agg")
-
-RECAPTCHA_SECRET_KEY = app.config["GOOGLE_RECAPTCHA_SECRET_KEY"]
 
 
 def is_valid_image(file):
@@ -48,6 +43,9 @@ def tasks_verify(id):
     user_id = session.get("user_id")
     user = sql.session.query(User).filter_by(id=user_id).first()
 
+    if task is None:
+        return render_template("error.html", error="Task not found"), 404
+
     if request.method == "POST":
         # Collect data from the form
         image = request.files.get("image")
@@ -65,15 +63,17 @@ def tasks_verify(id):
             flash("Invalid image file! Please upload a valid image.", "danger")
             return redirect(request.url)
 
-        # Save the image to a file
-        path = storage.save_file(image)
-
         # Get prompt
-        with open("static/prompts/verify.txt", "r") as file:
+        with open("public/prompts/verify.txt", "r") as file:
             prompt = file.read().format(criteria=task.criteria)
 
         # Perform verification
-        result = ai.analyze_image(prompt, path, return_json=True)
+        result = ai.analyze_image(
+            prompt,
+            image.read(),
+            image.mimetype or "application/octet-stream",
+            return_json=True,
+        )
 
         print("Verification Result:", result)
         print("Answer: " + str(result["answer"]))
@@ -181,22 +181,39 @@ def add_points():
 def redeem_reward(product_id):
     user_id = session.get("user_id")
     reward_name = request.form.get("reward_name")
-    reward_cost = int(request.form.get("reward_cost"))
+    reward_cost_value = request.form.get("reward_cost")
+    if reward_cost_value is None:
+        flash("Invalid reward details.", "danger")
+        return redirect(url_for("rewards"))
 
-    # Verify reCAPTCHA
-    recaptcha_response = request.form.get("g-recaptcha-response")  # Get response from form
-    recaptcha_verify_url = "https://www.google.com/recaptcha/api/siteverify"
+    try:
+        reward_cost = int(reward_cost_value)
+    except ValueError:
+        flash("Invalid reward details.", "danger")
+        return redirect(url_for("rewards"))
 
-    payload = {
-        "secret": RECAPTCHA_SECRET_KEY,  # Your Google reCAPTCHA secret key
-        "response": recaptcha_response,
-    }
+    turnstile_response = request.form.get("cf-turnstile-response")
+    if not turnstile_response:
+        flash("Complete the security check before redeeming a reward.", "danger")
+        return redirect(url_for("rewards"))
 
-    response = requests.post(recaptcha_verify_url, data=payload)
-    result = response.json()
+    try:
+        response = requests.post(
+            "http://192.0.2.3/verify",
+            json={
+                "hostname": request.host.split(":", 1)[0],
+                "remoteip": request.headers.get("CF-Connecting-IP"),
+                "response": turnstile_response,
+            },
+            timeout=10,
+        )
+        result = response.json()
+    except (requests.RequestException, ValueError):
+        flash("The security check is unavailable. Please try again.", "danger")
+        return redirect(url_for("rewards"))
 
-    if not result.get("success"):
-        flash("reCAPTCHA verification failed. Please try again.", "danger")
+    if not response.ok or not result.get("success"):
+        flash("Turnstile verification failed. Please try again.", "danger")
         return redirect(url_for("rewards"))
 
     # Fetch the user

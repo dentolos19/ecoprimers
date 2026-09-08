@@ -3,7 +3,7 @@ import uuid
 from datetime import datetime
 from typing import List, Optional
 
-from sqlalchemy import DateTime, Enum, ForeignKey, func
+from sqlalchemy import DateTime, Enum, ForeignKey, LargeBinary, func
 from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column, relationship
 
 from lib.enums import TransactionType
@@ -15,6 +15,8 @@ class UserRole(str, enum.Enum):
 
 
 class Base(DeclarativeBase):
+    __table_args__ = {"implicit_returning": False}
+
     id: Mapped[str] = mapped_column(primary_key=True, default=lambda: str(uuid.uuid4()))
     updated_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=func.now(), onupdate=func.now())
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=func.now())
@@ -75,6 +77,14 @@ class EventAttendee(Base):
 
     event: Mapped["Event"] = relationship(back_populates="attendees")
     user: Mapped["User"] = relationship()
+
+
+class Asset(Base):
+    __tablename__ = "assets"
+
+    content_type: Mapped[str]
+    data: Mapped[bytes] = mapped_column(LargeBinary)
+    name: Mapped[str]
 
 
 class Post(Base):

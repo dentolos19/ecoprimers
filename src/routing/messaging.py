@@ -128,9 +128,11 @@ def delete_message(receiver_id, message_id):
         sql.session.query(Message).filter(and_(Message.receiver_id == receiver_id, Message.id == message_id)).first()
     )
 
-    if message:
-        message.is_visible = False
-        sql.session.commit()
+    if message is None:
+        return "Message not found", 404
+
+    message.is_visible = False
+    sql.session.commit()
 
     # Get the room before deleting the message
     room = (
@@ -155,7 +157,9 @@ def delete_message(receiver_id, message_id):
 
 @app.route("/community/messages/deleted")
 def deleted_messages():
-    messages = sql.session.query(Message).filter(and_(Message.sender_id == session["user_id"], not Message.is_visible))
+    messages = sql.session.query(Message).filter(
+        and_(Message.sender_id == session["user_id"], Message.is_visible.is_(False))
+    )
     for message in messages:
         print(message.message)
     return render_template("deleted_messages.html", messages=messages)

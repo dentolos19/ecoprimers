@@ -1,10 +1,11 @@
 import os
 from datetime import date
+from decimal import Decimal, InvalidOperation
 
-from flask import flash, redirect, render_template, request, session, url_for
+from flask import abort, flash, redirect, render_template, request, session, url_for
 from newsapi import NewsApiClient
 
-from lib import database, payments
+from lib import database
 from lib.database import sql
 from lib.models import Event, EventAttendee, User
 from main import app
@@ -30,16 +31,12 @@ def init():
         dark_mode_enabled=session.get("dark_mode", True),
     )
 
-    env = dict(
-        GOOGLE_API_KEY=os.environ.get("GOOGLE_API_KEY"),
-    )
-
-    return {**essentials, **utils, **env}
+    return {**essentials, **utils}
 
 
 @app.errorhandler(404)
 def error_notfound(error: Exception):
-    return render_template("error.html", error=error)
+    return render_template("error.html", error=error), 404
 
 
 @app.errorhandler(Exception)
@@ -49,6 +46,8 @@ def error_exception(error: Exception):
 
 @app.route("/error/reset", methods=["POST"])
 def error_reset():
+    if not app.debug:
+        abort(404)
     database.reset()
     flash("Database reset successfully!", "success")
     return redirect("/")
@@ -65,7 +64,7 @@ def toggle_dark_mode():
 @app.route("/home")
 def home():
     articles = []
-    news_api = NewsApiClient(api_key="9b8cdb155e0241bf8a3769991f8aa210")
+    news_api = NewsApiClient(api_key=os.environ.get("NEWS_API_KEY"))
 
     try:
         news = news_api.get_everything(
@@ -120,26 +119,22 @@ def events():
 def donation():
     if request.method == "POST":
         try:
-            amount = float(request.form["amount"])
-            if amount < 0.5:
-                return "Donation amount must be at least $0.50.", 400
-        except ValueError:
-            return "Invalid donation amount.", 400
+            amount = Decimal(request.form["amount"]).quantize(Decimal("0.01"))
+            if amount < Decimal("0.50"):
+                flash("Donation amount must be at least S$0.50.", "danger")
+                return redirect(url_for("donation"))
+        except (InvalidOperation, KeyError):
+            flash("Enter a valid donation amount.", "danger")
+            return redirect(url_for("donation"))
 
-        stripe_session = payments.pay(
-            amount, url_for("donation_success", _external=True), url_for("donation", _external=True)
-        )
+        if amount > Decimal("999999.00"):
+            flash("Donation amount must not exceed S$999,999.00.", "danger")
+            return redirect(url_for("donation"))
 
-        return redirect(stripe_session.url, code=303)
+        flash(f"Thank you for your S${amount:,.2f} donation!", "success")
+        return redirect(url_for("donation"))
 
     return render_template("donation.html")
-
-
-@app.route("/donation/success")
-@require_login
-def donation_success():
-    flash("Donation successful! Thank you for your support.", "success")
-    return redirect(url_for("donation"))
 
 
 @app.route("/event/details")
@@ -147,21 +142,23 @@ def event_info():
     event_id = request.args.get("id")
     event = sql.session.query(Event).filter_by(id=event_id).first()
 
+    if event is None:
+        return render_template("error.html", error="Event not found"), 404
+
     # num of attendees
     attendee_num = len(event.attendees)
 
-    if event:
-        location = event.location
-        weather_data = get_weather_data(location)
+    location = event.location
+    weather_data = get_weather_data(location)
 
-        if weather_data:
-            rain_chance = weather_data["rain_chance"]
-            temperature = weather_data["temperature"]
-            weather_description = weather_data["weather_description"]
-        else:
-            rain_chance = None
-            temperature = None
-            weather_description = "Weather data unavailable"
+    if weather_data:
+        rain_chance = weather_data["rain_chance"]
+        temperature = weather_data["temperature"]
+        weather_description = weather_data["weather_description"]
+    else:
+        rain_chance = None
+        temperature = None
+        weather_description = "Weather data unavailable"
 
     return render_template(
         "event-details.html",

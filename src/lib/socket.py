@@ -1,8 +1,10 @@
+from typing import cast
+
 from flask import Flask
 from flask_socketio import SocketIO
 
 initialized: bool = False
-io: SocketIO = None
+io = cast(SocketIO, None)
 
 
 def init(app: Flask):

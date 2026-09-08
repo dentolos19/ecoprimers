@@ -4,17 +4,14 @@
     {
       "name": "App",
       "request": "launch",
-      "type": "debugpy",
-      "cwd": "${workspaceFolder}",
-      "python": "${workspaceFolder}/.venv/bin/python",
-      "module": "flask",
-      "args": ["run", "--port", "3000"],
-      "env": {
-        "FLASK_APP": "main.py",
-        "FLASK_DEBUG": "1"
-      },
-      "jinja": true,
-      "autoStartBrowser": true
+      "type": "node-terminal",
+      "command": "make start",
+      "preLaunchTask": "Setup",
+      "serverReadyAction": {
+        "pattern": "Local:.+(https?://.+)",
+        "uriFormat": "%s",
+        "action": "openExternally"
+      }
     }
   ]
 }

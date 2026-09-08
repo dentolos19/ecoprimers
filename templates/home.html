@@ -110,38 +110,18 @@
 </div>
 
 
-<!-- Google Maps -->
+<!-- Location Map -->
 <div class="mt-5" style="height: 80%;">
   <div class="text-center">
     <h2>Our Location</h2>
     <p class="lead">Find us on the map below.</p>
   </div>
-  <div id="map" class="h-100"></div>
+  <iframe
+    class="border-0 h-100 w-100"
+    loading="lazy"
+    referrerpolicy="no-referrer"
+    src="https://www.openstreetmap.org/export/embed.html?bbox=103.8289%2C1.3601%2C103.8689%2C1.4001&amp;layer=mapnik&amp;marker=1.3801%2C103.8489"
+    title="Our location at Nanyang Polytechnic"
+  ></iframe>
 </div>
-
-<script src="https://maps.googleapis.com/maps/api/js?key={{ GOOGLE_API_KEY }}&callback=initMap" async defer></script>
-
-<script>
-  function initMap() {
-    const mapElement = document.querySelector("#map");
-
-    // NYP coordinates 1.380110884475648, 103.84895942386089
-    var location = { lat: 1.3801, lng: 103.8489 };
-
-    // Initialize the map centered at NYP
-    var map = new google.maps.Map(mapElement, {
-      zoom: 12,
-      center: location,
-    });
-
-    // Create a marker and set its position
-    var marker = new google.maps.Marker({
-      position: location,
-      map: map,
-      title: "Our Location"
-    });
-  }
-
-  window.addEventListener("load", initMap);
-</script>
 {% endblock %}

@@ -17,4 +17,4 @@ ENV PYTHONUNBUFFERED=1
 
 EXPOSE 3000
 
-CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "3000", "--interface", "wsgi"]
+CMD ["uvicorn", "main:app", "--app-dir", "src", "--host", "0.0.0.0", "--port", "3000", "--interface", "wsgi"]

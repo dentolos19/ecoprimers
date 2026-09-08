@@ -12,9 +12,13 @@ def api_messages():
         # Get data from search parameters
         sender_id = request.args.get("sender_id")
         receiver_id = request.args.get("receiver_id")
-        limit = request.args.get("limit")
-
-        if not limit:
+        limit_parameter = request.args.get("limit")
+        if limit_parameter:
+            try:
+                limit = int(limit_parameter)
+            except ValueError:
+                return {"error": "limit must be an integer"}, 400
+        else:
             limit = 50
 
         # Query messages in the database

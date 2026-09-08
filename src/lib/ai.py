@@ -1,10 +1,9 @@
 import base64
 import json
-import mimetypes
 import os
 
 from flask import Flask
-from openai import OpenAI
+from openai import OpenAI, omit
 
 initialized: bool = False
 agent: OpenAI | None = None
@@ -14,34 +13,36 @@ def _get_model_name(app: Flask) -> str:
     return app.config["OPENROUTER_MODEL"]
 
 
-def _create_text_completion(prompt: str, return_json: bool = False) -> str:
-    global agent
+def _get_agent() -> OpenAI:
+    if agent is None:
+        raise RuntimeError("The AI client has not been initialized.")
+    return agent
 
+
+def _create_text_completion(prompt: str, return_json: bool = False) -> str:
     from main import app
 
-    response = agent.chat.completions.create(
+    response = _get_agent().chat.completions.create(
         model=_get_model_name(app),
         messages=[{"role": "user", "content": prompt}],
-        response_format={"type": "json_object"} if return_json else None,
+        response_format={"type": "json_object"} if return_json else omit,
     )
 
     message = response.choices[0].message
     return (message.content or "").strip()
 
 
-def _create_image_completion(prompt: str, image_path: str, return_json: bool = False) -> str:
-    global agent
-
+def _create_image_completion(
+    prompt: str,
+    image_data: bytes,
+    mime_type: str,
+    return_json: bool = False,
+) -> str:
     from main import app
 
-    mime_type = mimetypes.guess_type(image_path)[0] or "image/jpeg"
+    image_url = f"data:{mime_type};base64,{base64.b64encode(image_data).decode('utf-8')}"
 
-    with open(image_path, "rb") as image_file:
-        image_data = base64.b64encode(image_file.read()).decode("utf-8")
-
-    image_url = f"data:{mime_type};base64,{image_data}"
-
-    response = agent.chat.completions.create(
+    response = _get_agent().chat.completions.create(
         model=_get_model_name(app),
         messages=[
             {
@@ -52,7 +53,7 @@ def _create_image_completion(prompt: str, image_path: str, return_json: bool = F
                 ],
             }
         ],
-        response_format={"type": "json_object"} if return_json else None,
+        response_format={"type": "json_object"} if return_json else omit,
     )
 
     message = response.choices[0].message
@@ -102,8 +103,8 @@ def generate_structured(prompt: str):
     return _create_text_completion(prompt, return_json=True)
 
 
-def analyze_image(prompt: str, image_path: str, return_json: bool = False):
-    text = _create_image_completion(prompt, image_path, return_json=return_json)
+def analyze_image(prompt: str, image_data: bytes, mime_type: str, return_json: bool = False):
+    text = _create_image_completion(prompt, image_data, mime_type, return_json=return_json)
 
     if return_json:
         return json.loads(text)

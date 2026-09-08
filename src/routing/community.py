@@ -55,6 +55,10 @@ def community_saved():
 @app.route("/community/<post_id>")
 def community_posted(post_id):
     post = sql.session.query(Post).filter_by(id=post_id).first()
+
+    if post is None:
+        return render_template("error.html", error="Post not found"), 404
+
     return render_template("community-post.html", post=post)
 
 
@@ -70,7 +74,7 @@ def community_post():
 
         if image:
             if storage.check_format(image, storage.media_extensions):
-                image_url = storage.upload_file(image)
+                image_url = storage.upload_asset(image)
             else:
                 flash("Not allowed")
                 return redirect(url_for("community_post"))
@@ -94,17 +98,25 @@ def community_post():
 def community_edit(post_id):
     post = sql.session.query(Post).filter_by(id=post_id).first()
 
+    if post is None:
+        return render_template("error.html", error="Post not found"), 404
+
     if request.method == "POST":
-        post.content = request.form["content"]
-        image = request.files["image"]
+        content = request.form.get("content")
+        if content is None:
+            flash("Post content is required.", "danger")
+            return redirect(url_for("community_edit", post_id=post_id))
+
+        post.content = content
+        image = request.files.get("image")
 
         if image:
             if storage.check_format(image, storage.media_extensions):
-                image_url = storage.upload_file(image)
+                image_url = storage.upload_asset(image)
                 post.image_url = image_url
             else:
                 flash("Not allowed")
-                return redirect(url_for("community_edit", id=post_id))
+                return redirect(url_for("community_edit", post_id=post_id))
 
         sql.session.commit()
 
@@ -117,6 +129,10 @@ def community_edit(post_id):
 @require_login
 def community_delete(post_id):
     post = sql.session.query(Post).filter_by(id=post_id).first()
+
+    if post is None:
+        return render_template("error.html", error="Post not found"), 404
+
     sql.session.delete(post)
     sql.session.commit()
     return redirect(url_for("community"))
@@ -185,6 +201,13 @@ def share_post(post_id):
     post = sql.session.query(Post).filter_by(id=post_id).first()
     user = utils.get_current_session()
     receipient_id = request.form.get("recipientId")
+
+    if post is None:
+        return render_template("error.html", error="Post not found"), 404
+
+    if not receipient_id:
+        flash("A recipient is required.", "danger")
+        return redirect(request.referrer or url_for("community"))
 
     post.shares += 1
 

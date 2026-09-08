@@ -12,7 +12,7 @@ def api_chat():
     history: list[dict] = data["history"]
 
     # Get master prompt
-    with open("static/prompts/customer-service.txt", "r") as file:
+    with open("public/prompts/customer-service.txt", "r") as file:
         master_prompt = file.read()
 
     # Build history context

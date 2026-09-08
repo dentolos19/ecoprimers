@@ -82,6 +82,9 @@ def profile_edit():
     user = sql.session.query(User).filter(User.id == user_id).first()
 
     if request.method == "POST":
+        if user is None:
+            return "User not found", 404
+
         user.email = request.form["email"]
         user.name = request.form["name"]
         user.bio = request.form["bio"]

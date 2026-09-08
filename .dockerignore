@@ -4,6 +4,8 @@
 *.iml
 
 # Environment files
+.wrangler/
+node_modules/
 .pytest_cache/
 .ruff_cache/
 .venv/
@@ -17,10 +19,10 @@ dist/
 !.env*.template
 
 # Project files
-/static/uploads
-/data.db
+/public/uploads/*
 
 # Miscellaneous files
+.tmp/
 .DS_Store
 Desktop.ini
 Thumbs.db

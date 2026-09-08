@@ -62,7 +62,7 @@ def api_analysis_recommend():
     data = api_analysis()
 
     # Get prompt
-    with open("static/prompts/generate-recommendations.txt", "r") as file:
+    with open("public/prompts/generate-recommendations.txt", "r") as file:
         prompt = file.read().format(content=data)
 
     # Generate response

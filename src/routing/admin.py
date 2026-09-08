@@ -46,7 +46,7 @@ def admin_events_new():
             flash("Invalid file type! Only images with extensions .png, .jpg, .jpeg, and .gif are allowed.", "danger")
             return redirect(request.url)
 
-        image_url = storage.upload_file(event_image)
+        image_url = storage.upload_asset(event_image)
 
         new_event = Event(
             title=event_title,
@@ -74,6 +74,9 @@ def admin_events_new():
 def admin_events_manage(id):
     # Query the event from the database
     event = sql.session.query(Event).filter_by(id=id).first()
+    if event is None:
+        flash("Event not found.", "danger")
+        return redirect(url_for("admin_events"))
 
     if request.method == "POST":
         # Collect data from the form
@@ -89,7 +92,7 @@ def admin_events_manage(id):
             flash("Invalid file type! Only images with extensions .png, .jpg, .jpeg, and .gif are allowed.", "danger")
             return redirect(request.url)
         elif event_image:
-            image_url = storage.upload_file(event_image)
+            image_url = storage.upload_asset(event_image)
 
         event.title = event_title
         event.description = event_description
@@ -114,6 +117,9 @@ def admin_events_manage(id):
 def admin_events_delete(id):
     # Query the event from the database
     event = sql.session.query(Event).filter_by(id=id).first()
+    if event is None:
+        flash("Event not found.", "danger")
+        return redirect(url_for("admin_events"))
 
     if request.method == "POST":
         event_title = request.form["title"]
@@ -193,6 +199,9 @@ def admin_users_new():
 def admin_users_manage(id):
     # Query the user from the database
     user = sql.session.query(User).filter_by(id=id).first()
+    if user is None:
+        flash("User not found.", "danger")
+        return redirect(url_for("admin_users"))
 
     if request.method == "POST":
         # Collect data from the form
@@ -233,6 +242,9 @@ def admin_users_manage(id):
 def admin_users_delete(id):
     # Query the user from the database
     user = sql.session.query(User).filter_by(id=id).first()
+    if user is None:
+        flash("User not found.", "danger")
+        return redirect(url_for("admin_users"))
 
     if request.method == "POST":
         # Collect data from the form
@@ -273,10 +285,10 @@ def admin_tasks():
 def admin_tasks_new():
     if request.method == "POST":
         # Collect data from the form
-        name = request.form.get("name")
-        description = request.form.get("description")
-        criteria = request.form.get("criteria")
-        points = request.form.get("points")
+        name = request.form["name"]
+        description = request.form["description"]
+        criteria = request.form["criteria"]
+        points = int(request.form["points"])
         image = request.files.get("image")
 
         image_url = None
@@ -284,7 +296,7 @@ def admin_tasks_new():
         # Validate form data
         if image:
             if storage.check_format(image, storage.image_extensions):
-                image_url = storage.upload_file(image)
+                image_url = storage.upload_asset(image)
             else:
                 flash("The file format is not allowed.", "danger")
                 return redirect(request.referrer)
@@ -317,13 +329,16 @@ def admin_tasks_new():
 def admin_tasks_manage(id):
     # Query the task from the database
     task = sql.session.query(Task).filter_by(id=id).first()
+    if task is None:
+        flash("Task not found.", "danger")
+        return redirect(url_for("admin_tasks"))
 
     if request.method == "POST":
         # Collect data from the form
-        name = request.form.get("name")
-        description = request.form.get("description")
-        criteria = request.form.get("criteria")
-        points = request.form.get("points")
+        name = request.form["name"]
+        description = request.form["description"]
+        criteria = request.form["criteria"]
+        points = int(request.form["points"])
         image = request.files.get("image")
 
         image_url = task.image_url
@@ -331,7 +346,7 @@ def admin_tasks_manage(id):
         # Validate form data
         if image:
             if storage.check_format(image, storage.image_extensions):
-                image_url = storage.upload_file(image)
+                image_url = storage.upload_asset(image)
             else:
                 flash("The file format is not allowed.", "danger")
                 return redirect(request.referrer)
@@ -361,6 +376,9 @@ def admin_tasks_manage(id):
 def admin_tasks_delete(id):
     # Query the task from the database
     task = sql.session.query(Task).filter_by(id=id).first()
+    if task is None:
+        flash("Task not found.", "danger")
+        return redirect(url_for("admin_tasks"))
 
     if request.method == "POST":
         # Collect data from the form
@@ -406,15 +424,15 @@ def admin_products_new():
         # Collect data from the form
         product_name = request.form["name"]
         product_description = request.form["description"]
-        product_points = request.form["points"]
-        product_stock = request.form["stock"]
+        product_points = int(request.form["points"])
+        product_stock = int(request.form["stock"])
         product_image = request.files["image"]
 
         image_url = None
 
         if product_image:
             if storage.check_format(product_image, storage.image_extensions):
-                image_url = storage.upload_file(product_image)
+                image_url = storage.upload_asset(product_image)
             else:
                 flash("The file format is not allowed.", "danger")
                 return redirect(request.referrer)
@@ -447,20 +465,23 @@ def admin_products_new():
 def admin_products_manage(id):
     # Query the product from the database
     product = sql.session.query(Product).filter_by(id=id).first()
+    if product is None:
+        flash("Product not found.", "danger")
+        return redirect(url_for("admin_products"))
 
     if request.method == "POST":
         # Collect data from the form
         product_name = request.form["name"]
         product_description = request.form["description"]
-        product_points = request.form["points"]
-        product_stock = request.form["stock"]
+        product_points = int(request.form["points"])
+        product_stock = int(request.form["stock"])
         product_image = request.files["image"]
 
         image_url = product.image_url
 
         if product_image:
             if storage.check_format(product_image, storage.image_extensions):
-                image_url = storage.upload_file(product_image)
+                image_url = storage.upload_asset(product_image)
             else:
                 flash("The file format is not allowed.", "danger")
                 return redirect(url_for("admin_products_manage", id=id))
@@ -490,6 +511,9 @@ def admin_products_manage(id):
 def admin_products_delete(id):
     # Query the product from the database
     product = sql.session.query(Product).filter_by(id=id).first()
+    if product is None:
+        flash("Product not found.", "danger")
+        return redirect(url_for("admin_products"))
 
     if request.method == "POST":
         # Collect data from the form
@@ -526,6 +550,10 @@ def admin_transactions():
 def admin_transactions_view(id):
     # Query the transaction and user from the database
     transaction = sql.session.query(Transaction).filter_by(id=id).first()
+    if transaction is None:
+        flash("Transaction not found.", "danger")
+        return redirect(url_for("admin_transactions"))
+
     user = sql.session.query(User).filter_by(id=transaction.user_id).first()
 
     return render_template("admin/transactions-view.html", transaction=transaction, user=user)
@@ -536,12 +564,15 @@ def admin_transactions_view(id):
 def admin_transactions_delete(id):
     # Query the transaction from the database
     transaction = sql.session.query(Transaction).filter_by(id=id).first()
+    if transaction is None:
+        flash("Transaction not found.", "danger")
+        return redirect(url_for("admin_transactions"))
 
     if request.method == "POST":
         # Collect data from the form
         transaction_id = request.form["id"]
 
-        if transaction.id != int(transaction_id):
+        if transaction.id != transaction_id:
             flash("The transaction ID does not match. Please try again.", "danger")
             return redirect(url_for("admin_transactions_delete", id=id))
 
@@ -595,7 +626,7 @@ def admin_advanced_generate_users():
     count = int(request.form["count"])
 
     # Get prompt
-    with open("static/prompts/generate-users.txt", "r") as file:
+    with open("public/prompts/generate-users.txt", "r") as file:
         prompt = file.read().format(count=count, today=datetime.now().strftime("%Y-%m-%d"))
 
     # Generate response
@@ -609,7 +640,7 @@ def admin_advanced_generate_users():
 
     try:
         # Add the users to the database
-        sql.session.bulk_insert_mappings(User, users)
+        sql.session.bulk_insert_mappings(User.__mapper__, users)
         sql.session.commit()
         flash("Users generated successfully!", "success")
     except Exception as e:
