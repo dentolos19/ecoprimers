@@ -1,21 +1,14 @@
 import os
-from pathlib import Path
 from typing import Any, cast
 
-from alembic import command
-from alembic.config import Config
 from flask import Flask
 from flask import session as flask_session
 from flask_sqlalchemy import SQLAlchemy
 from lib.models import Base
-from sqlalchemy import create_engine
-from sqlalchemy.pool import NullPool
 
 initialized: bool = False
 sql = cast(SQLAlchemy, None)
 session: Any = None
-
-project_dir = Path(__file__).resolve().parents[2]
 
 
 def get_url() -> str:
@@ -29,11 +22,20 @@ def get_url() -> str:
     return url
 
 
-def _alembic_config() -> Config:
+def _alembic_config():
+    from pathlib import Path
+
+    from alembic.config import Config
+
+    project_dir = Path(__file__).resolve().parents[2]
     return Config(project_dir / "alembic.ini")
 
 
 def _migrate(revision: str = "head") -> None:
+    from alembic import command
+    from sqlalchemy import create_engine
+    from sqlalchemy.pool import NullPool
+
     engine = create_engine(get_url(), poolclass=NullPool)
     try:
         with engine.connect() as connection:
@@ -50,9 +52,9 @@ def init(app: Flask) -> None:
     if initialized:
         return
 
-    _migrate()
+    # Deployment runs migrations before rollout; remote database I/O must not block container startup.
     app.config["SQLALCHEMY_DATABASE_URI"] = get_url()
-    app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = True
+    app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
 
     sql = SQLAlchemy(model_class=Base)
     session = sql.session
@@ -65,6 +67,10 @@ def setup() -> None:
 
 
 def reset() -> None:
+    from alembic import command
+    from sqlalchemy import create_engine
+    from sqlalchemy.pool import NullPool
+
     sql.session.remove()
 
     config = _alembic_config()

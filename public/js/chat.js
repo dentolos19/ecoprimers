@@ -1,4 +1,5 @@
 import { marked } from "https://cdn.jsdelivr.net/npm/marked/lib/marked.esm.js";
+
 import { toast } from "./base.js";
 
 const messagesElement = document.getElementById("messages");

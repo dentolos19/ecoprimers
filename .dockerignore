@@ -1,9 +1,8 @@
 # Editor configurations
 .vs/
 .idea/
-*.iml
 
-# Environment files
+# Build files
 .wrangler/
 node_modules/
 .pytest_cache/
@@ -18,8 +17,11 @@ dist/
 .env*
 !.env*.template
 
-# Project files
+# Project-specific rules
 /public/uploads/*
+
+# Docker-specific rules
+.git/
 
 # Miscellaneous files
 .tmp/

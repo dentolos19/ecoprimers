@@ -3,7 +3,7 @@ import uuid
 from datetime import datetime
 from typing import List, Optional
 
-from sqlalchemy import DateTime, Enum, ForeignKey, LargeBinary, func
+from sqlalchemy import DateTime, Enum, ForeignKey, func
 from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column, relationship
 
 from lib.enums import TransactionType
@@ -77,14 +77,6 @@ class EventAttendee(Base):
 
     event: Mapped["Event"] = relationship(back_populates="attendees")
     user: Mapped["User"] = relationship()
-
-
-class Asset(Base):
-    __tablename__ = "assets"
-
-    content_type: Mapped[str]
-    data: Mapped[bytes] = mapped_column(LargeBinary)
-    name: Mapped[str]
 
 
 class Post(Base):

@@ -1,12 +1,8 @@
 import io
+import os
 
-import pandas as pd
-import plotly.express as px
-import plotly.io as pio
 import requests
 from flask import flash, redirect, render_template, request, send_file, session, url_for
-from newsapi import NewsApiClient
-from PIL import Image
 
 from lib import ai, storage
 from lib.database import sql
@@ -17,6 +13,8 @@ from utils import require_login
 
 
 def is_valid_image(file):
+    from PIL import Image
+
     try:
         img = Image.open(io.BytesIO(file.read()))
         img.verify()  # Verify it's an image
@@ -272,6 +270,8 @@ def transactions():
 # excel file as database
 @app.route("/transactions/export")
 def export_transactions():
+    import xlsxwriter
+
     user_id = session.get("user_id")
 
     # Fetch user transactions
@@ -293,13 +293,19 @@ def export_transactions():
         for transaction in user_transactions
     ]
 
-    # Convert to Pandas DataFrame
-    df = pd.DataFrame(transactions_data)
-
-    # Save to an in-memory Excel file
     output = io.BytesIO()
-    with pd.ExcelWriter(output, engine="xlsxwriter") as writer:
-        df.to_excel(writer, index=False, sheet_name="Transactions")
+    workbook = xlsxwriter.Workbook(output, {"in_memory": True})
+    worksheet = workbook.add_worksheet("Transactions")
+    header = workbook.add_format({"bold": True})
+
+    columns = list(transactions_data[0])
+    for column, name in enumerate(columns):
+        worksheet.write(0, column, name, header)
+    for row, transaction in enumerate(transactions_data, start=1):
+        for column, name in enumerate(columns):
+            worksheet.write(row, column, transaction[name])
+
+    workbook.close()
 
     output.seek(0)
 
@@ -396,6 +402,11 @@ def dashboard():
 @app.route("/transactions/dashboard")
 @require_login
 def dashboard():
+    from collections import defaultdict
+
+    import plotly.graph_objects as go
+    import plotly.io as pio
+
     user_id = session.get("user_id")
 
     # api call for weather app
@@ -404,70 +415,76 @@ def dashboard():
         sql.session.query(Transaction).filter_by(user_id=user_id).order_by(Transaction.created_at.asc()).all()
     )
 
-    # Convert transactions to DataFrame
-    df = pd.DataFrame(
-        [
-            {
-                "Date": transaction.created_at.strftime("%Y-%m-%d"),
-                "Type": transaction.type.value,
-                "Amount": transaction.amount,
-            }
-            for transaction in transactions
-        ]
-    )
-
-    if df.empty:
+    if not transactions:
         return "No data available for visualization.", 404
 
-    # Calculate KPIs
-    total_earned = df[df["Type"] == "earned"]["Amount"].sum()
-    total_redeemed = abs(df[df["Type"] == "redemption"]["Amount"].sum())
+    amounts = [transaction.amount for transaction in transactions]
+    dates = [transaction.created_at.strftime("%Y-%m-%d") for transaction in transactions]
+    types = [transaction.type.value for transaction in transactions]
+    total_earned = sum(amount for amount, transaction_type in zip(amounts, types) if transaction_type == "earned")
+    total_redeemed = abs(
+        sum(amount for amount, transaction_type in zip(amounts, types) if transaction_type == "redemption")
+    )
     net_transactions = total_earned - total_redeemed
 
-    # Interactive Bar Chart
-    bar_fig = px.bar(
-        df,
-        x="Type",
-        y="Amount",
-        color="Type",
-        title="Transaction Analysis by Type",
-        color_discrete_map={"earned": "#28a745", "redemption": "#dc3545"},
-        labels={"Amount": "Points", "Type": "Transaction Type"},
+    colors = {"earned": "#28a745", "redemption": "#dc3545"}
+    bar_fig = go.Figure(
+        data=go.Bar(
+            marker_color=[colors.get(transaction_type, "#6c757d") for transaction_type in types],
+            x=types,
+            y=amounts,
+        )
     )
-    bar_fig.update_layout(showlegend=False, plot_bgcolor="white", hovermode="x unified")
+    bar_fig.update_layout(
+        hovermode="x unified",
+        plot_bgcolor="white",
+        showlegend=False,
+        title="Transaction Analysis by Type",
+        xaxis_title="Transaction Type",
+        yaxis_title="Points",
+    )
     bar_chart_html = pio.to_html(bar_fig, full_html=False)
 
-    # Interactive Line Chart
-    df_grouped = df.groupby("Date")["Amount"].sum().reset_index()
-    line_fig = px.line(
-        df_grouped,
-        x="Date",
-        y="Amount",
-        title="Daily Points Activity",
-        markers=True,
-        labels={"Amount": "Points", "Date": "Transaction Date"},
+    daily_amounts = defaultdict(int)
+    for date, amount in zip(dates, amounts):
+        daily_amounts[date] += amount
+    line_fig = go.Figure(
+        data=go.Scatter(
+            line={"color": "#0d6efd"},
+            mode="lines+markers",
+            x=list(daily_amounts),
+            y=list(daily_amounts.values()),
+        )
     )
-    line_fig.update_layout(plot_bgcolor="white", hovermode="x unified")
-    line_fig.update_traces(line_color="#0d6efd")
+    line_fig.update_layout(
+        hovermode="x unified",
+        plot_bgcolor="white",
+        title="Daily Points Activity",
+        xaxis_title="Transaction Date",
+        yaxis_title="Points",
+    )
     line_chart_html = pio.to_html(line_fig, full_html=False)
 
-    # Pie Chart for Transaction Distribution
-    pie_fig = px.pie(
-        df,
-        names="Type",
-        values="Amount",
-        title="Transaction Distribution",
-        color="Type",
-        color_discrete_map={"earned": "#28a745", "redemption": "#dc3545"},
+    type_amounts = defaultdict(int)
+    for transaction_type, amount in zip(types, amounts):
+        type_amounts[transaction_type] += amount
+    pie_types = list(type_amounts)
+    pie_fig = go.Figure(
+        data=go.Pie(
+            labels=pie_types,
+            marker={"colors": [colors.get(transaction_type, "#6c757d") for transaction_type in pie_types]},
+            values=list(type_amounts.values()),
+        )
     )
+    pie_fig.update_layout(title="Transaction Distribution")
     pie_chart_html = pio.to_html(pie_fig, full_html=False)
 
-    # Calculate statistics
+    daily_totals = list(daily_amounts.values())
     stats = {
-        "avg_transaction": df["Amount"].mean(),
-        "max_transaction": df["Amount"].max(),
-        "total_transactions": len(df),
-        "daily_average": df.groupby("Date")["Amount"].sum().mean(),
+        "avg_transaction": sum(amounts) / len(amounts),
+        "daily_average": sum(daily_totals) / len(daily_totals),
+        "max_transaction": max(amounts),
+        "total_transactions": len(transactions),
     }
 
     return render_template(
@@ -485,7 +502,9 @@ def dashboard():
 # entire news section page
 @app.route("/news")
 def news():
-    newsapi = NewsApiClient(api_key="9b8cdb155e0241bf8a3769991f8aa210")
+    from newsapi import NewsApiClient
+
+    newsapi = NewsApiClient(api_key=os.environ.get("NEWS_API_KEY"))
 
     try:
         environmental_news = newsapi.get_everything(

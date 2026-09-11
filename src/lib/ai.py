@@ -3,23 +3,38 @@ import json
 import os
 
 from flask import Flask
-from openai import OpenAI, omit
 
 initialized: bool = False
-agent: OpenAI | None = None
+agent = None
 
 
 def _get_model_name(app: Flask) -> str:
     return app.config["OPENROUTER_MODEL"]
 
 
-def _get_agent() -> OpenAI:
+def _get_agent():
+    global agent
+
     if agent is None:
-        raise RuntimeError("The AI client has not been initialized.")
+        from openai import OpenAI
+
+        headers: dict[str, str] = {}
+        if os.environ.get("OPENROUTER_REFERER"):
+            headers["HTTP-Referer"] = os.environ["OPENROUTER_REFERER"]
+        if os.environ.get("OPENROUTER_TITLE"):
+            headers["X-OpenRouter-Title"] = os.environ["OPENROUTER_TITLE"]
+
+        agent = OpenAI(
+            api_key=os.environ.get("OPENROUTER_API_KEY"),
+            base_url="https://openrouter.ai/api/v1",
+            default_headers=headers or None,
+        )
     return agent
 
 
 def _create_text_completion(prompt: str, return_json: bool = False) -> str:
+    from openai import omit
+
     from main import app
 
     response = _get_agent().chat.completions.create(
@@ -38,6 +53,8 @@ def _create_image_completion(
     mime_type: str,
     return_json: bool = False,
 ) -> str:
+    from openai import omit
+
     from main import app
 
     image_url = f"data:{mime_type};base64,{base64.b64encode(image_data).decode('utf-8')}"
@@ -62,7 +79,6 @@ def _create_image_completion(
 
 def init(app: Flask):
     global initialized
-    global agent
 
     # Skip if AI model is already initialized
     if initialized:
@@ -73,20 +89,6 @@ def init(app: Flask):
     app.config["OPENROUTER_MODEL"] = os.environ.get("OPENROUTER_MODEL")
     app.config["OPENROUTER_REFERER"] = os.environ.get("OPENROUTER_REFERER")
     app.config["OPENROUTER_TITLE"] = os.environ.get("OPENROUTER_TITLE")
-
-    headers: dict[str, str] = {}
-
-    if app.config["OPENROUTER_TITLE"]:
-        headers["X-OpenRouter-Title"] = app.config["OPENROUTER_TITLE"]
-    if app.config["OPENROUTER_REFERER"]:
-        headers["HTTP-Referer"] = app.config["OPENROUTER_REFERER"]
-
-    # Initialize the AI model
-    agent = OpenAI(
-        base_url="https://openrouter.ai/api/v1",
-        api_key=app.config["OPENROUTER_API_KEY"],
-        default_headers=headers if headers else None,
-    )
 
     initialized = True
 

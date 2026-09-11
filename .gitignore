@@ -2,7 +2,7 @@
 .vs/
 .idea/
 
-# Environment files
+# Build files
 .wrangler/
 node_modules/
 .pytest_cache/
@@ -17,7 +17,7 @@ dist/
 .env*
 !.env*.template
 
-# Project files
+# Project-specific rules
 /public/uploads/*
 
 # Miscellaneous files

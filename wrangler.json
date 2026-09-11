@@ -3,6 +3,9 @@
   "name": "ecoprimers",
   "main": "src/server.ts",
   "compatibility_date": "2026-09-01",
+  "dev": {
+    "host": "localhost:3000"
+  },
   "observability": {
     "enabled": true
   },
@@ -15,7 +18,7 @@
       "name": "ecoprimers-container",
       "class_name": "Container",
       "image": "./Dockerfile",
-      "instance_type": "basic",
+      "instance_type": "standard-1",
       "max_instances": 1
     }
   ],

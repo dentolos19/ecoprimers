@@ -5,12 +5,12 @@ requires-python = ">=3.12,<3.14"
 dependencies = [
   "alembic",
   "authlib",
+  "boto3>=1.43.97",
   "flask",
   "flask-socketio",
   "flask-sqlalchemy",
   "newsapi-python",
   "openai",
-  "pandas",
   "pillow",
   "plotly",
   "psycopg[binary]",
@@ -23,7 +23,7 @@ dependencies = [
 ]
 
 [dependency-groups]
-dev = ["ty", "ruff"]
+dev = ["ruff", "ty"]
 
 [tool.ruff]
 line-length = 120

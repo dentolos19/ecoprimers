@@ -1,19 +1,31 @@
-FROM python:3.13-slim
+FROM python:3.13-slim AS builder
 
 COPY --from=ghcr.io/astral-sh/uv:latest /uv /uvx /bin/
 
 WORKDIR /app
 
 COPY pyproject.toml uv.lock ./
-RUN uv pip install --system -r pyproject.toml
+RUN uv sync --frozen --no-dev --no-install-project
 
-COPY . .
+FROM python:3.13-slim
 
+WORKDIR /app
+
+COPY --from=builder /app/.venv /app/.venv
+
+COPY alembic.ini ./
+COPY migrations ./migrations
+COPY public ./public
+COPY src ./src
+COPY templates ./templates
+
+RUN python -m compileall -q src
 RUN adduser -u 5678 --disabled-password --gecos "" app && chown -R app /app
 USER app
 
 ENV PYTHONDONTWRITEBYTECODE=1
 ENV PYTHONUNBUFFERED=1
+ENV PATH="/app/.venv/bin:$PATH"
 
 EXPOSE 3000
 

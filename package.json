@@ -4,11 +4,13 @@
   "scripts": {
     "dev": "wrangler dev --port 3000",
     "deploy": "wrangler deploy",
-    "check": "tsc --noEmit"
+    "check": "oxlint --fix && oxfmt --write && tsc --noEmit"
   },
   "devDependencies": {
     "@cloudflare/containers": "0.3.7",
     "@cloudflare/workers-types": "5.20260908.1",
+    "oxfmt": "^0.55.0",
+    "oxlint": "^1.82.0",
     "typescript": "^5.9.2",
     "wrangler": "4.129.1"
   }

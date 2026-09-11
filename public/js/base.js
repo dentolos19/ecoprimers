@@ -38,7 +38,7 @@ export function toast(message, category) {
 document.addEventListener("DOMContentLoaded", () => {
   // Enable Bootstrap Tooltips
   const tooltipTriggers = document.querySelectorAll("[data-bs-toggle='tooltip']");
-  const tooltipList = [...tooltipTriggers].map((tooltipTrigger) => new bootstrap.Tooltip(tooltipTrigger));
+  tooltipTriggers.forEach((tooltipTrigger) => new bootstrap.Tooltip(tooltipTrigger));
 
   // Add placeholder images
   document.querySelectorAll("img").forEach((img) => {

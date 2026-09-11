@@ -5,10 +5,11 @@
       "name": "App",
       "request": "launch",
       "type": "node-terminal",
-      "command": "make start",
+      "command": "just start",
       "preLaunchTask": "Setup",
+      "postDebugTask": "Decompose",
       "serverReadyAction": {
-        "pattern": "Local:.+(https?://.+)",
+        "pattern": "Ready on +(https?://.+)",
         "uriFormat": "%s",
         "action": "openExternally"
       }

@@ -3,6 +3,10 @@ import { Container as CloudflareContainer, getContainer } from "@cloudflare/cont
 export { ContainerProxy } from "@cloudflare/containers";
 
 interface Env {
+  AWS_ACCESS_KEY_ID: string;
+  AWS_ENDPOINT_URL_S3: string;
+  AWS_REGION: string;
+  AWS_SECRET_ACCESS_KEY: string;
   CONTAINER: DurableObjectNamespace<Container>;
   DATABASE_URL: string;
   GOOGLE_CLIENT_ID: string;
@@ -53,9 +57,12 @@ export class Container extends CloudflareContainer<Env> {
           body.hostname &&
           result.hostname === body.hostname,
         );
-        return Response.json({ ...result, success }, {
-          status: response.ok ? 200 : 502,
-        });
+        return Response.json(
+          { ...result, success },
+          {
+            status: response.ok ? 200 : 502,
+          },
+        );
       } catch (error) {
         const message = error instanceof Error ? error.message : "Turnstile verification failed";
         throw new Error(`Unable to verify Turnstile response: ${message}`);
@@ -66,7 +73,11 @@ export class Container extends CloudflareContainer<Env> {
   defaultPort = 3000;
   enableInternet = true;
   envVars = {
-    DATABASE_URL: this.env.DATABASE_URL,
+    AWS_ACCESS_KEY_ID: this.env.AWS_ACCESS_KEY_ID,
+    AWS_ENDPOINT_URL_S3: this.env.AWS_ENDPOINT_URL_S3.replace("//localhost:", "//host.docker.internal:"),
+    AWS_REGION: this.env.AWS_REGION,
+    AWS_SECRET_ACCESS_KEY: this.env.AWS_SECRET_ACCESS_KEY,
+    DATABASE_URL: this.env.DATABASE_URL.replace("@localhost:", "@host.docker.internal:"),
     GOOGLE_CLIENT_ID: this.env.GOOGLE_CLIENT_ID,
     GOOGLE_CLIENT_SECRET: this.env.GOOGLE_CLIENT_SECRET,
     NEWS_API_KEY: this.env.NEWS_API_KEY,
@@ -86,6 +97,6 @@ export class Container extends CloudflareContainer<Env> {
 
 export default {
   async fetch(request: Request, env: Env) {
-    return getContainer(env.CONTAINER).fetch(request);
+    return getContainer(env.CONTAINER, "singleton").fetch(request);
   },
 } satisfies ExportedHandler<Env>;

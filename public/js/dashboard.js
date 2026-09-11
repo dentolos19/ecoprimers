@@ -1,4 +1,5 @@
 import { marked } from "https://cdn.jsdelivr.net/npm/marked/lib/marked.esm.js";
+
 import { humanizeMonthYear } from "./utils.js";
 
 const activeUsersElement = document.querySelector("#activeUsers");

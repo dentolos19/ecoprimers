@@ -3,13 +3,12 @@ from datetime import date
 from decimal import Decimal, InvalidOperation
 
 from flask import abort, flash, redirect, render_template, request, session, url_for
-from newsapi import NewsApiClient
 
 from lib import database
 from lib.database import sql
 from lib.models import Event, EventAttendee, User
 from main import app
-from utils import check_admin_status, check_logged_in, get_weather_data, require_login
+from utils import check_admin_status, check_logged_in, get_weather_data, require_admin, require_login
 
 
 @app.context_processor
@@ -45,6 +44,7 @@ def error_exception(error: Exception):
 
 
 @app.route("/error/reset", methods=["POST"])
+@require_admin
 def error_reset():
     if not app.debug:
         abort(404)
@@ -63,6 +63,8 @@ def toggle_dark_mode():
 @app.route("/")
 @app.route("/home")
 def home():
+    from newsapi import NewsApiClient
+
     articles = []
     news_api = NewsApiClient(api_key=os.environ.get("NEWS_API_KEY"))
 

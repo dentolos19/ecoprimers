@@ -6,9 +6,11 @@ from lib import ai
 from lib.database import sql
 from lib.models import Event, EventAttendee, Post, Transaction, User
 from main import app
+from utils import require_admin
 
 
 @app.route("/api/analysis")
+@require_admin
 def api_analysis():
     is_postgres = sql.engine.dialect.name == "postgresql"
 
@@ -58,6 +60,7 @@ def api_analysis():
 
 
 @app.route("/api/analysis/recommendations")
+@require_admin
 def api_analysis_recommend():
     data = api_analysis()
 

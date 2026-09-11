@@ -1,9 +1,7 @@
-from datetime import datetime
-
-from flask import flash, json, redirect, render_template, request, url_for
+from flask import flash, redirect, render_template, request, url_for
 from werkzeug.security import generate_password_hash
 
-from lib import ai, database, storage
+from lib import storage
 from lib.database import sql
 from lib.models import Event, EventAttendee, Product, Task, Transaction, User, UserRole
 from main import app
@@ -587,76 +585,3 @@ def admin_transactions_delete(id):
         return redirect(url_for("admin_transactions"))
 
     return render_template("admin/transactions-delete.html", transaction=transaction)
-
-
-@app.route("/admin/advanced")
-@require_admin
-def admin_advanced():
-    return render_template("admin/advanced.html")
-
-
-@app.route("/admin/advanced/database/reset", methods=["POST"])
-@require_admin
-def admin_advanced_reset_database():
-    try:
-        database.reset()
-        flash("Resetted the database successfully!", "success")
-    except Exception as e:
-        flash(f"An error occurred while resetting the database! {str(e)}", "danger")
-
-    return redirect(url_for("admin_advanced"))
-
-
-@app.route("/admin/advanced/database/setup", methods=["POST"])
-@require_admin
-def admin_advanced_setup_database():
-    try:
-        database.setup()
-        flash("Set up the database successfully!", "success")
-    except Exception as e:
-        flash(f"An error occurred while setting up the database! {str(e)}", "danger")
-
-    return redirect(url_for("admin_advanced"))
-
-
-@app.route("/admin/advanced/generate/users", methods=["POST"])
-@require_admin
-def admin_advanced_generate_users():
-    # Collect data from the form
-    count = int(request.form["count"])
-
-    # Get prompt
-    with open("public/prompts/generate-users.txt", "r") as file:
-        prompt = file.read().format(count=count, today=datetime.now().strftime("%Y-%m-%d"))
-
-    # Generate response
-    response = ai.generate_structured(prompt)
-    data = json.loads(response)
-
-    # Parse response
-    users = data["users"]
-    for user in users:
-        user["created_at"] = datetime.strptime(user["created_at"], "%Y-%m-%dT%H:%M:%S")
-
-    try:
-        # Add the users to the database
-        sql.session.bulk_insert_mappings(User.__mapper__, users)
-        sql.session.commit()
-        flash("Users generated successfully!", "success")
-    except Exception as e:
-        sql.session.rollback()
-        flash(f"An error occurred while generating users! {str(e)}", "danger")
-
-    return redirect(url_for("admin_advanced"))
-
-
-@app.route("/admin/advanced/generate/transactions", methods=["POST"])
-@require_admin
-def admin_advanced_generate_transactions():
-    pass
-
-
-@app.route("/admin/advanced/error")
-@require_admin
-def admin_advanced_error():
-    raise Exception("An error occurred while generating transactions! Please try again.")
