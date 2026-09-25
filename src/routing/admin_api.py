@@ -1,10 +1,11 @@
-from datetime import datetime, timedelta
+from datetime import UTC, datetime, timedelta
 
 from sqlalchemy import func
 
 from lib import ai
 from lib.database import sql
 from lib.models import Event, EventAttendee, Post, Transaction, User
+from lib.prompts import load
 from main import app
 from utils import require_admin
 
@@ -12,12 +13,8 @@ from utils import require_admin
 @app.route("/api/analysis")
 @require_admin
 def api_analysis():
-    is_postgres = sql.engine.dialect.name == "postgresql"
-
     def get_monthly_data(model, data_limit):
-        month_expr = (
-            func.to_char(model.created_at, "YYYY-MM") if is_postgres else func.strftime("%Y-%m", model.created_at)
-        )
+        month_expr = func.to_char(model.created_at, "YYYY-MM")
         monthly_data = (
             sql.session.query(month_expr.label("month"), func.count(model.id))
             .filter(model.created_at >= data_limit)
@@ -29,13 +26,15 @@ def api_analysis():
         monthly_data_list = [{"month": month, "count": count} for month, count in monthly_data]
 
         # Ensure the data contains the current month, add it if it doesn't exist
-        if not monthly_data_list or monthly_data_list[-1]["month"] != datetime.now().strftime("%Y-%m"):
-            monthly_data_list.append({"month": datetime.now().strftime("%Y-%m"), "count": 0})
+        current_month = datetime.now(UTC).strftime("%Y-%m")
+        if not monthly_data_list or monthly_data_list[-1]["month"] != current_month:
+            monthly_data_list.append({"month": current_month, "count": 0})
 
         # Ensure the data contains only 6 elements, fill in remaining months backwards
         while len(monthly_data_list) < 6:
-            last_month = datetime.strptime(monthly_data_list[0]["month"], "%Y-%m") - timedelta(days=30)
-            monthly_data_list.insert(0, {"month": last_month.strftime("%Y-%m"), "count": 0})
+            year, month = map(int, str(monthly_data_list[0]["month"]).split("-"))
+            previous_month = f"{year - (month == 1):04d}-{(month - 2) % 12 + 1:02d}"
+            monthly_data_list.insert(0, {"month": previous_month, "count": 0})
         return monthly_data_list[-6:]
 
     total_users = sql.session.query(func.count(User.id)).scalar()
@@ -43,7 +42,7 @@ def api_analysis():
     total_posts = sql.session.query(func.count(Post.id)).scalar()
     total_products = sql.session.query(func.count(Transaction.id)).scalar()
 
-    data_limit = datetime.now() - timedelta(days=3 * 30)
+    data_limit = datetime.now(UTC) - timedelta(days=3 * 30)
     monthly_users = get_monthly_data(User, data_limit)
     monthly_signups = get_monthly_data(EventAttendee, data_limit)
     monthly_transactions = get_monthly_data(Transaction, data_limit)
@@ -65,8 +64,7 @@ def api_analysis_recommend():
     data = api_analysis()
 
     # Get prompt
-    with open("public/prompts/generate-recommendations.txt", "r") as file:
-        prompt = file.read().format(content=data)
+    prompt = load("generate-recommendations").format(content=data)
 
     # Generate response
     response = ai.generate_text(prompt)

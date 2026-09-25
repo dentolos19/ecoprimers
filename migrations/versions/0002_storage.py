@@ -5,21 +5,25 @@ Revises: 0001_initial
 """
 
 import os
+from collections.abc import Sequence
 from datetime import datetime
-from typing import Sequence, Union
 
 import boto3
 import sqlalchemy as sa
 from alembic import op
 
 revision: str = "0002_storage"
-down_revision: Union[str, Sequence[str], None] = "0001_initial"
-branch_labels: Union[str, Sequence[str], None] = None
-depends_on: Union[str, Sequence[str], None] = None
+down_revision: str | Sequence[str] | None = "0001_initial"
+branch_labels: str | Sequence[str] | None = None
+depends_on: str | Sequence[str] | None = None
 
 
 def storage():
-    return "assets", boto3.client("s3", endpoint_url=os.environ.get("AWS_ENDPOINT_URL_S3"))
+    return "assets", boto3.client(
+        "s3",
+        endpoint_url=os.environ.get("AWS_ENDPOINT_URL_S3") or None,
+        region_name=os.environ.get("AWS_REGION") or None,
+    )
 
 
 def upgrade() -> None:

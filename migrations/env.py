@@ -1,8 +1,9 @@
 from alembic import context
 from dotenv import load_dotenv
+from sqlalchemy import create_engine, pool
+
 from lib.database import get_url
 from lib.models import Base
-from sqlalchemy import create_engine, pool
 
 config = context.config
 load_dotenv()
