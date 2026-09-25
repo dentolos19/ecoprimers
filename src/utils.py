@@ -1,6 +1,7 @@
 import os
 import random
 import string
+from datetime import date as date_type
 from datetime import datetime
 from functools import wraps
 
@@ -29,7 +30,7 @@ def to_form_date(date: datetime):
 
 
 def from_from_date(date: str):
-    return datetime.strptime(date, "%Y-%m-%d").date()
+    return date_type.fromisoformat(date)
 
 
 def get_current_user():

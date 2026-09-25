@@ -1,8 +1,0 @@
-{
-  "compilerOptions": {
-    "lib": ["es2024"],
-    "module": "preserve",
-    "strict": true,
-    "types": ["@cloudflare/workers-types"]
-  }
-}

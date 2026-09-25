@@ -1,0 +1,42 @@
+{% extends "base.html" %} {% block styles %}
+<style>
+  .tasks {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+  }
+</style>
+{% endblock %} {% block body %}
+<div class="container my-4">
+  <!-- Header -->
+  <div class="d-flex justify-content-between align-items-center mb-4">
+    <h3 class="m-0 text-center">Tasks</h3>
+    <div class="btn-group">
+      <a class="btn btn-primary" href="{{ url_for('rewards') }}">{{ user.points }} points</a>
+      <a class="btn btn-secondary" href="{{ url_for('transactions') }}">View Transactions</a>
+    </div>
+  </div>
+
+  {% if tasks %}
+  <!-- Tasks -->
+  <div class="tasks gap-2">
+    {% for task in tasks %}
+    <div class="card">
+      <img
+        class="card-img-top"
+        style="aspect-ratio: 1 / 1; object-fit: cover"
+        src="{{ task.image_url }}"
+        alt="{{ task.name }}"
+      />
+      <div class="card-body">
+        <h5 class="card-title">{{ task.name }}</h5>
+        <p class="card-text">{{ task.description }}</p>
+        <a class="btn btn-primary" href="{{ url_for('tasks_verify', id=task.id) }}">Verify</a>
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+  {% else %}
+  <div class="alert alert-info" role="alert">No tasks available</div>
+  {% endif %}
+</div>
+{% endblock %}

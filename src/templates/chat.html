@@ -1,0 +1,17 @@
+{% extends "base.html" %} {% block styles %}
+<link rel="stylesheet" href="{{ static('css/chat.css') }}" />
+{% endblock %} {% block scripts %}
+<script type="module" src="{{ static('js/chat.js') }}"></script>
+{% endblock %} {% block body %}
+<div class="d-flex flex-column h-100">
+  <div id="messages" class="d-flex flex-fill flex-column gap-2 py-2">
+    <!-- To be added by JavaScript -->
+  </div>
+  <div class="bg-body-tertiary py-3">
+    <form id="form" class="d-flex container gap-2">
+      <input class="form-control" type="text" name="content" placeholder="What do you want to know?" />
+      <button class="btn btn-primary" type="submit">Send</button>
+    </form>
+  </div>
+</div>
+{% endblock %}

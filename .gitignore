@@ -3,22 +3,22 @@
 .idea/
 
 # Build files
-.wrangler/
-node_modules/
 .pytest_cache/
 .ruff_cache/
+.venv-workers/
 .venv/
-*.egg-info/
+.wrangler/
 __pycache__/
+*.egg-info/
+node_modules/
+python_modules/
 build/
 dist/
+pylock.toml
 
 # User files
 .env*
 !.env*.template
-
-# Project-specific rules
-/public/uploads/*
 
 # Miscellaneous files
 .tmp/

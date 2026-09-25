@@ -1,0 +1,31 @@
+{% extends "base.html" %} {% block body %}
+<div class="d-flex justify-content-center align-items-center container h-100">
+  <form
+    class="card"
+    style="width: 400px"
+    method="post"
+    action="{{ url_for('tasks_verify', id=task.id) }}"
+    enctype="multipart/form-data"
+  >
+    <div class="card-body border-bottom">
+      <h4 class="m-0 text-center">Task Verification</h4>
+    </div>
+    <div class="card-body">
+      <div>
+        <p>Please upload your action of performing your task below, we will verify it with AI.</p>
+      </div>
+      <div>
+        <p class="alert alert-info">{{ task.criteria }}</p>
+      </div>
+      <div>
+        <label class="form-label" for="image">Image</label>
+        <input class="form-control" type="file" id="image" name="image" required />
+      </div>
+      <div class="d-flex justify-content-end mt-4 gap-2">
+        <a class="btn btn-secondary" href="{{ url_for('tasks') }}">Cancel</a>
+        <button class="btn btn-primary" type="submit">Submit</button>
+      </div>
+    </div>
+  </form>
+</div>
+{% endblock %}

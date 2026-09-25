@@ -1,4 +1,5 @@
 from flask import flash, redirect, render_template, request, session
+from sqlalchemy.exc import SQLAlchemyError
 
 from lib.database import sql
 from lib.models import EventAttendee, Post, Transaction, User, UserFollow
@@ -95,7 +96,7 @@ def profile_edit():
             sql.session.commit()
             flash("Profile updated successfully!", "success")
             return redirect("/profile")
-        except Exception as e:
+        except SQLAlchemyError as e:
             if "unique constraint" in str(e).lower():
                 flash("Error! Email already exists.", "danger")
             sql.session.rollback()

@@ -1,6 +1,7 @@
 from flask import request
 
 from lib import ai
+from lib.prompts import load
 from main import app
 
 
@@ -12,8 +13,7 @@ def api_chat():
     history: list[dict] = data["history"]
 
     # Get master prompt
-    with open("public/prompts/customer-service.txt", "r") as file:
-        master_prompt = file.read()
+    master_prompt = load("customer-service")
 
     # Build history context
     ai_request = master_prompt + "\n"

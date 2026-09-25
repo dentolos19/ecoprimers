@@ -1,7 +1,6 @@
 import os
 from typing import Any
 
-from authlib.integrations.flask_client import OAuth
 from flask import Flask
 
 initialized: bool = False
@@ -9,6 +8,8 @@ auth: Any = None
 
 
 def init(app: Flask):
+    from authlib.integrations.flask_client import OAuth
+
     global initialized
     global auth
 

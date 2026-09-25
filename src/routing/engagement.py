@@ -3,11 +3,16 @@ import os
 
 import requests
 from flask import flash, redirect, render_template, request, send_file, session, url_for
+from newsapi.newsapi_exception import NewsAPIException
+from PIL import UnidentifiedImageError
+from requests.exceptions import RequestException
+from sqlalchemy.exc import SQLAlchemyError
 
-from lib import ai, storage
+from lib import ai, env, storage
 from lib.database import sql
 from lib.enums import TransactionType
 from lib.models import Product, Task, Transaction, User
+from lib.prompts import load
 from main import app
 from utils import require_login
 
@@ -20,7 +25,7 @@ def is_valid_image(file):
         img.verify()  # Verify it's an image
         file.seek(0)  # Reset file pointer after reading
         return True
-    except Exception:
+    except (OSError, ValueError, UnidentifiedImageError):
         return False
 
 
@@ -62,8 +67,7 @@ def tasks_verify(id):
             return redirect(request.url)
 
         # Get prompt
-        with open("public/prompts/verify.txt", "r") as file:
-            prompt = file.read().format(criteria=task.criteria)
+        prompt = load("verify").format(criteria=task.criteria)
 
         # Perform verification
         result = ai.analyze_image(
@@ -108,10 +112,10 @@ def tasks_verify(id):
                 print(f"Points updated successfully! User now has {user.points} points.")  # Debugging
                 flash(f"Congratulations! You've earned {task_points} points for {task_name}.", "success")
 
-            except Exception as e:
+            except SQLAlchemyError as e:
                 sql.session.rollback()
                 print("Error while processing points:", str(e))  # Debugging
-                flash(f"An error occurred while processing points: {str(e)}", "danger")
+                flash(f"An error occurred while processing points: {e!s}", "danger")
 
         return render_template("tasks-verify-status.html", task=task, result=result)
 
@@ -164,7 +168,7 @@ def add_points():
             sql.session.commit()
 
             flash(f"Congratulations! You've earned {task_points} points for {task_name}.", "success")
-        except Exception as e:
+        except SQLAlchemyError as e:
             sql.session.rollback()
             flash(f"An error occurred while processing points: {str(e)}", "danger")
     else:
@@ -195,14 +199,20 @@ def redeem_reward(product_id):
         flash("Complete the security check before redeeming a reward.", "danger")
         return redirect(url_for("rewards"))
 
+    hostname = request.host.split(":", 1)[0]
+    data = {
+        "secret": env.get("TURNSTILE_SECRET_KEY"),
+        "response": turnstile_response,
+    }
+
+    remoteip = request.headers.get("CF-Connecting-IP")
+    if remoteip:
+        data["remoteip"] = remoteip
+
     try:
         response = requests.post(
-            "http://192.0.2.3/verify",
-            json={
-                "hostname": request.host.split(":", 1)[0],
-                "remoteip": request.headers.get("CF-Connecting-IP"),
-                "response": turnstile_response,
-            },
+            "https://challenges.cloudflare.com/turnstile/v0/siteverify",
+            data=data,
             timeout=10,
         )
         result = response.json()
@@ -210,7 +220,13 @@ def redeem_reward(product_id):
         flash("The security check is unavailable. Please try again.", "danger")
         return redirect(url_for("rewards"))
 
-    if not response.ok or not result.get("success"):
+    if (
+        not response.ok
+        or not result.get("success")
+        or result.get("action") != "redeem-reward"
+        or not hostname
+        or result.get("hostname") != hostname
+    ):
         flash("Turnstile verification failed. Please try again.", "danger")
         return redirect(url_for("rewards"))
 
@@ -245,9 +261,9 @@ def redeem_reward(product_id):
             sql.session.commit()
 
             flash(f"Reward '{reward_name}' claimed successfully!", "success")
-        except Exception as e:
+        except SQLAlchemyError as e:
             sql.session.rollback()
-            flash(f"An error occurred: {str(e)}", "danger")
+            flash(f"An error occurred: {e!s}", "danger")
     else:
         flash("You do not have enough points to claim this reward!", "danger")
 
@@ -404,9 +420,6 @@ def dashboard():
 def dashboard():
     from collections import defaultdict
 
-    import plotly.graph_objects as go
-    import plotly.io as pio
-
     user_id = session.get("user_id")
 
     # api call for weather app
@@ -427,57 +440,13 @@ def dashboard():
     )
     net_transactions = total_earned - total_redeemed
 
-    colors = {"earned": "#28a745", "redemption": "#dc3545"}
-    bar_fig = go.Figure(
-        data=go.Bar(
-            marker_color=[colors.get(transaction_type, "#6c757d") for transaction_type in types],
-            x=types,
-            y=amounts,
-        )
-    )
-    bar_fig.update_layout(
-        hovermode="x unified",
-        plot_bgcolor="white",
-        showlegend=False,
-        title="Transaction Analysis by Type",
-        xaxis_title="Transaction Type",
-        yaxis_title="Points",
-    )
-    bar_chart_html = pio.to_html(bar_fig, full_html=False)
-
     daily_amounts = defaultdict(int)
     for date, amount in zip(dates, amounts):
         daily_amounts[date] += amount
-    line_fig = go.Figure(
-        data=go.Scatter(
-            line={"color": "#0d6efd"},
-            mode="lines+markers",
-            x=list(daily_amounts),
-            y=list(daily_amounts.values()),
-        )
-    )
-    line_fig.update_layout(
-        hovermode="x unified",
-        plot_bgcolor="white",
-        title="Daily Points Activity",
-        xaxis_title="Transaction Date",
-        yaxis_title="Points",
-    )
-    line_chart_html = pio.to_html(line_fig, full_html=False)
 
     type_amounts = defaultdict(int)
     for transaction_type, amount in zip(types, amounts):
-        type_amounts[transaction_type] += amount
-    pie_types = list(type_amounts)
-    pie_fig = go.Figure(
-        data=go.Pie(
-            labels=pie_types,
-            marker={"colors": [colors.get(transaction_type, "#6c757d") for transaction_type in pie_types]},
-            values=list(type_amounts.values()),
-        )
-    )
-    pie_fig.update_layout(title="Transaction Distribution")
-    pie_chart_html = pio.to_html(pie_fig, full_html=False)
+        type_amounts[transaction_type] += abs(amount)
 
     daily_totals = list(daily_amounts.values())
     stats = {
@@ -489,9 +458,13 @@ def dashboard():
 
     return render_template(
         "dashboard.html",
-        bar_chart_html=bar_chart_html,
-        line_chart_html=line_chart_html,
-        pie_chart_html=pie_chart_html,
+        chart_data={
+            "amounts": amounts,
+            "dates": list(daily_amounts),
+            "daily_amounts": list(daily_amounts.values()),
+            "transaction_types": types,
+            "type_amounts": dict(type_amounts),
+        },
         total_earned=total_earned,
         total_redeemed=total_redeemed,
         net_transactions=net_transactions,
@@ -520,7 +493,7 @@ def news():
             "theconversation.com,sciencenews.org",
         )
         articles = environmental_news["articles"]
-    except Exception as e:
+    except (NewsAPIException, RequestException, KeyError) as e:
         print(f"Error fetching news: {e}")
         articles = []
 

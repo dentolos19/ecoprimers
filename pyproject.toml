@@ -1,29 +1,25 @@
 [project]
 name = "ecoprimers"
 version = "1.0.0"
-requires-python = ">=3.12,<3.14"
+requires-python = ">=3.12,<3.15"
 dependencies = [
-  "alembic",
   "authlib",
-  "boto3>=1.43.97",
   "flask",
-  "flask-socketio",
-  "flask-sqlalchemy",
+  "minio>=7.2,<8",
   "newsapi-python",
   "openai",
+  "pg8000",
   "pillow",
-  "plotly",
-  "psycopg[binary]",
+  "pycryptodome",
   "python-dotenv",
   "requests",
   "resend",
   "sqlalchemy",
-  "uvicorn",
   "xlsxwriter",
 ]
 
 [dependency-groups]
-dev = ["ruff", "ty"]
+dev = ["alembic", "boto3>=1.43.97", "psycopg[binary]", "ruff", "ty", "workers-py", "workers-runtime-sdk"]
 
 [tool.ruff]
 line-length = 120

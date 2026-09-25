@@ -1,4 +1,4 @@
-name: Web Deployment
+name: Cloudflare Deployment
 on:
   push:
     branches:
@@ -9,9 +9,10 @@ concurrency:
   cancel-in-progress: true
 jobs:
   deploy:
-    name: Deploy
+    name: Deploy Worker
     environment: Production
     runs-on: ubuntu-latest
+    timeout-minutes: 60
     env:
       AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
       AWS_ENDPOINT_URL_S3: ${{ secrets.AWS_ENDPOINT_URL_S3 }}
@@ -20,6 +21,20 @@ jobs:
       CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
       CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
       DATABASE_URL: ${{ secrets.DATABASE_URL }}
+      GOOGLE_CLIENT_ID: ${{ secrets.GOOGLE_CLIENT_ID }}
+      GOOGLE_CLIENT_SECRET: ${{ secrets.GOOGLE_CLIENT_SECRET }}
+      NEWS_API_KEY: ${{ secrets.NEWS_API_KEY }}
+      OPENROUTER_API_KEY: ${{ secrets.OPENROUTER_API_KEY }}
+      OPENROUTER_MODEL: ${{ vars.OPENROUTER_MODEL }}
+      OPENROUTER_REFERER: ${{ vars.OPENROUTER_REFERER }}
+      OPENROUTER_TITLE: ${{ vars.OPENROUTER_TITLE }}
+      OPENWEATHER_API_KEY: ${{ secrets.OPENWEATHER_API_KEY }}
+      RESEND_API_KEY: ${{ secrets.RESEND_API_KEY }}
+      RESEND_FROM_EMAIL: ${{ vars.RESEND_FROM_EMAIL }}
+      RESEND_FROM_NAME: ${{ vars.RESEND_FROM_NAME }}
+      SECRET_KEY: ${{ secrets.SECRET_KEY }}
+      TURNSTILE_SECRET_KEY: ${{ secrets.TURNSTILE_SECRET_KEY }}
+      TURNSTILE_SITE_KEY: ${{ secrets.TURNSTILE_SITE_KEY }}
     steps:
       - name: Checkout Source
         uses: actions/checkout@v4
@@ -38,56 +53,8 @@ jobs:
       - name: Setup Just
         uses: extractions/setup-just@v4
 
-      - name: Install Dependencies
-        run: |
-          bun install --frozen-lockfile
-          uv sync --frozen --no-dev
+      - name: Deploy Worker
+        run: just deploy
 
       - name: Migrate Database
         run: just migrate
-
-      - name: Deploy Worker
-        uses: cloudflare/wrangler-action@v4
-        with:
-          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
-          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
-          secrets: |
-            AWS_ACCESS_KEY_ID
-            AWS_ENDPOINT_URL_S3
-            AWS_REGION
-            AWS_SECRET_ACCESS_KEY
-            DATABASE_URL
-            GOOGLE_CLIENT_ID
-            GOOGLE_CLIENT_SECRET
-            NEWS_API_KEY
-            OPENROUTER_API_KEY
-            OPENROUTER_MODEL
-            OPENROUTER_REFERER
-            OPENROUTER_TITLE
-            OPENWEATHER_API_KEY
-            RESEND_API_KEY
-            RESEND_FROM_EMAIL
-            RESEND_FROM_NAME
-            SECRET_KEY
-            TURNSTILE_SECRET_KEY
-            TURNSTILE_SITE_KEY
-        env:
-          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          AWS_ENDPOINT_URL_S3: ${{ secrets.AWS_ENDPOINT_URL_S3 }}
-          AWS_REGION: ${{ vars.AWS_REGION }}
-          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          DATABASE_URL: ${{ secrets.DATABASE_URL }}
-          GOOGLE_CLIENT_ID: ${{ secrets.GOOGLE_CLIENT_ID }}
-          GOOGLE_CLIENT_SECRET: ${{ secrets.GOOGLE_CLIENT_SECRET }}
-          NEWS_API_KEY: ${{ secrets.NEWS_API_KEY }}
-          OPENROUTER_API_KEY: ${{ secrets.OPENROUTER_API_KEY }}
-          OPENROUTER_MODEL: ${{ vars.OPENROUTER_MODEL }}
-          OPENROUTER_REFERER: ${{ vars.OPENROUTER_REFERER }}
-          OPENROUTER_TITLE: ${{ vars.OPENROUTER_TITLE }}
-          OPENWEATHER_API_KEY: ${{ secrets.OPENWEATHER_API_KEY }}
-          RESEND_API_KEY: ${{ secrets.RESEND_API_KEY }}
-          RESEND_FROM_EMAIL: ${{ vars.RESEND_FROM_EMAIL }}
-          RESEND_FROM_NAME: ${{ vars.RESEND_FROM_NAME }}
-          SECRET_KEY: ${{ secrets.SECRET_KEY }}
-          TURNSTILE_SECRET_KEY: ${{ secrets.TURNSTILE_SECRET_KEY }}
-          TURNSTILE_SITE_KEY: ${{ secrets.TURNSTILE_SITE_KEY }}

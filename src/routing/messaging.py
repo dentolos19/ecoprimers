@@ -1,37 +1,11 @@
 from flask import redirect, render_template, request, session, url_for
-from flask_socketio import join_room
 from sqlalchemy import and_, or_
 
 from lib.database import sql
 from lib.models import Message, Rooms, User
-from lib.socket import io as socketio
-from main import app, socket
+from lib.socket import notify
+from main import app
 from utils import require_login
-
-
-@socketio.on("join")
-def on_join(data):
-    room = (
-        sql.session.query(Rooms)
-        .filter(
-            or_(
-                and_(Rooms.user_1 == session["user_id"], Rooms.user_2 == data.get("receiver_id")),
-                and_(Rooms.user_1 == data.get("receiver_id"), Rooms.user_2 == session["user_id"]),
-            )
-        )
-        .first()
-    )
-
-    if not room:
-        room = Rooms(user_1=session["user_id"], user_2=data.get("receiver_id"))
-
-        sql.session.add(room)
-        sql.session.commit()
-        print(f"created room between {room.user_1} and {room.user_2}")
-
-    join_room(room.id)
-
-    print(f"joined room between {room.user_1} and {room.user_2}")
 
 
 @app.route("/community/messages")
@@ -40,61 +14,32 @@ def on_join(data):
 def messaging(receiver_id=None):
     user_list = sql.session.query(User).all()
 
+    # Find or create the room for this pair so the rooms table stays populated.
+    if receiver_id:
+        room = (
+            sql.session.query(Rooms)
+            .filter(
+                or_(
+                    and_(Rooms.user_1 == session["user_id"], Rooms.user_2 == receiver_id),
+                    and_(Rooms.user_1 == receiver_id, Rooms.user_2 == session["user_id"]),
+                )
+            )
+            .first()
+        )
+
+        if not room:
+            room = Rooms(user_1=session["user_id"], user_2=receiver_id)
+
+            sql.session.add(room)
+            sql.session.commit()
+            print(f"created room between {room.user_1} and {room.user_2}")
+
     return render_template(
         "messaging.html",
         users=user_list,
         sender_id=session["user_id"],
         receiver_id=receiver_id,
     )
-
-
-@socketio.on("send_message")
-def handle_send_message(data):
-    print("running the send message python function")
-    sender_id = session["user_id"]
-    receiver_id = data.get("receiver_id")
-    message_content = data.get("message")
-
-    if len(message_content) == 0:
-        return
-
-    empty = True
-
-    for char in message_content:
-        if char != " ":
-            empty = False
-            break
-
-        if empty:
-            return
-
-    # Save the message in the database
-    message = Message(
-        sender_id=sender_id,
-        receiver_id=receiver_id,
-        message=message_content,
-        is_visible=True,
-    )
-    sql.session.add(message)
-    sql.session.commit()
-
-    # Find the room for these users
-    room = (
-        sql.session.query(Rooms)
-        .filter(
-            or_(
-                and_(Rooms.user_1 == sender_id, Rooms.user_2 == receiver_id),
-                and_(Rooms.user_1 == receiver_id, Rooms.user_2 == sender_id),
-            )
-        )
-        .first()
-    )
-
-    if room:
-        # Emit to the room instead of individual receiver
-        socket.io.emit("receive_message", message.to_dict(), room=room.id)
-    else:
-        print("No room found for these users")
 
 
 @app.route("/community/search-results")
@@ -134,21 +79,11 @@ def delete_message(receiver_id, message_id):
     message.is_visible = False
     sql.session.commit()
 
-    # Get the room before deleting the message
-    room = (
-        sql.session.query(Rooms)
-        .filter(
-            or_(
-                and_(Rooms.user_1 == message.sender_id, Rooms.user_2 == message.receiver_id),
-                and_(Rooms.user_1 == message.receiver_id, Rooms.user_2 == message.sender_id),
-            )
-        )
-        .first()
+    notify(
+        message.sender_id,
+        message.receiver_id,
+        {"type": "message_deleted", "message_id": message_id},
     )
-
-    # Emit delete event to the room if found
-    if room:
-        socket.io.emit("message_deleted", {"message_id": message_id}, room=room.id)
 
     return redirect(
         url_for("messaging", receiver_id=receiver_id if receiver_id != session["user_id"] else message.sender_id)
@@ -179,5 +114,9 @@ def restore_message():
     message.is_visible = True
     sql.session.commit()
 
-    socket.io.emit("message_restored")
+    notify(
+        message.sender_id,
+        message.receiver_id,
+        {"type": "message_restored", "message_id": message.id},
+    )
     return redirect(url_for("deleted_messages"))  # Redirect after restoring

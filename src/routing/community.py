@@ -24,13 +24,13 @@ def init_community():
     def is_comment(comments, user_id):
         return any(comment.user_id == user_id for comment in comments)
 
-    return dict(
-        user_id=user_id,
-        is_liked=is_liked,
-        is_saved=is_saved,
-        is_followed=is_followed,
-        is_comment=is_comment,
-    )
+    return {
+        "user_id": user_id,
+        "is_liked": is_liked,
+        "is_saved": is_saved,
+        "is_followed": is_followed,
+        "is_comment": is_comment,
+    }
 
 
 @app.route("/community")

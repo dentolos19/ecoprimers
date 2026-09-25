@@ -1,10 +1,9 @@
 import enum
 import uuid
 from datetime import datetime
-from typing import List, Optional
 
 from sqlalchemy import DateTime, Enum, ForeignKey, func
-from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column, relationship
+from sqlalchemy.orm import DeclarativeBase, Mapped, declared_attr, mapped_column, relationship
 
 from lib.enums import TransactionType
 
@@ -15,7 +14,9 @@ class UserRole(str, enum.Enum):
 
 
 class Base(DeclarativeBase):
-    __table_args__ = {"implicit_returning": False}
+    @declared_attr.directive
+    def __table_args__(cls) -> dict[str, bool]:
+        return {"implicit_returning": False}
 
     id: Mapped[str] = mapped_column(primary_key=True, default=lambda: str(uuid.uuid4()))
     updated_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=func.now(), onupdate=func.now())
@@ -36,13 +37,13 @@ class User(Base):
     password: Mapped[str]
     name: Mapped[str]
     points: Mapped[int] = mapped_column(default=0)
-    bio: Mapped[Optional[str]]
-    birthday: Mapped[Optional[str]]  # TODO: Use datetime
-    security: Mapped[Optional[str]]
+    bio: Mapped[str | None]
+    birthday: Mapped[str | None]  # TODO: Use datetime
+    security: Mapped[str | None]
     role: Mapped[UserRole] = mapped_column(Enum(UserRole), default=UserRole.USER)
 
-    followings: Mapped[List["UserFollow"]] = relationship(back_populates="user", foreign_keys="UserFollow.user_id")
-    followers: Mapped[List["UserFollow"]] = relationship(
+    followings: Mapped[list["UserFollow"]] = relationship(back_populates="user", foreign_keys="UserFollow.user_id")
+    followers: Mapped[list["UserFollow"]] = relationship(
         back_populates="follower", foreign_keys="UserFollow.follower_id"
     )
 
@@ -61,12 +62,12 @@ class Event(Base):
     __tablename__ = "events"
 
     title: Mapped[str]
-    description: Mapped[Optional[str]]
+    description: Mapped[str | None]
     location: Mapped[str]
     date: Mapped[str]
-    image_url: Mapped[Optional[str]]
+    image_url: Mapped[str | None]
 
-    attendees: Mapped[List["EventAttendee"]] = relationship(back_populates="event", cascade="all, delete")
+    attendees: Mapped[list["EventAttendee"]] = relationship(back_populates="event", cascade="all, delete")
 
 
 class EventAttendee(Base):
@@ -84,12 +85,12 @@ class Post(Base):
 
     user_id: Mapped[str] = mapped_column(ForeignKey("users.id"))
     content: Mapped[str]
-    image_url: Mapped[Optional[str]]
+    image_url: Mapped[str | None]
 
     user: Mapped["User"] = relationship()
-    likes: Mapped[List["PostLike"]] = relationship(back_populates="post", cascade="all, delete")
-    messages: Mapped[List["PostComment"]] = relationship(back_populates="post", cascade="all, delete")
-    saves: Mapped[List["PostSaved"]] = relationship(back_populates="post", cascade="all, delete")
+    likes: Mapped[list["PostLike"]] = relationship(back_populates="post", cascade="all, delete")
+    messages: Mapped[list["PostComment"]] = relationship(back_populates="post", cascade="all, delete")
+    saves: Mapped[list["PostSaved"]] = relationship(back_populates="post", cascade="all, delete")
     shares: Mapped[int] = mapped_column(default=0)
 
 
@@ -132,9 +133,9 @@ class Task(Base):
     description: Mapped[str]
     points: Mapped[int]
     criteria: Mapped[str]
-    image_url: Mapped[Optional[str]]
+    image_url: Mapped[str | None]
 
-    players: Mapped[List["TaskStatus"]] = relationship(back_populates="task", cascade="all, delete")
+    players: Mapped[list["TaskStatus"]] = relationship(back_populates="task", cascade="all, delete")
 
 
 class TaskStatus(Base):
@@ -153,10 +154,10 @@ class Product(Base):
     __tablename__ = "products"
 
     name: Mapped[str]
-    description: Mapped[Optional[str]]
+    description: Mapped[str | None]
     points: Mapped[int] = mapped_column(default=0)
     stock: Mapped[int] = mapped_column(default=0)
-    image_url: Mapped[Optional[str]]
+    image_url: Mapped[str | None]
 
 
 class Transaction(Base):
@@ -165,7 +166,7 @@ class Transaction(Base):
     user_id: Mapped[str] = mapped_column(ForeignKey("users.id"))
     type: Mapped[TransactionType] = mapped_column(Enum(TransactionType))
     amount: Mapped[int]
-    description: Mapped[Optional[str]]
+    description: Mapped[str | None]
 
     user: Mapped[User] = relationship()
 
