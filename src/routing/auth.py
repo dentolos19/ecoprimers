@@ -1,7 +1,9 @@
 import os
 
-from flask import flash, redirect, render_template, request, session, url_for
 import resend
+from flask import flash, redirect, render_template, request, session, url_for
+from resend.exceptions import ResendError
+from sqlalchemy.exc import SQLAlchemyError
 from werkzeug.security import check_password_hash, generate_password_hash
 
 from lib import google
@@ -9,10 +11,9 @@ from lib.database import sql
 from lib.models import User, UserRole
 from main import app
 
-resend.api_key = os.environ.get("RESEND_API_KEY")
-
 
 def send_welcome_email(user_email):
+    resend.api_key = os.environ.get("RESEND_API_KEY")
     resend_from_email = os.environ.get("RESEND_FROM_EMAIL")
     resend_from_name = os.environ.get("RESEND_FROM_NAME")
 
@@ -31,8 +32,8 @@ def send_welcome_email(user_email):
     try:
         response: resend.Emails.SendResponse = resend.Emails.send(params)
         print(f"Email sent with ID: {response['id']}")
-    except Exception as e:
-        print(f"Error sending email: {str(e)}")
+    except (ResendError, KeyError) as e:
+        print(f"Error sending email: {e!s}")
 
 
 @app.route("/login", methods=["GET", "POST"])
@@ -103,7 +104,7 @@ def login_authorize():
 
             send_welcome_email(new_user.email)
 
-        except Exception as e:
+        except SQLAlchemyError as e:
             print(e)
             sql.session.rollback()
             flash("An error occurred while creating your account. Please try again.", "danger")
@@ -142,7 +143,7 @@ def signup():
 
             return redirect("/login")
 
-        except Exception as e:
+        except SQLAlchemyError as e:
             if "unique constraint" in str(e).lower():
                 flash("Error! Email already exists.", "danger")
             sql.session.rollback()
@@ -177,7 +178,7 @@ def reset_password():
                     sql.session.commit()
                     flash("Password reset successfully. You can now log in.", "success")
                     return redirect("/login")
-                except Exception:
+                except SQLAlchemyError:
                     sql.session.rollback()
                     flash("Error resetting password. Please try again.", "danger")
         else:

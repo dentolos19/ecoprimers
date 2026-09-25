@@ -9,7 +9,7 @@
       "preLaunchTask": "Setup",
       "postDebugTask": "Decompose",
       "serverReadyAction": {
-        "pattern": "Ready on +(https?://.+)",
+        "pattern": "on +(https?://.+)",
         "uriFormat": "%s",
         "action": "openExternally"
       }

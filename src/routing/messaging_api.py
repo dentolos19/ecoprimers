@@ -1,8 +1,9 @@
-from flask import request
+from flask import request, session
 from sqlalchemy import and_, or_
 
 from lib.database import sql
 from lib.models import Message
+from lib.socket import notify
 from main import app
 
 
@@ -38,17 +39,29 @@ def api_messages():
         return [message.to_dict() for message in messages]
 
     if request.method == "POST":
+        # The sender is always the logged-in session user, never the request body
+        sender_id = session.get("user_id")
+        if not sender_id:
+            return {"error": "Unauthorized"}, 401
+
         # Get data from the request
-        data: dict = request.get_json()
-        sender_id: str = data["sender_id"]
-        receiver_id: str = data["receiver_id"]
-        content: str = data["content"]
+        data: dict = request.get_json(silent=True) or {}
+        receiver_id = data.get("receiver_id")
+        content = data.get("content")
+
+        if not isinstance(receiver_id, str) or not receiver_id:
+            return {"error": "receiver_id is required"}, 400
+
+        if not isinstance(content, str) or not content.strip():
+            return {"error": "Message content cannot be empty"}, 400
 
         # Create a new message
-        message = Message(sender_id=sender_id, receiver_id=receiver_id, content=content)
+        message = Message(sender_id=sender_id, receiver_id=receiver_id, message=content, is_visible=True)
 
         # Save the message to the database
         sql.session.add(message)
         sql.session.commit()
 
-        return message.to_dict()
+        notify(sender_id, receiver_id, {"type": "message", "data": message.to_dict()})
+
+        return message.to_dict(), 201

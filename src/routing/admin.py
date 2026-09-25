@@ -1,4 +1,5 @@
 from flask import flash, redirect, render_template, request, url_for
+from sqlalchemy.exc import SQLAlchemyError
 from werkzeug.security import generate_password_hash
 
 from lib import storage
@@ -58,9 +59,9 @@ def admin_events_new():
             sql.session.add(new_event)
             sql.session.commit()
             flash("Event added successfully!", "success")
-        except Exception as e:
+        except SQLAlchemyError as e:
             sql.session.rollback()  # Rollback if there's an error
-            flash(f"An error occurred while adding the event: {str(e)}", "danger")
+            flash(f"An error occurred while adding the event: {e!s}", "danger")
 
         return redirect(url_for("admin_events"))
 
@@ -101,9 +102,9 @@ def admin_events_manage(id):
         try:
             sql.session.commit()
             flash("Event updated successfully!", "success")
-        except Exception as e:
+        except SQLAlchemyError as e:
             sql.session.rollback()
-            flash(f"An error occurred while updating the event: {str(e)}", "danger")
+            flash(f"An error occurred while updating the event: {e!s}", "danger")
 
         return redirect(url_for("admin_events"))
 
@@ -129,9 +130,9 @@ def admin_events_delete(id):
         try:
             sql.session.delete(event)
             sql.session.commit()
-        except Exception as e:
+        except SQLAlchemyError as e:
             sql.session.rollback()
-            flash(f"An error occurred while deleting the event: {str(e)}", "danger")
+            flash(f"An error occurred while deleting the event: {e!s}", "danger")
 
         return redirect(url_for("admin_events"))
 
@@ -183,9 +184,9 @@ def admin_users_new():
             sql.session.add(new_user)
             sql.session.commit()
             flash("User created successfully!", "success")
-        except Exception as e:
+        except SQLAlchemyError as e:
             sql.session.rollback()
-            flash(f"An error occurred while creating the user: {str(e)}", "danger")
+            flash(f"An error occurred while creating the user: {e!s}", "danger")
 
         return redirect(url_for("admin_users"))
 
@@ -222,9 +223,9 @@ def admin_users_manage(id):
             # Commit the changes to the database
             sql.session.commit()
             flash("User updated successfully!", "success")
-        except Exception as e:
+        except SQLAlchemyError as e:
             sql.session.rollback()
-            flash(f"An error occurred while updating the user: {str(e)}", "danger")
+            flash(f"An error occurred while updating the user: {e!s}", "danger")
 
         return redirect(url_for("admin_users"))
 
@@ -255,9 +256,9 @@ def admin_users_delete(id):
         try:
             sql.session.delete(user)
             sql.session.commit()
-        except Exception as e:
+        except SQLAlchemyError as e:
             sql.session.rollback()
-            flash(f"An error occurred while deleting the user: {str(e)}", "danger")
+            flash(f"An error occurred while deleting the user: {e!s}", "danger")
 
         return redirect(url_for("admin_users"))
 
@@ -313,9 +314,9 @@ def admin_tasks_new():
             sql.session.add(task)
             sql.session.commit()
             flash("Task added successfully!", "success")
-        except Exception as e:
+        except SQLAlchemyError as e:
             sql.session.rollback()
-            flash(f"An error occurred while adding the task! {str(e)}", "danger")
+            flash(f"An error occurred while adding the task! {e!s}", "danger")
 
         return redirect(url_for("admin_tasks"))
 
@@ -360,9 +361,9 @@ def admin_tasks_manage(id):
             # Commit changes to the database
             sql.session.commit()
             flash("Task updated successfully!", "success")
-        except Exception as e:
+        except SQLAlchemyError as e:
             sql.session.rollback()
-            flash(f"An error occurred while updating the task! {str(e)}", "danger")
+            flash(f"An error occurred while updating the task! {e!s}", "danger")
 
         return redirect(url_for("admin_tasks"))
 
@@ -392,9 +393,9 @@ def admin_tasks_delete(id):
             sql.session.delete(task)
             sql.session.commit()
             flash("Task deleted successfully!", "success")
-        except Exception as e:
+        except SQLAlchemyError as e:
             sql.session.rollback()
-            flash(f"An error occurred while deleting the task! {str(e)}", "danger")
+            flash(f"An error occurred while deleting the task! {e!s}", "danger")
 
         return redirect(url_for("admin_tasks"))
 
@@ -449,9 +450,9 @@ def admin_products_new():
             sql.session.add(new_product)
             sql.session.commit()
             flash("Product added successfully!", "success")
-        except Exception as e:
+        except SQLAlchemyError as e:
             sql.session.rollback()
-            flash(f"An error occurred while adding the product: {str(e)}", "danger")
+            flash(f"An error occurred while adding the product: {e!s}", "danger")
 
         return redirect(url_for("admin_products"))
 
@@ -495,9 +496,9 @@ def admin_products_manage(id):
             # Commit the changes to the database
             sql.session.commit()
             flash("Product updated successfully!", "success")
-        except Exception as e:
+        except SQLAlchemyError as e:
             sql.session.rollback()
-            flash(f"An error occurred while updating the product: {str(e)}", "danger")
+            flash(f"An error occurred while updating the product: {e!s}", "danger")
 
         return redirect(url_for("admin_products"))
 
@@ -525,9 +526,9 @@ def admin_products_delete(id):
             sql.session.delete(product)
             sql.session.commit()
             flash("Product deleted successfully!", "success")
-        except Exception as e:
+        except SQLAlchemyError as e:
             sql.session.rollback()
-            flash(f"An error occurred while deleting the product: {str(e)}", "danger")
+            flash(f"An error occurred while deleting the product: {e!s}", "danger")
 
         return redirect(url_for("admin_products"))
 
@@ -578,9 +579,9 @@ def admin_transactions_delete(id):
             sql.session.delete(transaction)
             sql.session.commit()
             flash("Transaction deleted successfully!", "success")
-        except Exception as e:
+        except SQLAlchemyError as e:
             sql.session.rollback()
-            flash(f"An error occurred while deleting the transaction: {str(e)}", "danger")
+            flash(f"An error occurred while deleting the transaction: {e!s}", "danger")
 
         return redirect(url_for("admin_transactions"))
 

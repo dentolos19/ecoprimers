@@ -1,17 +1,14 @@
 {
   "name": "ecoprimers",
   "private": true,
+  "type": "module",
   "scripts": {
-    "dev": "wrangler dev --port 3000",
-    "deploy": "wrangler deploy",
     "check": "oxlint --fix && oxfmt --write && tsc --noEmit"
   },
   "devDependencies": {
-    "@cloudflare/containers": "0.3.7",
-    "@cloudflare/workers-types": "5.20260908.1",
     "oxfmt": "^0.55.0",
-    "oxlint": "^1.83.0",
+    "oxlint": "^1.85.0",
     "typescript": "^5.9.3",
-    "wrangler": "4.129.1"
+    "wrangler": "^4.140.0"
   }
 }

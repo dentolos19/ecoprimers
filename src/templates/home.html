@@ -1,0 +1,131 @@
+{% extends "base.html" %} {% block body %}
+<!-- Hero -->
+<div class="container-layer h-100">
+  <!-- Background -->
+  <div class="layer el-background"></div>
+
+  <!-- Effect -->
+  <div class="layer el-dots"></div>
+
+  <!-- Content -->
+  <div class="layer d-flex justify-content-center align-items-center">
+    <div>
+      <div class="d-flex justify-content-center">
+        <img style="width: 150px" src="{{ static('icon.png') }}" />
+      </div>
+      <div class="text-center">
+        <h1 class="mb-3" style="font-size: 3rem">Eco Primers</h1>
+        <p class="lead">Connecting the environment with technology</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="el-background-transition" style="height: 50px"></div>
+
+<div class="container mt-5">
+  <!-- About Us -->
+  <div class="mb-2 text-center">
+    <h2>About Us</h2>
+    <p class="lead">We are an environmental non-profit organization dedicated to making the world a greener place.</p>
+  </div>
+
+  <div class="row">
+    <!-- Volunteer Events -->
+    <div class="col-4">
+      <div class="card">
+        <img class="card-img-top" src="{{ static('img/eco1.jpg') }}" alt="Volunteer Events" />
+        <div class="card-body">
+          <h5 class="card-title">Volunteer Events</h5>
+          <p class="card-text">Join us in creating positive change for the environment through various events.</p>
+          <a class="btn btn-success float-end" href="{{ url_for('events') }}">Learn More</a>
+        </div>
+      </div>
+    </div>
+
+    <!-- Tasks and Rewards -->
+    <div class="col-4">
+      <div class="card">
+        <img class="card-img-top" src="{{ static('img/eco2.jpg') }}" alt="Tasks and Rewards" />
+        <div class="card-body">
+          <h5 class="card-title">Tasks and Rewards</h5>
+          <p class="card-text">
+            Participate in rewarding activities to help preserve our planet and gain some rewards.
+          </p>
+          <a class="btn btn-success float-end" href="{{ url_for('tasks') }}">Learn More</a>
+        </div>
+      </div>
+    </div>
+
+    <!-- Connect with Others -->
+    <div class="col-4">
+      <div class="card">
+        <img class="card-img-top" src="{{ static('img/eco3.jpg') }}" alt="Connect with Others" />
+        <div class="card-body">
+          <h5 class="card-title">Connect with Others</h5>
+          <p class="card-text">Build a network of like-minded individuals passionate about the environment.</p>
+          <a class="btn btn-success float-end" href="{{ url_for('messaging') }}">Learn More</a>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Environmental News -->
+<div class="container mt-5">
+  <div class="mb-4 text-center">
+    <h2>Latest Environmental News</h2>
+    <p class="lead">Stay informed about environmental developments</p>
+  </div>
+
+  <div class="row">
+    {% for article in articles %}
+    <div class="col-4">
+      <div class="card">
+        {% if article.urlToImage %}
+        <img
+          class="card-img-top"
+          src="{{ article.urlToImage }}"
+          alt="News Image"
+          style="height: 200px; object-fit: cover"
+        />
+        {% else %}
+        <div class="bg-light" style="height: 200px; display: flex; align-items: center; justify-content: center">
+          <i class="fas fa-newspaper fa-3x text-body-secondary"></i>
+        </div>
+        {% endif %}
+        <div class="card-body">
+          <h5 class="card-title text-truncate">{{ article.title }}</h5>
+          <p class="card-text small text-body-secondary">
+            {{ article.source.name }} • {{ article.publishedAt.split('T')[0] }}
+          </p>
+          <p class="card-text">{{ article.description[:100] }}...</p>
+        </div>
+        <div class="card-footer border-top-0 bg-transparent">
+          <a class="btn btn-success float-end" href="{{ article.url }}" target="_blank">Read More</a>
+        </div>
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+
+  <div class="mt-4 text-center">
+    <a href="{{ url_for('news') }}" class="btn btn-success"> View All News </a>
+  </div>
+</div>
+
+<!-- Location Map -->
+<div class="mt-5" style="height: 80%">
+  <div class="text-center">
+    <h2>Our Location</h2>
+    <p class="lead">Find us on the map below.</p>
+  </div>
+  <iframe
+    class="h-100 w-100 border-0"
+    loading="lazy"
+    referrerpolicy="no-referrer"
+    src="https://www.openstreetmap.org/export/embed.html?bbox=103.8289%2C1.3601%2C103.8689%2C1.4001&amp;layer=mapnik&amp;marker=1.3801%2C103.8489"
+    title="Our location at Nanyang Polytechnic"
+  ></iframe>
+</div>
+{% endblock %}
