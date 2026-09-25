@@ -1,0 +1,89 @@
+{% extends "base.html" %} {% block scripts %}
+<script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
+{% endblock %} {% block styles %}
+<style>
+  .rewards {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+  }
+</style>
+{% endblock %} {% block body %}
+<div class="container my-4">
+  <!-- Header -->
+  <div class="d-flex justify-content-between align-items-center mb-4">
+    <h3 class="m-0 text-center">Rewards</h3>
+    <div class="btn-group">
+      <a class="btn btn-primary" href="{{ url_for('tasks') }}">{{ user.points }} points</a>
+      <a class="btn btn-secondary" href="{{ url_for('transactions') }}">View Transactions</a>
+    </div>
+  </div>
+
+  {% if products %}
+  <!-- Rewards -->
+  <div class="rewards gap-2">
+    {% for index, product in enumerate(products) %}
+    <div class="card" style="cursor: pointer" data-bs-toggle="modal" data-bs-target="#modal-{{ index }}">
+      <img
+        class="card-img-top"
+        style="aspect-ratio: 1 / 1; object-fit: cover"
+        src="{{ product.image_url }}"
+        alt="{{ product.name }}"
+      />
+      <div class="card-body">
+        <h5 class="card-title">{{ product.name }}</h5>
+        <p class="card-text">{{ product.points }} pts</p>
+      </div>
+
+      <!-- Modal -->
+      <div id="modal-{{ index }}" class="modal fade" tabindex="-1">
+        <div class="modal-dialog">
+          <form class="modal-content" method="post" action="{{ url_for('redeem_reward', product_id=product.id) }}">
+            <!-- Hidden Fields -->
+            <input type="hidden" name="reward_name" value="{{ product.name }}" />
+            <input type="hidden" name="reward_cost" value="{{ product.points }}" />
+
+            <!-- Modal Content -->
+            <div class="modal-header">
+              <h5 class="modal-title">
+                <span>{{ product.name }}</span>
+                <span class="badge text-bg-primary">{{ product.points }}</span>
+              </h5>
+              <button class="btn-close" type="button" data-bs-dismiss="modal"></button>
+            </div>
+            <img class="img-fluid" src="{{ product.image_url }}" alt="{{ product.name }}" />
+            <div class="modal-body">
+              <div>{{ product.description if product.description else "No description provided." }}</div>
+              {% if product.stock > 0 and user.points >= product.points %}
+              <div class="d-flex justify-content-center mt-2">
+                <div
+                  class="cf-turnstile"
+                  data-action="redeem-reward"
+                  data-sitekey="{{ env.get('TURNSTILE_SITE_KEY') }}"
+                  data-theme="dark"
+                ></div>
+              </div>
+              {% endif %}
+            </div>
+            <div class="modal-footer justify-content-between">
+              <div>
+                <strong>Current Stock: </strong>
+                <span>{{ product.stock }}</span>
+              </div>
+              {% if product.stock <= 0 %} <button class="btn btn-primary" type="button" disabled>Out of Stock</button>
+              {% elif user.points >= product.points %}
+              <button class="btn btn-primary" type="submit">Redeem ({{ product.points }} pts)</button>
+              {% else %}
+              <button class="btn btn-primary" type="button" disabled>Not enough points</button>
+              {% endif %}
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+  {% else %}
+  <div class="alert alert-info" role="alert">No rewards available</div>
+  {% endif %}
+</div>
+{% endblock %}

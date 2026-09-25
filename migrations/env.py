@@ -1,8 +1,9 @@
 from alembic import context
 from dotenv import load_dotenv
+from sqlalchemy import create_engine, pool
+
 from lib.database import get_url
 from lib.models import Base
-from sqlalchemy import create_engine, pool
 
 config = context.config
 load_dotenv()
@@ -26,7 +27,9 @@ def run_migrations_offline() -> None:
 
 def run_migrations_online() -> None:
     supplied_connection = config.attributes.get("connection")
-    connectable = supplied_connection or create_engine(get_url(), poolclass=pool.NullPool)
+    connectable = supplied_connection or create_engine(
+        get_url(), poolclass=pool.NullPool
+    )
 
     def migrate(connection) -> None:
         context.configure(

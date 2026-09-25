@@ -57,7 +57,9 @@ def _create_image_completion(
 
     from main import app
 
-    image_url = f"data:{mime_type};base64,{base64.b64encode(image_data).decode('utf-8')}"
+    image_url = (
+        f"data:{mime_type};base64,{base64.b64encode(image_data).decode('utf-8')}"
+    )
 
     response = _get_agent().chat.completions.create(
         model=_get_model_name(app),
@@ -105,8 +107,12 @@ def generate_structured(prompt: str):
     return _create_text_completion(prompt, return_json=True)
 
 
-def analyze_image(prompt: str, image_data: bytes, mime_type: str, return_json: bool = False):
-    text = _create_image_completion(prompt, image_data, mime_type, return_json=return_json)
+def analyze_image(
+    prompt: str, image_data: bytes, mime_type: str, return_json: bool = False
+):
+    text = _create_image_completion(
+        prompt, image_data, mime_type, return_json=return_json
+    )
 
     if return_json:
         return json.loads(text)

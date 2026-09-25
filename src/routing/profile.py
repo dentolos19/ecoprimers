@@ -1,4 +1,5 @@
 from flask import flash, redirect, render_template, request, session
+from sqlalchemy.exc import SQLAlchemyError
 
 from lib.database import sql
 from lib.models import EventAttendee, Post, Transaction, User, UserFollow
@@ -12,11 +13,19 @@ def profile():
     user_id = session.get("user_id")
 
     user = sql.session.query(User).filter(User.id == user_id).first()
-    attendings = sql.session.query(EventAttendee).filter(EventAttendee.user_id == user_id).all()
+    attendings = (
+        sql.session.query(EventAttendee).filter(EventAttendee.user_id == user_id).all()
+    )
     posts = sql.session.query(Post).filter(Post.user_id == user_id).all()
-    followers = sql.session.query(UserFollow).filter(UserFollow.user_id == user_id).count()
-    followings = sql.session.query(UserFollow).filter(UserFollow.follower_id == user_id).count()
-    transactions = sql.session.query(Transaction).filter(Transaction.user_id == user_id).count()
+    followers = (
+        sql.session.query(UserFollow).filter(UserFollow.user_id == user_id).count()
+    )
+    followings = (
+        sql.session.query(UserFollow).filter(UserFollow.follower_id == user_id).count()
+    )
+    transactions = (
+        sql.session.query(Transaction).filter(Transaction.user_id == user_id).count()
+    )
 
     return render_template(
         "profile.html",
@@ -37,7 +46,9 @@ def profile_other(id):
 
     if request.method == "POST":
         following = (
-            sql.session.query(UserFollow).filter(UserFollow.user_id == id, UserFollow.follower_id == user_id).first()
+            sql.session.query(UserFollow)
+            .filter(UserFollow.user_id == id, UserFollow.follower_id == user_id)
+            .first()
         )
 
         if following:
@@ -52,14 +63,22 @@ def profile_other(id):
         return redirect(request.referrer)
 
     user = sql.session.query(User).filter(User.id == id).first()
-    attendings = sql.session.query(EventAttendee).filter(EventAttendee.user_id == id).all()
+    attendings = (
+        sql.session.query(EventAttendee).filter(EventAttendee.user_id == id).all()
+    )
     posts = sql.session.query(Post).filter(Post.user_id == id).all()
     followers = sql.session.query(UserFollow).filter(UserFollow.user_id == id).count()
-    followings = sql.session.query(UserFollow).filter(UserFollow.follower_id == id).count()
-    transactions = sql.session.query(Transaction).filter(Transaction.user_id == id).count()
+    followings = (
+        sql.session.query(UserFollow).filter(UserFollow.follower_id == id).count()
+    )
+    transactions = (
+        sql.session.query(Transaction).filter(Transaction.user_id == id).count()
+    )
 
     following = (
-        sql.session.query(UserFollow).filter(UserFollow.user_id == id, UserFollow.follower_id == user_id).first()
+        sql.session.query(UserFollow)
+        .filter(UserFollow.user_id == id, UserFollow.follower_id == user_id)
+        .first()
     )
 
     return render_template(
@@ -95,7 +114,7 @@ def profile_edit():
             sql.session.commit()
             flash("Profile updated successfully!", "success")
             return redirect("/profile")
-        except Exception as e:
+        except SQLAlchemyError as e:
             if "unique constraint" in str(e).lower():
                 flash("Error! Email already exists.", "danger")
             sql.session.rollback()
@@ -114,6 +133,8 @@ def profile_followers(id):
 @app.route("/profile/<id>/followings")
 @require_login
 def profile_followings(id):
-    followings = sql.session.query(UserFollow).filter(UserFollow.follower_id == id).all()
+    followings = (
+        sql.session.query(UserFollow).filter(UserFollow.follower_id == id).all()
+    )
 
     return render_template("profile-followings.html", followings=followings)

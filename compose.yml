@@ -13,31 +13,23 @@ services:
     ports:
       - "5432:5432"
     volumes:
-      - postgres:/var/lib/postgresql/data
+      - database:/var/lib/postgresql/data
   storage:
-    image: quay.io/minio/minio:latest
-    command: server /data --console-address ":9001"
+    image: adobe/s3mock:5.1.0
     environment:
-      MINIO_ROOT_PASSWORD: ecoprimers
-      MINIO_ROOT_USER: ecoprimers
+      COM_ADOBE_TESTING_S3MOCK_STORE_INITIAL_BUCKETS: assets
+      COM_ADOBE_TESTING_S3MOCK_STORE_RETAIN_FILES_ON_EXIT: "true"
+      COM_ADOBE_TESTING_S3MOCK_STORE_ROOT: /data
     healthcheck:
-      test: ["CMD", "mc", "ready", "local"]
+      test: [ "CMD", "wget", "--spider", "-q", "http://localhost:9090/favicon.ico" ]
       interval: 5s
       timeout: 5s
-      retries: 5
+      retries: 10
     ports:
-      - "9000:9000"
-      - "9001:9001"
+      - "9090:9090"
     volumes:
-      - minio:/data
-  storage-setup:
-    image: quay.io/minio/mc:latest
-    depends_on:
-      storage:
-        condition: service_healthy
-    entrypoint: ["/bin/sh", "-c"]
-    command: ["mc alias set local http://storage:9000 ecoprimers ecoprimers && mc mb --ignore-existing local/assets"]
+      - storage-s3mock:/data
 
 volumes:
-  postgres:
-  minio:
+  database:
+  storage-s3mock:

@@ -1,34 +1,47 @@
 import os
-from datetime import date
+from datetime import UTC, datetime
 from decimal import Decimal, InvalidOperation
 
 from flask import abort, flash, redirect, render_template, request, session, url_for
+from newsapi.newsapi_exception import NewsAPIException
+from requests.exceptions import RequestException
+from sqlalchemy.exc import SQLAlchemyError
 
 from lib import database
 from lib.database import sql
 from lib.models import Event, EventAttendee, User
 from main import app
-from utils import check_admin_status, check_logged_in, get_weather_data, require_admin, require_login
+from utils import (
+    check_admin_status,
+    check_logged_in,
+    get_weather_data,
+    require_admin,
+    require_login,
+)
 
 
 @app.context_processor
 def init():
-    essentials = dict(
-        any=any,
-        len=len,
-        str=str,
-        env=os.environ,
-        range=range,
-        enumerate=enumerate,
-        static=lambda path: url_for("static", filename=path),
-    )
+    essentials = {
+        "any": any,
+        "len": len,
+        "str": str,
+        "env": os.environ,
+        "range": range,
+        "enumerate": enumerate,
+        "static": lambda path: (
+            "/" + path.lstrip("/")
+            if path.lstrip("/") == "icon.png"
+            else "/static/" + path.lstrip("/")
+        ),
+    }
 
-    utils = dict(
-        current_date=date.today().isoformat(),
-        is_logged_in=check_logged_in(),
-        is_admin_user=check_admin_status(),
-        dark_mode_enabled=session.get("dark_mode", True),
-    )
+    utils = {
+        "current_date": datetime.now(UTC).date().isoformat(),
+        "is_logged_in": check_logged_in(),
+        "is_admin_user": check_admin_status(),
+        "dark_mode_enabled": session.get("dark_mode", True),
+    }
 
     return {**essentials, **utils}
 
@@ -82,7 +95,7 @@ def home():
             "theconversation.com,sciencenews.org",
         )
         articles = news["articles"]
-    except Exception as e:
+    except (NewsAPIException, RequestException, KeyError) as e:
         print(f"Error fetching news: {e}")
 
     return render_template("home.html", articles=articles)
@@ -108,7 +121,10 @@ def events():
         query = query.filter(Event.location == location)
 
     if search_query:
-        query = query.filter(Event.title.ilike(f"%{search_query}%") | Event.description.ilike(f"%{search_query}%"))
+        query = query.filter(
+            Event.title.ilike(f"%{search_query}%")
+            | Event.description.ilike(f"%{search_query}%")
+        )
 
     events = query.all()
     all_events = sql.session.query(Event).all()
@@ -183,7 +199,11 @@ def event_signup():
     if not event:
         flash("Event not found", "danger")
 
-    existing_attendee = sql.session.query(EventAttendee).filter_by(event_id=event_id, user_id=user_id).first()
+    existing_attendee = (
+        sql.session.query(EventAttendee)
+        .filter_by(event_id=event_id, user_id=user_id)
+        .first()
+    )
     if existing_attendee:
         flash("You are already signed up for this event.", "info")
         return redirect(url_for("event_info", id=event_id))
@@ -199,7 +219,7 @@ def event_signup():
             sql.session.commit()
             flash("You have successfully signed up for the event!", "success")
             return redirect(url_for("event_info", id=event_id))
-        except Exception as e:
+        except SQLAlchemyError as e:
             sql.session.rollback()
             flash(f"Error signing up for the event. Error: {e}", "danger")
 
@@ -212,7 +232,11 @@ def event_withdraw():
     event_id = request.form.get("event_id")
     user_id = session.get("user_id")
 
-    attendee = sql.session.query(EventAttendee).filter_by(event_id=event_id, user_id=user_id).first()
+    attendee = (
+        sql.session.query(EventAttendee)
+        .filter_by(event_id=event_id, user_id=user_id)
+        .first()
+    )
     if not attendee:
         flash("You are not signed up for this event.", "info")
         return redirect(url_for("event_info", id=event_id))
@@ -221,20 +245,20 @@ def event_withdraw():
         sql.session.delete(attendee)
         sql.session.commit()
         flash("You have successfully withdrawn from the event.", "success")
-    except Exception as e:
+    except SQLAlchemyError as e:
         sql.session.rollback()
         flash(f"Error withdrawing from the event. Error: {e}", "danger")
 
     return redirect(url_for("event_info", id=event_id))
 
 
-from routing.admin import *  # noqa: E402,F403
-from routing.admin_api import *  # noqa: E402,F403
-from routing.auth import *  # noqa: E402,F403
-from routing.chat import *  # noqa: E402,F403
-from routing.chat_api import *  # noqa: E402,F403
-from routing.community import *  # noqa: E402,F403
-from routing.engagement import *  # noqa: E402,F403
-from routing.messaging import *  # noqa: E402,F403
-from routing.messaging_api import *  # noqa: E402,F403
-from routing.profile import *  # noqa: E402,F403
+from routing.admin import *
+from routing.admin_api import *
+from routing.auth import *
+from routing.chat import *
+from routing.chat_api import *
+from routing.community import *
+from routing.engagement import *
+from routing.messaging import *
+from routing.messaging_api import *
+from routing.profile import *

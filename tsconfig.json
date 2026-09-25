@@ -1,8 +1,12 @@
 {
   "compilerOptions": {
-    "lib": ["es2024"],
-    "module": "preserve",
-    "strict": true,
-    "types": ["@cloudflare/workers-types"]
-  }
+    "target": "ESNext",
+    "lib": ["DOM", "ESNext"],
+    "module": "ESNext",
+    "moduleResolution": "bundler",
+    "allowJs": true,
+    "noEmit": true,
+    "skipLibCheck": true
+  },
+  "include": ["public/static/js/**/*.js"]
 }
