@@ -12,6 +12,7 @@ __pycache__/
 *.egg-info/
 node_modules/
 python_modules/
+public/static/js/
 build/
 dist/
 pylock.toml

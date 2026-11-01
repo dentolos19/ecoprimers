@@ -6,7 +6,7 @@ from lib import storage
 from lib.database import sql
 from lib.models import Event, EventAttendee, Product, Task, Transaction, User, UserRole
 from main import app
-from utils import require_admin
+from utils import redirect_back, require_admin
 
 
 @app.route("/admin")
@@ -319,7 +319,7 @@ def admin_tasks_new():
                 image_url = storage.upload_asset(image)
             else:
                 flash("The file format is not allowed.", "danger")
-                return redirect(request.referrer)
+                return redirect_back(url_for("admin_tasks_new"))
 
         # Create new object
         task = Task(
@@ -369,7 +369,7 @@ def admin_tasks_manage(id):
                 image_url = storage.upload_asset(image)
             else:
                 flash("The file format is not allowed.", "danger")
-                return redirect(request.referrer)
+                return redirect_back(url_for("admin_tasks_manage", id=id))
 
         # Update the object with the new data
         task.name = name
@@ -455,7 +455,7 @@ def admin_products_new():
                 image_url = storage.upload_asset(product_image)
             else:
                 flash("The file format is not allowed.", "danger")
-                return redirect(request.referrer)
+                return redirect_back(url_for("admin_products_new"))
 
         # Create a Product object and save it to the database
         new_product = Product(

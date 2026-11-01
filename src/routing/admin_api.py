@@ -1,13 +1,25 @@
-from datetime import UTC, datetime, timedelta
+from datetime import UTC, datetime
 
 from sqlalchemy import func
 
 from lib import ai
 from lib.database import sql
-from lib.models import Event, EventAttendee, Post, Transaction, User
+from lib.models import Event, EventAttendee, Post, Product, Transaction, User
 from lib.prompts import load
 from main import app
 from utils import require_admin
+
+
+def complete_months(
+    counts: dict[str, int], now: datetime
+) -> list[dict[str, str | int]]:
+    current = now.year * 12 + now.month - 1
+    result = []
+    for offset in range(5, -1, -1):
+        year, month = divmod(current - offset, 12)
+        label = f"{year:04d}-{month + 1:02d}"
+        result.append({"month": label, "count": counts.get(label, 0)})
+    return result
 
 
 @app.route("/api/analysis")
@@ -23,28 +35,16 @@ def api_analysis():
             .all()
         )
 
-        monthly_data_list = [
-            {"month": month, "count": count} for month, count in monthly_data
-        ]
-
-        # Ensure the data contains the current month, add it if it doesn't exist
-        current_month = datetime.now(UTC).strftime("%Y-%m")
-        if not monthly_data_list or monthly_data_list[-1]["month"] != current_month:
-            monthly_data_list.append({"month": current_month, "count": 0})
-
-        # Ensure the data contains only 6 elements, fill in remaining months backwards
-        while len(monthly_data_list) < 6:
-            year, month = map(int, str(monthly_data_list[0]["month"]).split("-"))
-            previous_month = f"{year - (month == 1):04d}-{(month - 2) % 12 + 1:02d}"
-            monthly_data_list.insert(0, {"month": previous_month, "count": 0})
-        return monthly_data_list[-6:]
+        return complete_months(dict(monthly_data), now)
 
     total_users = sql.session.query(func.count(User.id)).scalar()
     total_events = sql.session.query(func.count(Event.id)).scalar()
     total_posts = sql.session.query(func.count(Post.id)).scalar()
-    total_products = sql.session.query(func.count(Transaction.id)).scalar()
+    total_products = sql.session.query(func.count(Product.id)).scalar()
 
-    data_limit = datetime.now(UTC) - timedelta(days=3 * 30)
+    now = datetime.now(UTC)
+    year, month = divmod(now.year * 12 + now.month - 1 - 5, 12)
+    data_limit = datetime(year, month + 1, 1, tzinfo=UTC)
     monthly_users = get_monthly_data(User, data_limit)
     monthly_signups = get_monthly_data(EventAttendee, data_limit)
     monthly_transactions = get_monthly_data(Transaction, data_limit)

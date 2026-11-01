@@ -1,12 +1,12 @@
 {
+  "include": ["src/client", "src/client-globals.d.ts", "tests/*.test.ts"],
   "compilerOptions": {
     "target": "ESNext",
-    "lib": ["DOM", "ESNext"],
     "module": "ESNext",
     "moduleResolution": "bundler",
-    "allowJs": true,
+    "types": ["bun"],
+    "strict": true,
     "noEmit": true,
     "skipLibCheck": true
-  },
-  "include": ["public/static/js/**/*.js"]
+  }
 }

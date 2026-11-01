@@ -10,9 +10,16 @@ from main import app
 @app.route("/api/messages", methods=["GET", "POST"])
 def api_messages():
     if request.method == "GET":
-        # Get data from search parameters
+        current_user_id = session.get("user_id")
+        if not current_user_id:
+            return {"error": "Unauthorized"}, 401
+
         sender_id = request.args.get("sender_id")
         receiver_id = request.args.get("receiver_id")
+        if sender_id != current_user_id:
+            return {"error": "Forbidden"}, 403
+        if not receiver_id:
+            return {"error": "receiver_id is required"}, 400
         limit_parameter = request.args.get("limit")
         if limit_parameter:
             try:
@@ -21,6 +28,8 @@ def api_messages():
                 return {"error": "limit must be an integer"}, 400
         else:
             limit = 50
+        if not 1 <= limit <= 100:
+            return {"error": "limit must be between 1 and 100"}, 400
 
         # Query messages in the database
         messages = (
@@ -42,7 +51,13 @@ def api_messages():
             .all()
         )
 
-        return [message.to_dict() for message in messages]
+        result = []
+        for message in messages:
+            item = message.to_dict()
+            if not message.is_visible:
+                item["message"] = ""
+            result.append(item)
+        return result
 
     if request.method == "POST":
         # The sender is always the logged-in session user, never the request body
@@ -51,7 +66,9 @@ def api_messages():
             return {"error": "Unauthorized"}, 401
 
         # Get data from the request
-        data: dict = request.get_json(silent=True) or {}
+        data = request.get_json(silent=True)
+        if not isinstance(data, dict):
+            return {"error": "Expected a JSON object"}, 400
         receiver_id = data.get("receiver_id")
         content = data.get("content")
 
