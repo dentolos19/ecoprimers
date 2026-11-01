@@ -1,0 +1,8 @@
+[fmt]
+ignorePatterns = ["src/templates/**"]
+sortImports = true
+sortPackageJson = true
+
+[lint.globals]
+Chart = "readonly"
+bootstrap = "readonly"

@@ -1,7 +1,12 @@
 set dotenv-load
+set dotenv-filename := dotenv_file
+set dotenv-override
+
+environment := ""
+dotenv_file := if environment == "" { ".env" } else { ".env." + environment }
 
 setup mode="": install compose
-    just --no-deps migrate
+    just --no-deps environment={{ quote(environment) }} migrate
     if [ "{{ mode }}" != "prerun" ]; then just decompose; fi
 
 install:
@@ -9,8 +14,13 @@ install:
     uv sync --frozen
 
 start: compose
-    uv run --env-file .env flask --app src/main.py run --host localhost --port 3000 --debug && \
-    wait
+    #!/usr/bin/env bash
+    set -euo pipefail
+    bun run build:client
+    bun run build:client --watch &
+    watcher_pid=$!
+    trap 'kill "$watcher_pid" 2>/dev/null || true; wait "$watcher_pid" 2>/dev/null || true' EXIT
+    uv run --env-file {{ quote(dotenv_file) }} flask --app src/main.py run --host localhost --port 3000 --debug
 
 compose:
     if [ "${CI:-false}" != "true" ]; then docker compose up --detach --wait; fi
@@ -19,11 +29,14 @@ decompose:
     if [ "${CI:-false}" != "true" ]; then docker compose down; fi
 
 build:
+    bun run build:client
     uv run pywrangler sync
+    uv run python scripts/patch_pillow.py
 
 check:
-    bun run check
+    bun lint --fix && bun fmt && bun check --no-script
     uv run ruff check --fix && uv run ruff format && uv run ty check
+    PYTHONPATH=src uv run python -m unittest discover -s tests
 
 migrate revision="head": compose
     uv run alembic upgrade {{ revision }}
@@ -31,29 +44,9 @@ migrate revision="head": compose
 deploy: install build
     #!/usr/bin/env bash
     set -euo pipefail
-    secrets=(
-        AWS_ACCESS_KEY_ID
-        AWS_ENDPOINT_URL_S3
-        AWS_REGION
-        AWS_SECRET_ACCESS_KEY
-        GOOGLE_CLIENT_ID
-        GOOGLE_CLIENT_SECRET
-        NEWS_API_KEY
-        OPENROUTER_API_KEY
-        OPENROUTER_MODEL
-        OPENROUTER_REFERER
-        OPENROUTER_TITLE
-        OPENWEATHER_API_KEY
-        RESEND_API_KEY
-        RESEND_FROM_EMAIL
-        RESEND_FROM_NAME
-        SECRET_KEY
-        TURNSTILE_SECRET_KEY
-        TURNSTILE_SITE_KEY
-    )
-    for secret in "${secrets[@]}"; do if [[ -z "${!secret:-}" ]]; then echo "Missing secret value: $secret" >&2; exit 1; fi; done
-    node -e 'process.stdout.write(JSON.stringify(Object.fromEntries(process.argv.slice(1).map((name) => [name, process.env[name]]))))' "${secrets[@]}" | bun wrangler secret bulk
-    bun wrangler deploy
+    test -f {{ quote(dotenv_file) }}
+    CI=true just environment={{ quote(environment) }} migrate
+    bun wrangler deploy --secrets-file {{ quote(dotenv_file) }}
 
 seed: compose
-    uv run --env-file .env python src/seed.py
+    uv run --env-file {{ quote(dotenv_file) }} python src/seed.py

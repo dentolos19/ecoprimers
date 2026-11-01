@@ -38,10 +38,6 @@
       <div id="modal-{{ index }}" class="modal fade" tabindex="-1">
         <div class="modal-dialog">
           <form class="modal-content" method="post" action="{{ url_for('redeem_reward', product_id=product.id) }}">
-            <!-- Hidden Fields -->
-            <input type="hidden" name="reward_name" value="{{ product.name }}" />
-            <input type="hidden" name="reward_cost" value="{{ product.points }}" />
-
             <!-- Modal Content -->
             <div class="modal-header">
               <h5 class="modal-title">

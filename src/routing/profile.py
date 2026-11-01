@@ -1,10 +1,10 @@
-from flask import flash, redirect, render_template, request, session
+from flask import flash, redirect, render_template, request, session, url_for
 from sqlalchemy.exc import SQLAlchemyError
 
 from lib.database import sql
 from lib.models import EventAttendee, Post, Transaction, User, UserFollow
 from main import app
-from utils import require_login
+from utils import redirect_back, require_login
 
 
 @app.route("/profile")
@@ -60,7 +60,7 @@ def profile_other(id):
 
         sql.session.commit()
 
-        return redirect(request.referrer)
+        return redirect_back(url_for("profile_other", id=id))
 
     user = sql.session.query(User).filter(User.id == id).first()
     attendings = (

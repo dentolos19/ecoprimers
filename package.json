@@ -2,13 +2,17 @@
   "name": "ecoprimers",
   "private": true,
   "type": "module",
-  "scripts": {
-    "check": "oxlint --fix && oxfmt --write && tsc --noEmit"
-  },
   "devDependencies": {
-    "oxfmt": "^0.73.0",
-    "oxlint": "^1.88.0",
-    "typescript": "^7.0.2",
-    "wrangler": "^4.151.0"
+    "@types/bootstrap": "^5.2.11",
+    "@types/bun": "^1.4.4",
+    "chart.js": "4.4.7",
+    "wrangler": "^4.156.0"
+  },
+  "dependencies": {
+    "dompurify": "^3.4.17",
+    "marked": "^18.1.2"
+  },
+  "scripts": {
+    "build:client": "bun build src/client/base.ts src/client/chat.ts src/client/dashboard.ts src/client/messages.ts src/client/transaction-dashboard.ts src/client/utils.ts --outdir public/static/js --target browser --format esm"
   }
 }
