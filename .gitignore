@@ -1,28 +1,23 @@
-# Editor configurations
-.vs/
+*.egg-info/
+.DS_Store
+.env*
 .idea/
-
-# Build files
 .pytest_cache/
 .ruff_cache/
+.tmp/
 .venv-workers/
 .venv/
+.vs/
 .wrangler/
-__pycache__/
-*.egg-info/
-node_modules/
-python_modules/
-build/
-dist/
-pylock.toml
-
-# User files
-.env*
-!.env*.template
-
-# Miscellaneous files
-.tmp/
-.DS_Store
 Desktop.ini
 Thumbs.db
+__pycache__/
+build/
+dist/
+node_modules/
+public/static/js/
+pylock.toml
+python_modules/
+
+!.env*.template
 !.gitkeep

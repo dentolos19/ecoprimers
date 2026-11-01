@@ -4,12 +4,30 @@ import string
 from datetime import date as date_type
 from datetime import datetime
 from functools import wraps
+from urllib.parse import urlsplit, urlunsplit
 
 import requests
-from flask import flash, redirect, session, url_for
+from flask import flash, redirect, request, session, url_for
 
 from lib import database
 from lib.models import User, UserRole
+
+
+def redirect_back(fallback: str):
+    try:
+        target = urlsplit(request.referrer or "")
+    except ValueError:
+        return redirect(fallback)
+    if (
+        target.scheme not in {"http", "https"}
+        or target.netloc.lower() != request.host.lower()
+        or target.path.startswith("//")
+        or "\\" in target.path
+    ):
+        return redirect(fallback)
+    return redirect(
+        urlunsplit(("", "", target.path or "/", target.query, target.fragment))
+    )
 
 
 def load_environment():

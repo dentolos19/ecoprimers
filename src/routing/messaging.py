@@ -47,7 +47,7 @@ def messaging(receiver_id=None):
 
 
 @app.route("/community/search-results")
-@app.route("/community/messages/<receiver_id>", methods=["GET", "POST"])
+@require_login
 def search_messages():
     search_query = request.args.get("search_query")
     users = sql.session.query(User).all()
@@ -69,18 +69,16 @@ def search_messages():
     return render_template("search-results.html", messages=valid_messages, users=users)
 
 
-@app.route("/community/messages", methods=["GET"])
-def edit_message(id):
-    request.args.get("new_content")
-
-
 @app.route("/community/messages/<receiver_id>/<message_id>", methods=["POST"])
+@require_login
 def delete_message(receiver_id, message_id):
-    print(receiver_id, message_id)
-
     message = (
         sql.session.query(Message)
-        .filter(and_(Message.receiver_id == receiver_id, Message.id == message_id))
+        .filter(
+            Message.receiver_id == receiver_id,
+            Message.id == message_id,
+            Message.sender_id == session["user_id"],
+        )
         .first()
     )
 
@@ -107,22 +105,26 @@ def delete_message(receiver_id, message_id):
 
 
 @app.route("/community/messages/deleted")
+@require_login
 def deleted_messages():
     messages = sql.session.query(Message).filter(
         and_(Message.sender_id == session["user_id"], Message.is_visible.is_(False))
     )
-    for message in messages:
-        print(message.message)
     return render_template("deleted_messages.html", messages=messages)
 
 
 @app.route("/community/messages/deleted/restore", methods=["POST"])
+@require_login
 def restore_message():
     message_id = request.form.get("message_restoration")
     if not message_id:
         return "No message ID provided", 400  # Handle missing message ID
 
-    message = sql.session.query(Message).filter(Message.id == message_id).first()
+    message = (
+        sql.session.query(Message)
+        .filter(Message.id == message_id, Message.sender_id == session["user_id"])
+        .first()
+    )
 
     if not message:
         return "Message not found", 404  # Handle missing message

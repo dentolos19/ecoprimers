@@ -21,7 +21,7 @@ def is_valid_image(file):
     from PIL import Image
 
     try:
-        img = Image.open(io.BytesIO(file.read()))
+        img = Image.open(io.BytesIO(file.read()), formats=["PNG", "JPEG", "GIF"])
         img.verify()  # Verify it's an image
         file.seek(0)  # Reset file pointer after reading
         return True
@@ -44,7 +44,6 @@ def tasks():
 def tasks_verify(id):
     task = sql.session.query(Task).filter_by(id=id).first()
     user_id = session.get("user_id")
-    user = sql.session.query(User).filter_by(id=user_id).first()
 
     if task is None:
         return render_template("error.html", error="Task not found"), 404
@@ -80,41 +79,28 @@ def tasks_verify(id):
             return_json=True,
         )
 
-        print("Verification Result:", result)
-        print("Answer: " + str(result["answer"]))
-        print("Confidence: " + result["reasoning"])
-
         if result["answer"]:
-            if not user:
-                print("User not found!")  # Debugging
-                flash("User not found!", "danger")
-                return redirect(url_for("tasks_verify", id=id))
-
-            print("User Object:", user)  # Debugging
-            print("Task Points:", task.points)  # Debugging
-
-            task_points = task.points  # Get points from task model
-            task_name = task.name  # Get task name from task model
+            task_points = task.points
+            task_name = task.name
 
             try:
-                user.points += task_points
-                sql.session.commit()
-                sql.session.refresh(user)  # Ensure changes are applied
-
-                # Log the transaction
-                new_transaction = Transaction(
-                    user_id=user_id,
-                    type=TransactionType.EARNED,
-                    amount=task_points,
-                    description=f"Points rewarded for verifying task: {task_name}.",
+                updated = (
+                    sql.session.query(User)
+                    .filter_by(id=user_id)
+                    .update({User.points: User.points + task_points})
                 )
-                sql.session.add(new_transaction)
+                if not updated:
+                    flash("User not found!", "danger")
+                    return redirect(url_for("tasks_verify", id=id))
+                sql.session.add(
+                    Transaction(
+                        user_id=user_id,
+                        type=TransactionType.EARNED,
+                        amount=task_points,
+                        description=f"Points rewarded for verifying task: {task_name}.",
+                    )
+                )
                 sql.session.commit()
-                sql.session.refresh(user)  # Ensure changes are applied
-
-                print(
-                    f"Points updated successfully! User now has {user.points} points."
-                )  # Debugging
                 flash(
                     f"Congratulations! You've earned {task_points} points for {task_name}.",
                     "success",
@@ -122,7 +108,6 @@ def tasks_verify(id):
 
             except SQLAlchemyError as e:
                 sql.session.rollback()
-                print("Error while processing points:", str(e))  # Debugging
                 flash(f"An error occurred while processing points: {e!s}", "danger")
 
         return render_template("tasks-verify-status.html", task=task, result=result)
@@ -190,18 +175,6 @@ def add_points():
 @require_login
 def redeem_reward(product_id):
     user_id = session.get("user_id")
-    reward_name = request.form.get("reward_name")
-    reward_cost_value = request.form.get("reward_cost")
-    if reward_cost_value is None:
-        flash("Invalid reward details.", "danger")
-        return redirect(url_for("rewards"))
-
-    try:
-        reward_cost = int(reward_cost_value)
-    except ValueError:
-        flash("Invalid reward details.", "danger")
-        return redirect(url_for("rewards"))
-
     turnstile_response = request.form.get("cf-turnstile-response")
     if not turnstile_response:
         flash("Complete the security check before redeeming a reward.", "danger")
@@ -238,42 +211,39 @@ def redeem_reward(product_id):
         flash("Turnstile verification failed. Please try again.", "danger")
         return redirect(url_for("rewards"))
 
-    # Fetch the user
-    user = sql.session.query(User).filter_by(id=user_id).first()
+    try:
+        user = sql.session.query(User).filter_by(id=user_id).with_for_update().first()
+        product = (
+            sql.session.query(Product)
+            .filter_by(id=product_id)
+            .with_for_update()
+            .first()
+        )
 
-    if user and user.points >= reward_cost:
-        try:
-            product = sql.session.query(Product).filter_by(id=product_id).first()
-
-            if not product:
-                flash("Reward not found!", "danger")
-                return redirect(request.referrer)
-
-            if product.stock <= 0:
-                flash("Reward is out of stock!", "danger")
-                return redirect(request.referrer)
-
+        if not product:
+            flash("Reward not found!", "danger")
+        elif product.stock <= 0:
+            flash("Reward is out of stock!", "danger")
+        elif product.points < 0:
+            flash("Invalid reward details.", "danger")
+        elif not user or user.points < product.points:
+            flash("You do not have enough points to claim this reward!", "danger")
+        else:
             product.stock -= 1
-
-            # Deduct points from user
-            user.points -= reward_cost
-
-            # Log the transaction
-            new_transaction = Transaction(
-                user_id=user_id,
-                type=TransactionType.REDEMPTION,
-                amount=reward_cost,
-                description=f"Points deducted by redeeming reward {reward_name}.",
+            user.points -= product.points
+            sql.session.add(
+                Transaction(
+                    user_id=user_id,
+                    type=TransactionType.REDEMPTION,
+                    amount=product.points,
+                    description=f"Points deducted by redeeming reward {product.name}.",
+                )
             )
-            sql.session.add(new_transaction)
             sql.session.commit()
-
-            flash(f"Reward '{reward_name}' claimed successfully!", "success")
-        except SQLAlchemyError as e:
-            sql.session.rollback()
-            flash(f"An error occurred: {e!s}", "danger")
-    else:
-        flash("You do not have enough points to claim this reward!", "danger")
+            flash(f"Reward '{product.name}' claimed successfully!", "success")
+    except SQLAlchemyError as e:
+        sql.session.rollback()
+        flash(f"An error occurred: {e!s}", "danger")
 
     return redirect(url_for("rewards"))
 
@@ -296,6 +266,7 @@ def transactions():
 
 # excel file as database
 @app.route("/transactions/export")
+@require_login
 def export_transactions():
     import xlsxwriter
 
@@ -324,7 +295,10 @@ def export_transactions():
     ]
 
     output = io.BytesIO()
-    workbook = xlsxwriter.Workbook(output, {"in_memory": True})
+    workbook = xlsxwriter.Workbook(
+        output,
+        {"in_memory": True, "strings_to_formulas": False, "strings_to_urls": False},
+    )
     worksheet = workbook.add_worksheet("Transactions")
     header = workbook.add_format({"bold": True})
 
@@ -346,87 +320,6 @@ def export_transactions():
         download_name="transactions.xlsx",
         mimetype="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
     )
-
-
-# dashboard at view transaction page
-"""#dashboard at view transaction page
-@app.route("/transactions/dashboard")
-def dashboard():
-    user_id = session.get("user_id")
-
-    # Fetch user transactions
-    transactions = (
-        sql.session.query(Transaction)
-        .filter_by(user_id=user_id)
-        .order_by(Transaction.created_at.asc())  # Ascending order for line graph
-        .all()
-    )
-
-    # Check if there are transactions
-    # has_transactions = bool(transactions)  # True if transactions exist, False if empty
-    # If no transactions, just render the message without graphs
-    # if not has_transactions:
-    # return render_template("dashboard.html", has_transactions=False)
-    # Convert transactions to DataFrame
-
-    df = pd.DataFrame(
-        [
-            {
-                "Date": transaction.created_at.strftime("%Y-%m-%d"),
-                "Type": transaction.type.value,
-                "Amount": transaction.amount,
-            }
-            for transaction in transactions
-        ]
-    )
-
-    # Ensure DataFrame is not empty
-    if df.empty:
-        return "No data available for visualization.", 404
-
-    # Group data for graphs
-    daily_points = df.groupby("Date")["Amount"].sum()  # Line Graph
-    transaction_counts = df["Type"].value_counts()  # Bar Graph
-
-    # KPI
-    total_earned = df[df["Type"] == "earned"]["Amount"].sum()
-    total_redeemed = abs(df[df["Type"] == "redemption"]["Amount"].sum())  # Convert to positive
-    net_transactions = total_earned - total_redeemed
-
-    # bar graph
-    bar_chart = io.BytesIO()
-    plt.figure(figsize=(7, 5))
-    transaction_counts.plot(kind="bar", color=["green", "red"])
-    plt.title("Most Used Transaction Types")
-    plt.xlabel("Transaction Type")
-    plt.ylabel("Frequency")
-    plt.savefig(bar_chart, format="jpeg")
-    plt.close()
-    bar_chart.seek(0)
-    bar_chart_url = base64.b64encode(bar_chart.getvalue()).decode("utf-8")
-
-    # line graph
-    line_chart = io.BytesIO()
-    plt.figure(figsize=(7, 5))
-    daily_points.plot(kind="line", marker="o", color="blue")
-    plt.title("Daily Points Usage")
-    plt.xlabel("Date")
-    plt.ylabel("Points")
-    plt.grid(True)
-    plt.savefig(line_chart, format="png")
-    plt.close()
-    line_chart.seek(0)
-    line_chart_url = base64.b64encode(line_chart.getvalue()).decode("utf-8")
-
-    return render_template(
-        "dashboard.html",
-        bar_chart_url=bar_chart_url,
-        line_chart_url=line_chart_url,
-        total_earned=total_earned,
-        total_redeemed=total_redeemed,
-        net_transactions=net_transactions,
-    )
-"""
 
 
 @app.route("/transactions/dashboard")

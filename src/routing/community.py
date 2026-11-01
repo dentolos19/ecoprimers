@@ -99,7 +99,11 @@ def community_post():
 @app.route("/community/posts/<post_id>", methods=["GET", "POST"])
 @require_login
 def community_edit(post_id):
-    post = sql.session.query(Post).filter_by(id=post_id).first()
+    post = (
+        sql.session.query(Post)
+        .filter_by(id=post_id, user_id=session["user_id"])
+        .first()
+    )
 
     if post is None:
         return render_template("error.html", error="Post not found"), 404
@@ -131,7 +135,11 @@ def community_edit(post_id):
 @app.route("/community/posts/<post_id>/delete", methods=["POST"])
 @require_login
 def community_delete(post_id):
-    post = sql.session.query(Post).filter_by(id=post_id).first()
+    post = (
+        sql.session.query(Post)
+        .filter_by(id=post_id, user_id=session["user_id"])
+        .first()
+    )
 
     if post is None:
         return render_template("error.html", error="Post not found"), 404
@@ -159,7 +167,7 @@ def toggle_follow(user_id):
 
     sql.session.commit()
 
-    return redirect(request.referrer)
+    return utils.redirect_back(url_for("community"))
 
 
 @app.route("/community/posts/<post_id>/like", methods=["POST"])
@@ -178,7 +186,7 @@ def toggle_like(post_id):
 
     sql.session.commit()
 
-    return redirect(request.referrer)
+    return utils.redirect_back(url_for("community"))
 
 
 @app.route("/community/posts/<post_id>/save", methods=["GET", "POST"])
@@ -203,7 +211,7 @@ def toggle_save(post_id):
     sql.session.commit()
 
     # Redirect back to the community page (or wherever you want)
-    return redirect(request.referrer)
+    return utils.redirect_back(url_for("community"))
 
 
 @app.route("/community/posts/<post_id>/share", methods=["POST"])
@@ -218,7 +226,7 @@ def share_post(post_id):
 
     if not receipient_id:
         flash("A recipient is required.", "danger")
-        return redirect(request.referrer or url_for("community"))
+        return utils.redirect_back(url_for("community"))
 
     post.shares += 1
 
@@ -233,7 +241,7 @@ def share_post(post_id):
 
     flash("Post shared successfully!", "success")
 
-    return redirect(request.referrer)
+    return utils.redirect_back(url_for("community"))
 
 
 @app.route("/community/posts/<post_id>/comment", methods=["POST"])
@@ -242,9 +250,6 @@ def post_comment(post_id):
     user_id = session.get("user_id")
 
     message = request.form["comment_text"]
-    user_id = session.get("user_id")
-
-    print(message)
     new_comment = PostComment(
         message=message,
         post_id=post_id,

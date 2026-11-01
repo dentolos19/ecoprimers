@@ -15,6 +15,7 @@ from utils import (
     check_admin_status,
     check_logged_in,
     get_weather_data,
+    redirect_back,
     require_admin,
     require_login,
 )
@@ -69,8 +70,7 @@ def error_reset():
 @app.route("/functions/darkmode")
 def toggle_dark_mode():
     session["dark_mode"] = not session.get("dark_mode", True)
-    print(session["dark_mode"])
-    return redirect(request.referrer)
+    return redirect_back(url_for("home"))
 
 
 @app.route("/")
@@ -198,6 +198,7 @@ def event_signup():
     event = sql.session.query(Event).filter_by(id=event_id).first()
     if not event:
         flash("Event not found", "danger")
+        return redirect(url_for("events"))
 
     existing_attendee = (
         sql.session.query(EventAttendee)
@@ -211,6 +212,7 @@ def event_signup():
     user = sql.session.query(User).filter_by(id=user_id).first()
     if not user:
         flash("User not found", "danger")
+        return redirect(url_for("login"))
 
     if request.method == "POST":
         try:
