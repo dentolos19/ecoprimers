@@ -8,7 +8,8 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
 
-# Upstream fixes and redistribution license are linked in docs/cloudflare.md.
+# Upstream fixes are linked in docs/guides/cloudflare.md.
+# The redistribution license is in pillow-backport-license.txt beside this script.
 PATCH_FILES = {
     "GifImagePlugin.py": (
         "fe956c85ac3a65ba9f01daec1acc3fc58b485dabcf25c90fe9b686039acae361",
