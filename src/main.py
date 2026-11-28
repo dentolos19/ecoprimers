@@ -35,7 +35,7 @@ def worker_wsgi_app(environ, start_response):
     return original_wsgi_app(environ, start_response)
 
 
-app.wsgi_app = worker_wsgi_app  # ty: ignore[invalid-assignment] - WSGI middleware replaces the bound method.
+app.wsgi_app = worker_wsgi_app
 
 # Initialize internal systems
 storage.init(app)

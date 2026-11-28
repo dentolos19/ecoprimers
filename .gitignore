@@ -1,13 +1,12 @@
 *.egg-info/
 .DS_Store
 .env*
-.idea/
+.playwright-cli/
 .pytest_cache/
 .ruff_cache/
 .tmp/
 .venv-workers/
 .venv/
-.vs/
 .wrangler/
 Desktop.ini
 Thumbs.db

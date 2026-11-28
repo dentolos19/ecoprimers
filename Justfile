@@ -5,9 +5,8 @@ set dotenv-override
 environment := ""
 dotenv_file := if environment == "" { ".env" } else { ".env." + environment }
 
-setup mode="": install compose
-    just --no-deps environment={{ quote(environment) }} migrate
-    if [ "{{ mode }}" != "prerun" ]; then just decompose; fi
+setup: install compose
+    just environment={{ quote(environment) }} migrate
 
 install:
     bun install --frozen-lockfile
@@ -36,10 +35,15 @@ build:
 check:
     bun lint --fix && bun fmt && bun check --no-script
     uv run ruff check --fix && uv run ruff format && uv run ty check
+
+test:
     PYTHONPATH=src uv run python -m unittest discover -s tests
 
 migrate revision="head": compose
     uv run alembic upgrade {{ revision }}
+
+seed: compose
+    uv run --env-file {{ quote(dotenv_file) }} python src/seed.py
 
 deploy: install build
     #!/usr/bin/env bash
@@ -47,6 +51,3 @@ deploy: install build
     test -f {{ quote(dotenv_file) }}
     CI=true just environment={{ quote(environment) }} migrate
     bun wrangler deploy --secrets-file {{ quote(dotenv_file) }}
-
-seed: compose
-    uv run --env-file {{ quote(dotenv_file) }} python src/seed.py

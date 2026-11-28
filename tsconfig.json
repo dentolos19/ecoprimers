@@ -1,9 +1,12 @@
 {
-  "include": ["src/client", "src/client-globals.d.ts", "tests/*.test.ts"],
+  "include": ["src/client", "src/client-globals.d.ts"],
   "compilerOptions": {
     "target": "ESNext",
     "module": "ESNext",
     "moduleResolution": "bundler",
+    "paths": {
+      "#/*": ["./src/*"]
+    },
     "types": ["bun"],
     "strict": true,
     "noEmit": true,

@@ -1,6 +1,6 @@
 import json
 
-from js import Object, WebSocketPair  # ty: ignore[unresolved-import] - Provided by the Workers runtime.
+from js import Object, WebSocketPair  # ty: ignore[import-not-found] - Provided by the Workers runtime.
 from pyodide.ffi import to_js
 from workers import DurableObject, Response
 

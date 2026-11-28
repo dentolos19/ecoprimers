@@ -21,7 +21,7 @@ services:
       COM_ADOBE_TESTING_S3MOCK_STORE_RETAIN_FILES_ON_EXIT: "true"
       COM_ADOBE_TESTING_S3MOCK_STORE_ROOT: /data
     healthcheck:
-      test: [ "CMD", "wget", "--spider", "-q", "http://localhost:9090/favicon.ico" ]
+      test: ["CMD", "wget", "--spider", "-q", "http://localhost:9090/favicon.ico"]
       interval: 5s
       timeout: 5s
       retries: 10

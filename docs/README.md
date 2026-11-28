@@ -2,13 +2,21 @@
 
 Write documentation for the next agent or engineer. Keep each file short, factual, and current. Link to code instead of duplicating it.
 
+## Writing Style
+
+- Use American English.
+- Use Title Case for headings and short phrases, such as link text and table headers.
+- End full sentences with periods, including in bullets. Leave fragments, such as link lists and prerequisites, without periods.
+- Use bold sparingly for key terms, with punctuation outside the markers: `**Key Term**: Content`.
+
 ## Root Files
 
 - [`AGENTS.md`](../AGENTS.md): The index. Holds general instructions, commands, and links to the other documents. Read first, so keep it brief.
 - [`PRODUCT.md`](../PRODUCT.md): What is being built and why. Covers the purpose, users, core features, and scope, including what is out of scope.
 - [`DESIGN.md`](../DESIGN.md): How it should look and feel. Covers the design system, tokens, components, and UI framework rules.
+- [`README.md`](../README.md): The public overview for humans. Links to the other root files instead of repeating them, and its Setup section is the canonical quick start.
 
-## Docs Folder
+## Documentation Folder
 
 ```text
 docs/
@@ -22,7 +30,7 @@ docs/
 ```
 
 - `decisions/`: Architecture decision records. One decision per file, numbered in order with kebab-case titles.
-- `guides/`: How-to documents for recurring tasks, such as setup, deployment, and runbooks.
+- `guides/`: How-to documents for recurring tasks, such as setup, deployment, and runbooks. Title each with a Title Case `#` heading, and do not repeat the README Setup steps.
 - `plans/`: Specs and plans for work in progress. Delete when the work lands; record any lasting choice as a decision.
 
 ## Decisions
